@@ -1,5 +1,8 @@
 import click
 
+from west import db
+from west import settings
+
 CONTEXT_SETTINGS = {'help_option_names': ['-h', '--help']}
 
 
@@ -10,10 +13,22 @@ def main():
 
 @click.command()
 def show_migrations():
-    click.echo("1.2.3")
+    click.echo(db.get_schema_version(settings))
 
 
+@click.command()
+def init():
+    db.create_table(settings)
+
+
+@click.command()
+def migrate():
+    db.write_migration(settings, "18.3", "youpi.sql")
+
+
+main.add_command(init)
 main.add_command(show_migrations)
+main.add_command(migrate)
 
 
 if __name__ == '__main__':
