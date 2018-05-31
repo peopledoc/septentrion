@@ -2,6 +2,7 @@ import click
 
 from west import db
 from west import settings
+# from west import migrations
 
 CONTEXT_SETTINGS = {'help_option_names': ['-h', '--help']}
 
@@ -13,6 +14,8 @@ def main():
 
 @click.command()
 def show_migrations():
+    # click.echo(migrations.list_migrations_files(settings))
+    click.echo(db.get_applied_migrations(settings))
     click.echo(db.get_schema_version(settings))
 
 

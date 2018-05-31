@@ -1,5 +1,8 @@
-import psycopg2
+from contextlib import contextmanager
 from distutils.version import StrictVersion
+
+import psycopg2
+from psycopg2.extras import DictCursor
 
 
 def get_connection(settings):
@@ -11,22 +14,30 @@ def get_connection(settings):
         password=settings.PASSWORD)
 
 
+@contextmanager
 def execute(settings, query, args=tuple(), commit=False):
+    query = ' '.join(query.format(table=settings.TABLE).split())
     with get_connection(settings) as conn:
-        with conn.cursor() as cur:
-            cur.execute(query.replace("\n", " "), args)
+        with conn.cursor(cursor_factory=DictCursor) as cur:
+            cur.execute(query, args)
+            yield cur
         if commit:
             conn.commit()
 
 
-def execute_result(settings, query, args=tuple(), commit=False):
-    with get_connection(settings) as conn:
-        with conn.cursor() as cur:
-            cur.execute(query.replace("\n", " "), args)
-            for e in cur:
-                yield e
-        if commit:
-            conn.commit()
+class Query(object):
+    def __init__(self, settings, query, args=tuple(), commit=False):
+        self.context_manager = execute(settings, query, args, commit)
+
+    def __enter__(self):
+        return self.context_manager.__enter__()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return self.context_manager.__exit__(exc_type, exc_val, exc_tb)
+
+    def __call__(self):
+        with self:
+            pass
 
 
 query_create_table = """
@@ -45,19 +56,27 @@ query_write_migration = """
     VALUES (%s, %s)
 """
 
+query_get_applied_migrations = """
+    SELECT name, version FROM "{table}"
+"""
+
 
 def get_schema_version(settings):
-    result = execute_result(settings,
-                            query_max_version.format(table=settings.TABLE))
-    return max(StrictVersion(row[0]) for row in result)
+    with Query(settings, query_max_version) as cur:
+        return max(StrictVersion(row[0]) for row in cur)
+
+
+def get_applied_migrations(settings):
+    with Query(settings, query_get_applied_migrations) as cur:
+        return [dict(row) for row in cur]
 
 
 def create_table(settings):
-    execute(settings,
-            query_create_table.format(table=settings.TABLE),
-            commit=True)
+    Query(settings,
+          query_create_table,
+          commit=True)()
 
 
 def write_migration(settings, version, name):
-    execute(settings, query_write_migration.format(table=settings.TABLE),
-            (version, name))
+    Query(settings, query_write_migration,
+          (version, name))()
