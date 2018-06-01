@@ -1,23 +1,31 @@
+"""
+Interact with the migrations table.
+"""
+
 from contextlib import contextmanager
 from distutils.version import StrictVersion
 
 import psycopg2
 from psycopg2.extras import DictCursor
 
+from west.settings import settings
 
-def get_connection(settings):
-    return psycopg2.connect(
+
+def get_connection():
+    connection = psycopg2.connect(
         host=settings.HOST,
         port=settings.PORT,
-        dbname=settings.DATABASE,
-        user=settings.USER,
+        dbname=settings.DBNAME,
+        user=settings.USERNAME,
         password=settings.PASSWORD)
+    connection.set_session(autocommit=True)
+    return connection
 
 
 @contextmanager
-def execute(settings, query, args=tuple(), commit=False):
+def execute(query, args=tuple(), commit=False):
     query = ' '.join(query.format(table=settings.TABLE).split())
-    with get_connection(settings) as conn:
+    with get_connection() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(query, args)
             yield cur
@@ -26,8 +34,8 @@ def execute(settings, query, args=tuple(), commit=False):
 
 
 class Query(object):
-    def __init__(self, settings, query, args=tuple(), commit=False):
-        self.context_manager = execute(settings, query, args, commit)
+    def __init__(self, query, args=tuple(), commit=False):
+        self.context_manager = execute(query, args, commit)
 
     def __enter__(self):
         return self.context_manager.__enter__()
@@ -57,26 +65,34 @@ query_write_migration = """
 """
 
 query_get_applied_migrations = """
-    SELECT name, version FROM "{table}"
+    SELECT name FROM "{table}" WHERE "version" = %s
 """
 
 
-def get_schema_version(settings):
-    with Query(settings, query_max_version) as cur:
-        return max(StrictVersion(row[0]) for row in cur)
+def get_schema_version():
+    versions = get_applied_versions()
+    if not versions:
+        return None
+    return max(StrictVersion(version)
+               for version in versions)
 
 
-def get_applied_migrations(settings):
-    with Query(settings, query_get_applied_migrations) as cur:
-        return [dict(row) for row in cur]
+def get_applied_versions():
+    with Query(query_max_version) as cur:
+        return [row[0] for row in cur]
 
 
-def create_table(settings):
-    Query(settings,
-          query_create_table,
+def get_applied_migrations(version):
+    with Query(query_get_applied_migrations, (version,)) as cur:
+        return [row[0] for row in cur]
+
+
+def create_table():
+    Query(query_create_table,
           commit=True)()
 
 
-def write_migration(settings, version, name):
-    Query(settings, query_write_migration,
-          (version, name))()
+def write_migration(version, name):
+    Query(query_write_migration,
+          (version, name),
+          commit=True)()

@@ -1,0 +1,2 @@
+class WestException(Exception):
+    pass
