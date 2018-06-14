@@ -125,9 +125,19 @@ def show_migrations():
     of the database schema, and the applied and
     unapplied migrations.
     """
-    click.echo(db.get_schema_version())
-    click.echo(west.build_migration_plan())
-    click.echo(db.get_applied_versions())
+    migrations = west.build_migration_plan()
+    click.echo("Current version is {}".format(migrations['current_version']))
+    for plan in migrations['plans']:
+        version = plan['version']
+        migrations = plan['plan']
+        click.echo(click.style("Version {}".format(version), bold=True, fg='cyan'))
+        for migration in migrations:
+            name, applied, path, is_manual = migration
+            applied_str, color = ('X', 'green') if applied else (' ', 'red')
+            click.echo(''.join((
+                "  ",
+                click.style("[{applied}]".format(applied=applied_str), fg=color),
+                " {}".format(name))))
 
 
 @click.command()
