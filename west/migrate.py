@@ -5,8 +5,10 @@ import os.path
 
 from west import db
 from west import exceptions
+from west import files
 from west import west
 from west import runner
+from west import utils
 from west.settings import settings
 
 logger = logging.getLogger(__name__)
@@ -18,11 +20,13 @@ def migrate():
 
     if migration_plan is None:
         # schema not inited
-        init_schema()
+        schema_version = west.get_schema_version()
+        init_schema(schema_version)
         # reload migration_plan
-        migration_plan = west.build_migration_plan()
+        migration_plan = west.build_migration_plan(schema_version)
 
     # play migrations
+    print("Apply migrations")
     for plan in migration_plan['plans']:
         version = plan['version']
         logger.info(version)
@@ -31,16 +35,14 @@ def migrate():
             if is_manual:
                 title += ' (manual)'
             if applied:
-                logger.info("  {} already applied".format(title))
+                print("  {} already applied".format(title))
             else:
-                logger.info("  Applying {}...".format(title))
+                print("  Applying {}...".format(title))
                 run_script(path)
                 db.write_migration(version, mig)
 
 
-def init_schema():
-    init_version = west.get_schema_version()
-
+def init_schema(init_version):
     # load additional files
     additional_files = settings.ADDITIONAL_SCHEMA_FILES or ''
     for file_name in additional_files.split(","):
@@ -52,13 +54,24 @@ def init_schema():
         run_script(file_path)
 
     # load schema
-    logger.info("Load schema")
-    logger.info("  Applying %s...", init_version)
+    print("Load schema")
+    print("  Applying {}...".format(init_version))
     schema_path = os.path.join(
         settings.MIGRATIONS_ROOT,
         'schemas',
         settings.SCHEMA_TEMPLATE.format(init_version))
     run_script(schema_path)
+
+    # Fake migrations <= init_version
+    known_versions = files.get_known_versions()
+    versions_to_fake = list(utils.until(known_versions, init_version))
+    for version in versions_to_fake:
+        migrations_to_apply = files.get_migrations_files_mapping(version)
+        migs = list(migrations_to_apply)
+        migs.sort()
+        for migration_name in migs:
+            db.write_migration(version, migration_name)
+            print("Faking {}...".format(migration_name))
 
     # load fixtures
     try:
@@ -67,8 +80,8 @@ def init_schema():
             settings.MIGRATIONS_ROOT,
             'fixtures',
             settings.FIXTURES_TEMPLATE.format(fixtures_version))
-        logger.info("Load fixtures")
-        logger.info("  Applying %s...", fixtures_version)
+        print("Load fixtures")
+        print("  Applying {}...".format(fixtures_version))
         run_script(fixtures_path)
     except exceptions.WestException:
         pass

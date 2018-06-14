@@ -111,13 +111,13 @@ def is_manual_migration(file_handler):
     return False
 
 
-def build_migration_plan():
+def build_migration_plan(current_version=None):
     """
     Return the list of migrations by version,
     from the version used to init the DB to the current target version.
     """
     # get current version
-    current_version = db.get_schema_version()
+    current_version = current_version or db.get_schema_version()
     if current_version is None:
         # schema not inited
         return None
@@ -131,11 +131,6 @@ def build_migration_plan():
         'init_version': None,
         'plans': [],
     }
-
-    first_version_index = known_versions.index(applied_versions[0])
-    init_version = known_versions[first_version_index - 1]
-
-    migration_plan['init_version'] = init_version
 
     # get all versions to apply
     try:
@@ -154,7 +149,7 @@ def build_migration_plan():
         applied_migrations = db.get_applied_migrations(version)
         # get migrations to apply
         migrations_to_apply = files.get_migrations_files_mapping(version)
-        migs = list(migrations_to_apply.keys())
+        migs = list(migrations_to_apply)
         migs.sort()
         # build plan
         for mig in migs:
