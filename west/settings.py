@@ -36,8 +36,7 @@ class Settings(object):
         """
         TODO: clean this.
         """
-        kwargs = {self._clean_key(key): value
-                  for key, value in kwargs.items()}
+        kwargs = {self._clean_key(key): value for key, value in kwargs.items()}
 
         vars(self).update(kwargs)
 

@@ -11,13 +11,11 @@ from west import utils
 
 
 def list_dirs(root):
-    return [d for d in os.listdir(root)
-            if os.path.isdir(os.path.join(root, d))]
+    return [d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d))]
 
 
 def list_files(root):
-    return [d for d in os.listdir(root)
-            if os.path.isfile(os.path.join(root, d))]
+    return [d for d in os.listdir(root) if os.path.isfile(os.path.join(root, d))]
 
 
 def get_known_versions():
@@ -30,14 +28,15 @@ def get_known_versions():
     try:
         dirs = list_dirs(settings.MIGRATIONS_ROOT)
     except OSError:
-        raise ValueError(
-            'settings.MIGRATIONS_ROOT is improperly configured.')
+        raise ValueError("settings.MIGRATIONS_ROOT is improperly configured.")
 
     # exclude symlinks and some folders (like schemas, fixtures, etc)
     versions = [
-        d for d in dirs
+        d
+        for d in dirs
         if not os.path.islink(os.path.join(settings.MIGRATIONS_ROOT, d))
-        and utils.is_version(d)]
+        and utils.is_version(d)
+    ]
 
     # sort versions
     versions.sort(key=StrictVersion)
@@ -46,28 +45,26 @@ def get_known_versions():
 
 def is_manual_migration(migration_path):
 
-    if '/manual/' in migration_path:
+    if "/manual/" in migration_path:
         return True
 
-    if not migration_path.endswith('dml.sql'):
+    if not migration_path.endswith("dml.sql"):
         return False
 
-    with io.open(migration_path, 'r', encoding='utf8') as f:
+    with io.open(migration_path, "r", encoding="utf8") as f:
         for line in f:
-            if '--meta-psql:' in line:
+            if "--meta-psql:" in line:
                 return True
 
     return False
 
 
 def get_known_schemas():
-    return os.listdir(
-        os.path.join(settings.MIGRATIONS_ROOT, 'schemas'))
+    return os.listdir(os.path.join(settings.MIGRATIONS_ROOT, "schemas"))
 
 
 def get_known_fixtures():
-    return os.listdir(
-        os.path.join(settings.MIGRATIONS_ROOT, 'fixtures'))
+    return os.listdir(os.path.join(settings.MIGRATIONS_ROOT, "fixtures"))
 
 
 def get_migrations_files_mapping(version):
@@ -77,10 +74,9 @@ def get_migrations_files_mapping(version):
     Key: name of the migration.
     Value: path to the migration file.
     """
+
     def filter_migrations(files):
-        return [
-            f for f in files
-            if f.endswith('ddl.sql') or f.endswith('dml.sql')]
+        return [f for f in files if f.endswith("ddl.sql") or f.endswith("dml.sql")]
 
     version_root = os.path.join(settings.MIGRATIONS_ROOT, version)
     migrations = {}
@@ -89,8 +85,7 @@ def get_migrations_files_mapping(version):
     try:
         files = list_files(version_root)
     except OSError:
-        raise ValueError('No sql folder found for version {}.'.format(
-            version))
+        raise ValueError("No sql folder found for version {}.".format(version))
     # filter files (keep *ddl.sql and *dml.sql)
     auto_migrations = filter_migrations(files)
     # store migrations
@@ -98,7 +93,7 @@ def get_migrations_files_mapping(version):
         migrations[mig] = os.path.join(version_root, mig)
 
     # list manual migrations
-    manual_root = os.path.join(version_root, 'manual')
+    manual_root = os.path.join(version_root, "manual")
     try:
         files = list_files(manual_root)
     except OSError:

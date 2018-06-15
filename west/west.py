@@ -24,8 +24,7 @@ def get_applied_versions():
     return utils.sort_versions(applied_versions & known_versions)
 
 
-def get_closest_version(target_version, sql_tpl, existing_files,
-                        force_version=None):
+def get_closest_version(target_version, sql_tpl, existing_files, force_version=None):
     """
     Get the version of a file (schema or fixtures) to use to init a DB.
     Take the closest to the target_version. Can be the same version, or older.
@@ -38,16 +37,17 @@ def get_closest_version(target_version, sql_tpl, existing_files,
         previous_versions = list(utils.until(known_versions, target_version))
     except ValueError:
         raise ValueError(
-            'settings.TARGET_VERSION is improperly configured: '
-            'version {} not found.'.format(
-                settings.TARGET_VERSION))
+            "settings.TARGET_VERSION is improperly configured: "
+            "version {} not found.".format(settings.TARGET_VERSION)
+        )
 
     # should we set a version from settings ?
     if force_version:
         if force_version not in previous_versions:
             raise ValueError(
-                'settings.TARGET_VERSION is improperly configured: '
-                'settings.SCHEMA_VERSION is more recent.')
+                "settings.TARGET_VERSION is improperly configured: "
+                "settings.SCHEMA_VERSION is more recent."
+            )
 
         file = sql_tpl.format(force_version)
         if file in existing_files:
@@ -73,10 +73,11 @@ def get_schema_version():
         target_version=settings.TARGET_VERSION,
         sql_tpl=settings.SCHEMA_TEMPLATE,
         existing_files=files.get_known_schemas(),
-        force_version=settings.SCHEMA_VERSION)
+        force_version=settings.SCHEMA_VERSION,
+    )
 
     if version is None:
-        raise exceptions.WestException('Can not find a schema to init the DB.')
+        raise exceptions.WestException("Can not find a schema to init the DB.")
     return version
 
 
@@ -88,22 +89,23 @@ def get_fixtures_version(target_version):
     version = get_closest_version(
         target_version=target_version,
         existing_files=files.get_known_fixtures(),
-        sql_tpl=settings.FIXTURES_TEMPLATE)
+        sql_tpl=settings.FIXTURES_TEMPLATE,
+    )
 
     if version is None:
-        raise exceptions.WestException('Can not find fixtures to init the DB.')
+        raise exceptions.WestException("Can not find fixtures to init the DB.")
     return version
 
 
 def is_manual_migration(file_handler):
-    if '/manual/' in file_handler.name:
+    if "/manual/" in file_handler.name:
         return True
 
-    if not file_handler.name.endswith('dml.sql'):
+    if not file_handler.name.endswith("dml.sql"):
         return False
 
     for line in file_handler:
-        if '--meta-psql:' in line:
+        if "--meta-psql:" in line:
             file_handler.seek(0)
             return True
 
@@ -127,20 +129,19 @@ def build_migration_plan(current_version=None):
     applied_versions = get_applied_versions()
 
     migration_plan = {
-        'current_version': current_version,
-        'init_version': None,
-        'plans': [],
+        "current_version": current_version,
+        "init_version": None,
+        "plans": [],
     }
 
     # get all versions to apply
     try:
-        versions_to_apply = list(
-            utils.until(known_versions, settings.TARGET_VERSION))
+        versions_to_apply = list(utils.until(known_versions, settings.TARGET_VERSION))
     except ValueError:
         raise ValueError(
-            'settings.TARGET_VERSION is improperly configured: '
-            'version {} not found.'.format(
-                settings.TARGET_VERSION))
+            "settings.TARGET_VERSION is improperly configured: "
+            "version {} not found.".format(settings.TARGET_VERSION)
+        )
 
     # get plan for each version to apply
     for version in versions_to_apply:
@@ -155,12 +156,9 @@ def build_migration_plan(current_version=None):
         for mig in migs:
             applied = mig in applied_migrations
             path = migrations_to_apply[mig]
-            with io.open(path, 'r', encoding='utf8') as f:
+            with io.open(path, "r", encoding="utf8") as f:
                 is_manual = is_manual_migration(f)
             version_plan.append((mig, applied, path, is_manual))
-        migration_plan['plans'].append({
-            'version': version,
-            'plan': version_plan
-        })
+        migration_plan["plans"].append({"version": version, "plan": version_plan})
 
     return migration_plan

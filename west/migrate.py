@@ -27,13 +27,13 @@ def migrate():
 
     # play migrations
     print("Apply migrations")
-    for plan in migration_plan['plans']:
-        version = plan['version']
+    for plan in migration_plan["plans"]:
+        version = plan["version"]
         logger.info(version)
-        for mig, applied, path, is_manual in plan['plan']:
+        for mig, applied, path, is_manual in plan["plan"]:
             title = mig
             if is_manual:
-                title += ' (manual)'
+                title += " (manual)"
             if applied:
                 print("  {} already applied".format(title))
             else:
@@ -44,12 +44,11 @@ def migrate():
 
 def init_schema(init_version):
     # load additional files
-    additional_files = settings.ADDITIONAL_SCHEMA_FILES or ''
+    additional_files = settings.ADDITIONAL_SCHEMA_FILES or ""
     for file_name in additional_files.split(","):
         if not file_name:
             continue
-        file_path = os.path.join(
-            settings.MIGRATIONS_ROOT, 'schemas', file_name)
+        file_path = os.path.join(settings.MIGRATIONS_ROOT, "schemas", file_name)
         logger.info("Load {}".format(file_name))
         run_script(file_path)
 
@@ -58,8 +57,9 @@ def init_schema(init_version):
     print("  Applying {}...".format(init_version))
     schema_path = os.path.join(
         settings.MIGRATIONS_ROOT,
-        'schemas',
-        settings.SCHEMA_TEMPLATE.format(init_version))
+        "schemas",
+        settings.SCHEMA_TEMPLATE.format(init_version),
+    )
     run_script(schema_path)
 
     # Fake migrations <= init_version
@@ -78,8 +78,9 @@ def init_schema(init_version):
         fixtures_version = west.get_fixtures_version(init_version)
         fixtures_path = os.path.join(
             settings.MIGRATIONS_ROOT,
-            'fixtures',
-            settings.FIXTURES_TEMPLATE.format(fixtures_version))
+            "fixtures",
+            settings.FIXTURES_TEMPLATE.format(fixtures_version),
+        )
         print("Load fixtures")
         print("  Applying {}...".format(fixtures_version))
         run_script(fixtures_path)
@@ -88,6 +89,6 @@ def init_schema(init_version):
 
 
 def run_script(path):
-    with io.open(path, 'r', encoding='utf8') as f:
+    with io.open(path, "r", encoding="utf8") as f:
         script = runner.Script(f)
         script.run(db.get_connection())

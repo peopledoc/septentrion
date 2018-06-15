@@ -104,7 +104,7 @@ class Script(object):
             if line.startswith("--meta-psql:") and is_manual:
                 self.block_list[-1].close()
                 command = line.split(":")[1].strip()
-                if command == 'done':
+                if command == "done":
                     # create a new basic block
                     self.block_list.append(Block())
                 else:
