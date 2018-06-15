@@ -1,32 +1,51 @@
-import psycopg2
+"""
+Interact with the migrations table.
+"""
+
+from contextlib import contextmanager
 from distutils.version import StrictVersion
 
+import psycopg2
+from psycopg2.extras import DictCursor
 
-def get_connection(settings):
-    return psycopg2.connect(
+from west.settings import settings
+
+
+def get_connection():
+    connection = psycopg2.connect(
         host=settings.HOST,
         port=settings.PORT,
-        dbname=settings.DATABASE,
-        user=settings.USER,
+        dbname=settings.DBNAME,
+        user=settings.USERNAME,
         password=settings.PASSWORD)
+    connection.set_session(autocommit=True)
+    return connection
 
 
-def execute(settings, query, args=tuple(), commit=False):
-    with get_connection(settings) as conn:
-        with conn.cursor() as cur:
-            cur.execute(query.replace("\n", " "), args)
+@contextmanager
+def execute(query, args=tuple(), commit=False):
+    query = ' '.join(query.format(table=settings.TABLE).split())
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=DictCursor) as cur:
+            cur.execute(query, args)
+            yield cur
         if commit:
             conn.commit()
 
 
-def execute_result(settings, query, args=tuple(), commit=False):
-    with get_connection(settings) as conn:
-        with conn.cursor() as cur:
-            cur.execute(query.replace("\n", " "), args)
-            for e in cur:
-                yield e
-        if commit:
-            conn.commit()
+class Query(object):
+    def __init__(self, query, args=tuple(), commit=False):
+        self.context_manager = execute(query, args, commit)
+
+    def __enter__(self):
+        return self.context_manager.__enter__()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return self.context_manager.__exit__(exc_type, exc_val, exc_tb)
+
+    def __call__(self):
+        with self:
+            pass
 
 
 query_create_table = """
@@ -45,19 +64,35 @@ query_write_migration = """
     VALUES (%s, %s)
 """
 
-
-def get_schema_version(settings):
-    result = execute_result(settings,
-                            query_max_version.format(table=settings.TABLE))
-    return max(StrictVersion(row[0]) for row in result)
+query_get_applied_migrations = """
+    SELECT name FROM "{table}" WHERE "version" = %s
+"""
 
 
-def create_table(settings):
-    execute(settings,
-            query_create_table.format(table=settings.TABLE),
-            commit=True)
+def get_schema_version():
+    versions = get_applied_versions()
+    if not versions:
+        return None
+    return max(StrictVersion(version)
+               for version in versions)
 
 
-def write_migration(settings, version, name):
-    execute(settings, query_write_migration.format(table=settings.TABLE),
-            (version, name))
+def get_applied_versions():
+    with Query(query_max_version) as cur:
+        return [row[0] for row in cur]
+
+
+def get_applied_migrations(version):
+    with Query(query_get_applied_migrations, (version,)) as cur:
+        return [row[0] for row in cur]
+
+
+def create_table():
+    Query(query_create_table,
+          commit=True)()
+
+
+def write_migration(version, name):
+    Query(query_write_migration,
+          (version, name),
+          commit=True)()
