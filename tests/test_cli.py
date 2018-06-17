@@ -11,4 +11,4 @@ def test_current_database_state(cli_runner):
     result = cli_runner.invoke(main, ["show_migrations"])
 
     assert result.exit_code == 0
-    assert result.output == '{}\n'.format(get_schema_version())
+    assert result.output == "{}\n".format(get_schema_version())

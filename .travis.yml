@@ -1,0 +1,14 @@
+# Config file for automatic testing at travis-ci.org
+language: python
+
+matrix:
+  include:
+
+  - python: 3.6
+    env: TOX_ENV=check-lint
+
+install:
+  - pip install tox
+
+script:
+  - tox -e $TOX_ENV

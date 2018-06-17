@@ -17,14 +17,15 @@ def get_connection():
         port=settings.PORT,
         dbname=settings.DBNAME,
         user=settings.USERNAME,
-        password=settings.PASSWORD)
+        password=settings.PASSWORD,
+    )
     connection.set_session(autocommit=True)
     return connection
 
 
 @contextmanager
 def execute(query, args=tuple(), commit=False):
-    query = ' '.join(query.format(table=settings.TABLE).split())
+    query = " ".join(query.format(table=settings.TABLE).split())
     with get_connection() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(query, args)
@@ -73,8 +74,7 @@ def get_schema_version():
     versions = get_applied_versions()
     if not versions:
         return None
-    return max(StrictVersion(version)
-               for version in versions)
+    return max(StrictVersion(version) for version in versions)
 
 
 def get_applied_versions():
@@ -88,11 +88,8 @@ def get_applied_migrations(version):
 
 
 def create_table():
-    Query(query_create_table,
-          commit=True)()
+    Query(query_create_table, commit=True)()
 
 
 def write_migration(version, name):
-    Query(query_write_migration,
-          (version, name),
-          commit=True)()
+    Query(query_write_migration, (version, name), commit=True)()

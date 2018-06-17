@@ -1,6 +1,5 @@
 import logging
 
-import six
 import sqlparse
 
 from west import files
@@ -43,7 +42,8 @@ class Block(object):
     def run(self, connection):
         statements = sqlparse.parse(self.content)
 
-        content = "".join((six.text_type(stmt) for stmt in statements))
+        text_type = type(u"")  # Remove when only PY3 is supported
+        content = "".join(text_type(stmt) for stmt in statements)
         if content != self.content:
             raise SQLRunnerException("sqlparse failed to properly split input")
 
@@ -104,7 +104,7 @@ class Script(object):
             if line.startswith("--meta-psql:") and is_manual:
                 self.block_list[-1].close()
                 command = line.split(":")[1].strip()
-                if command == 'done':
+                if command == "done":
                     # create a new basic block
                     self.block_list.append(Block())
                 else:
