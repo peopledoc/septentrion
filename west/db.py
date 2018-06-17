@@ -87,8 +87,12 @@ query_get_applied_migrations = """
     SELECT name FROM "{table}" WHERE "version" = %s
 """
 
+query_is_schema_initialized = """
+    SELECT TRUE FROM "{table}" LIMIT 1
+"""
 
-def get_schema_version():
+
+def get_current_schema_version():
     versions = get_applied_versions()
     if not versions:
         return None
@@ -103,6 +107,14 @@ def get_applied_versions():
 def get_applied_migrations(version):
     with Query(query_get_applied_migrations, (version,)) as cur:
         return [row[0] for row in cur]
+
+
+def is_schema_initialized():
+    with Query(query_is_schema_initialized) as cur:
+        try:
+            return next(cur)
+        except StopIteration:
+            return False
 
 
 def create_table():

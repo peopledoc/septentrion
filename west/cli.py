@@ -172,9 +172,10 @@ def show_migrations():
     of the database schema, and the applied and
     unapplied migrations.
     """
-    migrations = core.build_migration_plan()
-    click.echo("Current version is {}".format(migrations["current_version"]))
-    for plan in migrations["plans"]:
+    current_version = db.get_current_schema_version()
+    click.echo("Current version is {}".format(current_version))
+
+    for plan in core.build_migration_plan():
         version = plan["version"]
         migrations = plan["plan"]
         click.echo(click.style("Version {}".format(version), bold=True, fg="cyan"))

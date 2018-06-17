@@ -15,19 +15,15 @@ logger = logging.getLogger(__name__)
 
 
 def migrate():
-    # build miration plan
-    migration_plan = core.build_migration_plan()
 
-    if migration_plan is None:
+    if not db.is_schema_initialized():
         # schema not inited
-        schema_version = core.get_schema_version()
+        schema_version = core.get_best_schema_version()
         init_schema(schema_version)
-        # reload migration_plan
-        migration_plan = core.build_migration_plan(schema_version)
 
     # play migrations
     print("Apply migrations")
-    for plan in migration_plan["plans"]:
+    for plan in core.build_migration_plan():
         version = plan["version"]
         logger.info(version)
         for mig, applied, path, is_manual in plan["plan"]:
