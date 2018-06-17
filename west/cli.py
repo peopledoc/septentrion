@@ -83,9 +83,8 @@ class CommaSeparatedMultipleString(StringParamType):
     "--password/--no-password",
     "-W/-w",
     "password_flag",
-    help="Prompt for the database password, otherwise read "
-    "from environment variable PGPASSWORD, WEST_PASSWORD, "
-    "or ~/.pgpass",
+    help="Prompt for the database password, otherwise read from environment variable "
+    "PGPASSWORD, WEST_PASSWORD, or ~/.pgpass",
     show_default=True,
     default=False,
     envvar=None,
@@ -99,28 +98,27 @@ class CommaSeparatedMultipleString(StringParamType):
 )
 @click.option(
     "--table",
-    help="Database table in which to write migrations " "(env: WEST_TABLE)",
+    help="Database table in which to write migrations (env: WEST_TABLE)",
     show_default=True,
     default="west_migrations",
 )
 @click.option(
     "--migrations-root",
-    help="Path to the migration files " "(env: WEST_MIGRATION_ROOT)",
+    help="Path to the migration files (env: WEST_MIGRATION_ROOT)",
     type=click.Path(exists=True, file_okay=False, resolve_path=True),
     show_default=True,
     default=".",
 )
 @click.option(
     "--target-version",
-    help="Desired final version of the Database " "(env: WEST_TARGET_VERSION)",
+    help="Desired final version of the Database (env: WEST_TARGET_VERSION)",
     callback=validate_version,
     required=True,
 )
 @click.option(
     "--schema-version",
-    help="Version of the initial schema (if not "
-    "specified, the most resent schema will be used) "
-    "(env: WEST_SCHEMA_VERSION)",
+    help="Version of the initial schema (if not specified, the most resent schema "
+    "will be used) (env: WEST_SCHEMA_VERSION)",
     callback=validate_version,
 )
 @click.option(
@@ -140,9 +138,8 @@ class CommaSeparatedMultipleString(StringParamType):
     multiple=True,
     show_default=True,
     type=CommaSeparatedMultipleString(),
-    help="When those words are found in the migration, "
-    "it is executed outside of a transaction "
-    "(repeat the flag as many times as necessary) "
+    help="When those words are found in the migration, it is executed outside of a "
+    "transaction (repeat the flag as many times as necessary) "
     "(env: WEST_NON_TRANSACTIONAL_KEYWORD, comma separated values)",
     default=["CONCURRENTLY", "ALTER TYPE", "VACUUM"],
 )
@@ -150,12 +147,10 @@ class CommaSeparatedMultipleString(StringParamType):
     "--additional-schema-file",
     multiple=True,
     type=CommaSeparatedMultipleString(),
-    help="Path to a SQL file relative to "
-    "<migration-root>/schemas, to be run in addition "
-    "to the migrations (e.g for installing postgres "
-    "extensions)"
-    "(repeat the flag as many times as necessary) "
-    "(env: WEST_ADDITIONAL_SCHEMA_FILE, comma separated values)",
+    help="Path to a SQL file relative to <migration-root>/schemas, to be run in "
+    "addition to the migrations, e.g for installing postgres extensions (repeat the "
+    "flag as many times as necessary) (env: WEST_ADDITIONAL_SCHEMA_FILE, comma "
+    "separated values)",
 )
 def cli(**kwargs):
     if kwargs.pop("password_flag"):
