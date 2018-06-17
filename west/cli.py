@@ -41,8 +41,8 @@ def validate_version(ctx, param, value):
     """,
 )
 @click.option(
+    "-V",
     "--version",
-    "-v",
     is_flag=True,
     callback=print_version,
     expose_value=False,
