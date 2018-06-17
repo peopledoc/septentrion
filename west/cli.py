@@ -9,11 +9,11 @@ import click
 from click.types import StringParamType
 
 from west import __version__
+from west import core
 from west import db
 from west import migrate
 from west import settings
 from west import utils
-from west import west
 
 CONTEXT_SETTINGS = {
     "help_option_names": ["-h", "--help"],
@@ -172,7 +172,7 @@ def show_migrations():
     of the database schema, and the applied and
     unapplied migrations.
     """
-    migrations = west.build_migration_plan()
+    migrations = core.build_migration_plan()
     click.echo("Current version is {}".format(migrations["current_version"]))
     for plan in migrations["plans"]:
         version = plan["version"]

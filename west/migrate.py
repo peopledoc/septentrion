@@ -3,12 +3,12 @@ import io
 import logging
 import os.path
 
+from west import core
 from west import db
 from west import exceptions
 from west import files
 from west import runner
 from west import utils
-from west import west
 from west.settings import settings
 
 logger = logging.getLogger(__name__)
@@ -16,14 +16,14 @@ logger = logging.getLogger(__name__)
 
 def migrate():
     # build miration plan
-    migration_plan = west.build_migration_plan()
+    migration_plan = core.build_migration_plan()
 
     if migration_plan is None:
         # schema not inited
-        schema_version = west.get_schema_version()
+        schema_version = core.get_schema_version()
         init_schema(schema_version)
         # reload migration_plan
-        migration_plan = west.build_migration_plan(schema_version)
+        migration_plan = core.build_migration_plan(schema_version)
 
     # play migrations
     print("Apply migrations")
@@ -75,7 +75,7 @@ def init_schema(init_version):
 
     # load fixtures
     try:
-        fixtures_version = west.get_fixtures_version(init_version)
+        fixtures_version = core.get_fixtures_version(init_version)
         fixtures_path = os.path.join(
             settings.MIGRATIONS_ROOT,
             "fixtures",
