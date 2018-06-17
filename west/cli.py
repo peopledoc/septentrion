@@ -48,11 +48,7 @@ def validate_version(ctx, param, value):
     expose_value=False,
     is_eager=True,
 )
-# @click.option('--log-level',
-#               is_flag=True,
-#               callback=print_version,
-#               expose_value=False,
-#               is_eager=True)
+@click.option("-v", "--verbose", count=True)
 @click.option(
     "--host",
     "-H",
