@@ -35,3 +35,9 @@ west --help
 ## Licensing
 
 `west` is published under the terms of the Apache Software License.
+
+
+## Testing
+
+Nothing is done so far, but we have some guidelines we'd like to follow,
+[here](tests/README.md)
