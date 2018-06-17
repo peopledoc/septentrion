@@ -2,6 +2,7 @@
 Interact with the migrations table.
 """
 
+import logging
 from contextlib import contextmanager
 from distutils.version import StrictVersion
 
@@ -9,6 +10,8 @@ import psycopg2
 from psycopg2.extras import DictCursor
 
 from west.settings import settings
+
+logger = logging.getLogger(__name__)
 
 
 def get_connection():
@@ -46,6 +49,7 @@ def execute(query, args=tuple(), commit=False):
     query = " ".join(query.format(table=settings.TABLE).split())
     with get_connection() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
+            logger.debug("Executing %s -- Args: %s", query, args)
             cur.execute(query, args)
             yield cur
         if commit:

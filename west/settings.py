@@ -32,8 +32,13 @@ class Settings(object):
 
 def log_level(verbosity):
     """
-    increasing verbosity levels are 0, 1, 2, 3, ...
-    corresponding log levels 40, 30, 20, 10
+    verbosity  | log level
+    (input)    | (output)
+    -----------|-------------
+    0 ("")     | 40 (ERROR)
+    1 ("-v")   | 30 (WARNING)
+    2 ("-vv")  | 20 (INFO)
+    3 ("-vvv") | 10 (DEBUG)
     """
     return 40 - 10 * min(verbosity, 3)
 
