@@ -2,21 +2,8 @@
 This is the code around settings loading. For a definition of
 the settings, see cli.py (for now)
 """
-import os
 import logging
 
-
-def retrieve_password():
-    """
-    Extracts password from environment variables
-    in consistent priority compared to other
-    flags. Note that reading from .pgpass
-    will be done by psycopg2 directly
-    """
-    for envvar in ("PGPASSWORD", "WEST_PASSWORD"):
-        if envvar in os.environ:
-            return os.environ[envvar]
-            break
 logger = logging.getLogger(__name__)
 
 

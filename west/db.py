@@ -12,13 +12,31 @@ from west.settings import settings
 
 
 def get_connection():
-    connection = psycopg2.connect(
-        host=settings.HOST,
-        port=settings.PORT,
-        dbname=settings.DBNAME,
-        user=settings.USERNAME,
-        password=settings.PASSWORD,
-    )
+    """
+    Opens a PostgreSQL connection using psycopg2.
+    """
+    # Note that psycopg2 is responsible for using environment variables and reading
+    # ~/.pgpass for all undefined arguments. Because of this, it's important to exclude
+    # arguments that we explicitely don't have.
+
+    # Transform settings names into the ones expected by psycopg2
+    kwargs = {}
+    mapping = {
+        "HOST": "host",
+        "PORT": "port",
+        "DBNAME": "dbname",
+        "USERNAME": "user",
+        "PASSWORD": "password",
+    }
+    for name, psycopg_name in mapping.items():
+        value = getattr(settings, name)
+        if value:
+            kwargs[psycopg_name] = value
+
+    connection = psycopg2.connect(**kwargs)
+
+    # Autocommit=true means we'll have more control over when the code is commited
+    # (even if this sounds strange)
     connection.set_session(autocommit=True)
     return connection
 

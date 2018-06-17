@@ -52,23 +52,20 @@ def validate_version(ctx, param, value):
 @click.option(
     "--host",
     "-H",
-    help="Database host (env: PGHOST or WEST_HOST)",
+    help="Database host (env: WEST_HOST or PGHOST)",
     default="localhost",
-    envvar="PGHOST",
 )
 @click.option(
     "--port",
     "-p",
-    help="Database port (env: PGPORT or WEST_PORT)",
+    help="Database port (env: WEST_PORT or PGPORT)",
     default=5432,
-    envvar="PGPORT",
 )
 @click.option(
     "--username",
     "-U",
-    help="Database host (env: PGUSER or WEST_USERNAME)",
+    help="Database host (env: WEST_USERNAME or PGUSER)",
     default="postgres",
-    envvar="PGUSER",
 )
 @click.option(
     "--password/--no-password",
@@ -83,9 +80,8 @@ def validate_version(ctx, param, value):
 @click.option(
     "--dbname",
     "-d",
-    help="Database name (env: PGDATABASE or WEST_DBNAME)",
+    help="Database name (env: WEST_DBNAME or PGDATABASE)",
     default="postgres",
-    envvar="PGDATABASE",
 )
 @click.option(
     "--table",
