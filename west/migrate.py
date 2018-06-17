@@ -70,21 +70,7 @@ def init_schema(init_version):
     logger.info("Loading %s", schema_path)
     run_script(schema_path)
 
-    # Fake migrations <= init_version
-    known_versions = files.get_known_versions()
-    versions_to_fake = list(utils.until(known_versions, init_version))
-    logger.info(
-        "Will now fake all migrations up to version %s (included)", init_version
-    )
-    for version in versions_to_fake:
-        logger.info("Faking migrations from version %s", version)
-        migrations_to_apply = files.get_migrations_files_mapping(version)
-        migs = list(migrations_to_apply)
-        migs.sort()
-        for migration_name in migs:
-            db.write_migration(version, migration_name)
-            logger.info("Faking %s", migration_name)
-            print("Faking {}...".format(migration_name))
+    create_fake_entries(init_version)
 
     # load fixtures
     try:
@@ -100,6 +86,27 @@ def init_schema(init_version):
         run_script(fixtures_path)
     except exceptions.WestException as exception:
         logger.info("Not applying fixtures: %s", exception)
+
+
+def create_fake_entries(version):
+    """
+    Write entries in the migration table for all existing migrations
+    up until the given version (included).
+    """
+    # Fake migrations <= init_version
+    known_versions = files.get_known_versions()
+    versions_to_fake = list(utils.until(known_versions, version))
+    logger.info("Will now fake all migrations up to version %s (included)", version)
+
+    for version in versions_to_fake:
+        logger.info("Faking migrations from version %s", version)
+        migrations_to_apply = files.get_migrations_files_mapping(version)
+        migs = list(migrations_to_apply)
+        migs.sort()
+        for migration_name in migs:
+            db.write_migration(version, migration_name)
+            logger.info("Faking %s", migration_name)
+            print("Faking {}...".format(migration_name))
 
 
 def run_script(path):

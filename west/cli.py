@@ -214,6 +214,13 @@ def migrate_func():
     migrate.migrate()
 
 
-cli.add_command(init)
-cli.add_command(show_migrations)
-cli.add_command(migrate_func)
+@cli.command()
+@click.argument("version", callback=validate_version)
+def fake(version):
+    """
+    Fake migrations until version.
+    Write migrations in the migration table without applying them, for
+    all migrations up until the given version (included). This is useful
+    when installing west on an existing DB.
+    """
+    migrate.create_fake_entries(version)
