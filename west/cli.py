@@ -33,7 +33,13 @@ def validate_version(ctx, param, value):
     return value
 
 
-@click.group(context_settings=CONTEXT_SETTINGS)
+@click.group(
+    context_settings=CONTEXT_SETTINGS,
+    help="""
+    West is a command line tool to manage execution of PostgreSQL
+    migrations.
+    """,
+)
 @click.option(
     "--version",
     "-v",
