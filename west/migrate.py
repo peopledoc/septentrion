@@ -23,6 +23,7 @@ def migrate():
 
     # play migrations
     print("Apply migrations")
+    width = 40
     for plan in core.build_migration_plan():
         version = plan["version"]
         logger.info(version)
@@ -30,10 +31,11 @@ def migrate():
             title = mig
             if is_manual:
                 title += " (manual)"
+            title += " "
             if applied:
-                print("  {} already applied".format(title))
+                print("  {:.<{}} Already applied".format(title, width))
             else:
-                print("  Applying {}...".format(title))
+                print("  {:.<{}} Applying ...".format(title, width))
                 run_script(path)
                 db.write_migration(version, mig)
 
