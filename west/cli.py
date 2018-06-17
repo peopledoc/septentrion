@@ -3,6 +3,8 @@ All things related to the CLI and only that. This module can call functions
 from other modules to get the information it needs, then format it and display
 it.
 """
+import os
+
 import click
 from click.types import StringParamType
 
@@ -154,9 +156,9 @@ class CommaSeparatedMultipleString(StringParamType):
 )
 def cli(**kwargs):
     if kwargs.pop("password_flag"):
-        password = click.prompt("Database password:", hide_input=True)
+        password = click.prompt("Database password", hide_input=True)
     else:
-        password = None
+        password = os.getenv("WEST_PASSWORD")
     kwargs["password"] = password
 
     settings.consolidate(**kwargs)
