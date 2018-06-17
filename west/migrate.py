@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def migrate():
+
     logger.info("Starting migrations")
     if not db.is_schema_initialized():
         logger.info("Migration table is empty, loading a schema")

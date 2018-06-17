@@ -3,6 +3,7 @@ All things related to the CLI and only that. This module can call functions
 from other modules to get the information it needs, then format it and display
 it.
 """
+import logging
 import os
 
 import click
@@ -14,6 +15,8 @@ from west import db
 from west import migrate
 from west import settings
 from west import utils
+
+logger = logging.getLogger(__name__)
 
 CONTEXT_SETTINGS = {
     "help_option_names": ["-h", "--help"],
@@ -48,7 +51,8 @@ class CommaSeparatedMultipleString(StringParamType):
     context_settings=CONTEXT_SETTINGS,
     help="""
     West is a command line tool to manage execution of PostgreSQL
-    migrations.
+    migrations. It uses a migration table to synchronize migration
+    execution.
     """,
 )
 @click.option(
@@ -100,7 +104,8 @@ class CommaSeparatedMultipleString(StringParamType):
 )
 @click.option(
     "--table",
-    help="Database table in which to write migrations (env: WEST_TABLE)",
+    help="Database table in which to write migrations. The table will be created"
+    "immediately if it doesn't exist (env: WEST_TABLE)",
     show_default=True,
     default="west_migrations",
 )
@@ -163,8 +168,13 @@ def cli(**kwargs):
 
     settings.consolidate(**kwargs)
 
+    # All other commands will need to table to be created
+    logger.info("Ensuring migration table exists")
+    # TODO: this probably deserves an option
+    db.create_table()  # idempotent
 
-@click.command()
+
+@cli.command(name="show-migrations")
 def show_migrations():
     """
     Show the current state of the database.
@@ -195,18 +205,11 @@ def show_migrations():
             )
 
 
-@click.command()
-def init():
-    """
-    Create the migration table and apply a base schema.
-    """
-    db.create_table()
-
-
-@click.command(name="migrate")
+@cli.command(name="migrate")
 def migrate_func():
     """
-    Run unapplied migrations up until the most recent one
+    Run unapplied migrations.
+
     """
     migrate.migrate()
 
