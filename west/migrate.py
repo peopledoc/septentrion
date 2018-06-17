@@ -6,9 +6,9 @@ import os.path
 from west import db
 from west import exceptions
 from west import files
-from west import west
 from west import runner
 from west import utils
+from west import west
 from west.settings import settings
 
 logger = logging.getLogger(__name__)
