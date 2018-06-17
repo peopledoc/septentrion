@@ -4,6 +4,7 @@ from other modules to get the information it needs, then format it and display
 it.
 """
 import click
+from click.types import StringParamType
 
 from west import __version__
 from west import db
@@ -31,6 +32,14 @@ def validate_version(ctx, param, value):
     if value and not utils.is_version(value):
         raise click.BadParameter("{value} is not a valid version")
     return value
+
+
+class CommaSeparatedMultipleString(StringParamType):
+    envvar_list_splitter = ","
+
+    def split_envvar_value(self, rv):
+        values = super(CommaSeparatedMultipleString, self).split_envvar_value(rv)
+        return tuple(value.strip() for value in values)
 
 
 @click.group(
@@ -127,20 +136,26 @@ def validate_version(ctx, param, value):
     default="fixtures_{}.sql",
 )
 @click.option(
-    "--non-transactional-keywords",
+    "--non-transactional-keyword",
+    multiple=True,
+    show_default=True,
+    type=CommaSeparatedMultipleString(),
     help="When those words are found in the migration, "
     "it is executed outside of a transaction "
-    "(comma separated values) "
-    "(env: WEST_NON_TRANSACTIONAL_KEYWORDS)",
-    default="CONCURRENTLY,ALTER TYPE,VACUUM",
+    "(repeat the flag as many times as necessary) "
+    "(env: WEST_NON_TRANSACTIONAL_KEYWORD, comma separated values)",
+    default=["CONCURRENTLY", "ALTER TYPE", "VACUUM"],
 )
 @click.option(
-    "--additional-schema-files",
-    help="Individual sql file names to be run in addition "
+    "--additional-schema-file",
+    multiple=True,
+    type=CommaSeparatedMultipleString(),
+    help="Path to a SQL file relative to "
+    "<migration-root>/schemas, to be run in addition "
     "to the migrations (e.g for installing postgres "
-    "extensions) (comma separated paths, relative to "
-    "<migration-root>/schemas) "
-    "(env: WEST_ADDITIONAL_SCHEMA_FILE)",
+    "extensions)"
+    "(repeat the flag as many times as necessary) "
+    "(env: WEST_ADDITIONAL_SCHEMA_FILE, comma separated values)",
 )
 def cli(**kwargs):
     if kwargs.pop("password_flag"):

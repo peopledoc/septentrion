@@ -119,7 +119,7 @@ class Script(object):
             block.run(db)
 
     def contains_non_transactional_keyword(self, file_handler):
-        keywords = settings.NON_TRANSACTIONAL_KEYWORDS.split(",")
+        keywords = settings.NON_TRANSACTIONAL_KEYWORD
         for line in file_handler:
             for kw in keywords:
                 if kw.lower() in line.lower():

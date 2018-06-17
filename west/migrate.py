@@ -44,8 +44,8 @@ def migrate():
 
 def init_schema(init_version):
     # load additional files
-    additional_files = settings.ADDITIONAL_SCHEMA_FILES or ""
-    for file_name in additional_files.split(","):
+    additional_files = settings.ADDITIONAL_SCHEMA_FILE
+    for file_name in additional_files:
         if not file_name:
             continue
         file_path = os.path.join(settings.MIGRATIONS_ROOT, "schemas", file_name)
