@@ -53,18 +53,21 @@ def validate_version(ctx, param, value):
     "--host",
     "-H",
     help="Database host (env: WEST_HOST or PGHOST)",
+    show_default=True,
     default="localhost",
 )
 @click.option(
     "--port",
     "-p",
     help="Database port (env: WEST_PORT or PGPORT)",
+    show_default=True,
     default=5432,
 )
 @click.option(
     "--username",
     "-U",
     help="Database host (env: WEST_USERNAME or PGUSER)",
+    show_default=True,
     default="postgres",
 )
 @click.option(
@@ -74,6 +77,7 @@ def validate_version(ctx, param, value):
     help="Prompt for the database password, otherwise read "
     "from environment variable PGPASSWORD, WEST_PASSWORD, "
     "or ~/.pgpass",
+    show_default=True,
     default=False,
     envvar=None,
 )
@@ -81,17 +85,20 @@ def validate_version(ctx, param, value):
     "--dbname",
     "-d",
     help="Database name (env: WEST_DBNAME or PGDATABASE)",
+    show_default=True,
     default="postgres",
 )
 @click.option(
     "--table",
     help="Database table in which to write migrations " "(env: WEST_TABLE)",
+    show_default=True,
     default="west_migrations",
 )
 @click.option(
     "--migrations-root",
     help="Path to the migration files " "(env: WEST_MIGRATION_ROOT)",
     type=click.Path(exists=True, file_okay=False, resolve_path=True),
+    show_default=True,
     default=".",
 )
 @click.option(
@@ -110,11 +117,13 @@ def validate_version(ctx, param, value):
 @click.option(
     "--schema-template",
     help="Template name for schema files " "(env: WEST_SCHEMA_TEMPLATE)",
+    show_default=True,
     default="schema_{}.sql",
 )
 @click.option(
     "--fixtures-template",
     help="Template name for schema files " "(env: WEST_FIXTURES_TEMPLATE)",
+    show_default=True,
     default="fixtures_{}.sql",
 )
 @click.option(
