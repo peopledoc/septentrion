@@ -8,6 +8,7 @@ import io
 from west import db
 from west import exceptions
 from west import files
+from west import style
 from west import utils
 from west.settings import settings
 
@@ -147,3 +148,26 @@ def build_migration_plan():
                 is_manual = is_manual_migration(f)
             version_plan.append((mig, applied, path, is_manual))
         yield {"version": version, "plan": version_plan}
+
+
+def describe_migration_plan(stylist=style.noop_stylist):
+    current_version = db.get_current_schema_version()
+    with stylist.activate("title") as echo:
+        echo("Current version is {}".format(current_version))
+
+    target_version = settings.TARGET_VERSION
+    with stylist.activate("title") as echo:
+        echo("Target version is {}".format(target_version))
+
+    for plan in build_migration_plan():
+        version = plan["version"]
+        migrations = plan["plan"]
+
+        with stylist.activate("title") as echo:
+            echo("Version {}".format(version))
+
+        for migration in migrations:
+
+            name, applied, path, is_manual = migration
+            stylist.draw_checkbox(name, checked=applied)
+            stylist.echo()

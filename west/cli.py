@@ -14,6 +14,7 @@ from west import core
 from west import db
 from west import migrate
 from west import settings
+from west import style
 from west import utils
 
 logger = logging.getLogger(__name__)
@@ -182,30 +183,7 @@ def show_migrations():
     of the database schema, and the applied and
     unapplied migrations.
     """
-    current_version = db.get_current_schema_version()
-    click.echo("Current version is {}".format(current_version))
-
-    target_version = settings.settings.TARGET_VERSION
-    click.echo("Target version is {}".format(target_version))
-
-    for plan in core.build_migration_plan():
-        version = plan["version"]
-        migrations = plan["plan"]
-        click.echo(click.style("Version {}".format(version), bold=True, fg="cyan"))
-        for migration in migrations:
-            name, applied, path, is_manual = migration
-            applied_str, color = ("X", "green") if applied else (" ", "red")
-            click.echo(
-                "".join(
-                    (
-                        "  ",
-                        click.style(
-                            "[{applied}]".format(applied=applied_str), fg=color
-                        ),
-                        " {}".format(name),
-                    )
-                )
-            )
+    core.describe_migration_plan(stylist=style.stylist)
 
 
 @cli.command(name="migrate")
@@ -214,7 +192,7 @@ def migrate_func():
     Run unapplied migrations.
 
     """
-    migrate.migrate()
+    migrate.migrate(stylist=style.stylist)
 
 
 @cli.command()
