@@ -185,6 +185,9 @@ def show_migrations():
     current_version = db.get_current_schema_version()
     click.echo("Current version is {}".format(current_version))
 
+    target_version = settings.settings.TARGET_VERSION
+    click.echo("Target version is {}".format(target_version))
+
     for plan in core.build_migration_plan():
         version = plan["version"]
         migrations = plan["plan"]
