@@ -2,6 +2,7 @@
 Interact with the migrations table.
 """
 
+import logging
 from contextlib import contextmanager
 from distutils.version import StrictVersion
 
@@ -10,15 +11,35 @@ from psycopg2.extras import DictCursor
 
 from west.settings import settings
 
+logger = logging.getLogger(__name__)
+
 
 def get_connection():
-    connection = psycopg2.connect(
-        host=settings.HOST,
-        port=settings.PORT,
-        dbname=settings.DBNAME,
-        user=settings.USERNAME,
-        password=settings.PASSWORD,
-    )
+    """
+    Opens a PostgreSQL connection using psycopg2.
+    """
+    # Note that psycopg2 is responsible for using environment variables and reading
+    # ~/.pgpass for all undefined arguments. Because of this, it's important to exclude
+    # arguments that we explicitely don't have.
+
+    # Transform settings names into the ones expected by psycopg2
+    kwargs = {}
+    mapping = {
+        "HOST": "host",
+        "PORT": "port",
+        "DBNAME": "dbname",
+        "USERNAME": "user",
+        "PASSWORD": "password",
+    }
+    for name, psycopg_name in mapping.items():
+        value = getattr(settings, name)
+        if value:
+            kwargs[psycopg_name] = value
+
+    connection = psycopg2.connect(**kwargs)
+
+    # Autocommit=true means we'll have more control over when the code is commited
+    # (even if this sounds strange)
     connection.set_session(autocommit=True)
     return connection
 
@@ -28,6 +49,7 @@ def execute(query, args=tuple(), commit=False):
     query = " ".join(query.format(table=settings.TABLE).split())
     with get_connection() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
+            logger.debug("Executing %s -- Args: %s", query, args)
             cur.execute(query, args)
             yield cur
         if commit:
@@ -69,8 +91,12 @@ query_get_applied_migrations = """
     SELECT name FROM "{table}" WHERE "version" = %s
 """
 
+query_is_schema_initialized = """
+    SELECT TRUE FROM "{table}" LIMIT 1
+"""
 
-def get_schema_version():
+
+def get_current_schema_version():
     versions = get_applied_versions()
     if not versions:
         return None
@@ -85,6 +111,14 @@ def get_applied_versions():
 def get_applied_migrations(version):
     with Query(query_get_applied_migrations, (version,)) as cur:
         return [row[0] for row in cur]
+
+
+def is_schema_initialized():
+    with Query(query_is_schema_initialized) as cur:
+        try:
+            return next(cur)
+        except StopIteration:
+            return False
 
 
 def create_table():

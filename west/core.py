@@ -8,6 +8,7 @@ import io
 from west import db
 from west import exceptions
 from west import files
+from west import style
 from west import utils
 from west.settings import settings
 
@@ -65,9 +66,9 @@ def get_closest_version(target_version, sql_tpl, existing_files, force_version=N
     return None
 
 
-def get_schema_version():
+def get_best_schema_version():
     """
-    Get the version to use to init a new DB to the current target version.
+    Get the best candidate to init the DB.
     """
     version = get_closest_version(
         target_version=settings.TARGET_VERSION,
@@ -113,26 +114,13 @@ def is_manual_migration(file_handler):
     return False
 
 
-def build_migration_plan(current_version=None):
+def build_migration_plan():
     """
     Return the list of migrations by version,
     from the version used to init the DB to the current target version.
     """
-    # get current version
-    current_version = current_version or db.get_schema_version()
-    if current_version is None:
-        # schema not inited
-        return None
     # get known versions
     known_versions = files.get_known_versions()
-    # get applied versions
-    applied_versions = get_applied_versions()
-
-    migration_plan = {
-        "current_version": current_version,
-        "init_version": None,
-        "plans": [],
-    }
 
     # get all versions to apply
     try:
@@ -159,6 +147,27 @@ def build_migration_plan(current_version=None):
             with io.open(path, "r", encoding="utf8") as f:
                 is_manual = is_manual_migration(f)
             version_plan.append((mig, applied, path, is_manual))
-        migration_plan["plans"].append({"version": version, "plan": version_plan})
+        yield {"version": version, "plan": version_plan}
 
-    return migration_plan
+
+def describe_migration_plan(stylist=style.noop_stylist):
+    current_version = db.get_current_schema_version()
+    with stylist.activate("title") as echo:
+        echo("Current version is {}".format(current_version))
+
+    target_version = settings.TARGET_VERSION
+    with stylist.activate("title") as echo:
+        echo("Target version is {}".format(target_version))
+
+    for plan in build_migration_plan():
+        version = plan["version"]
+        migrations = plan["plan"]
+
+        with stylist.activate("title") as echo:
+            echo("Version {}".format(version))
+
+        for migration in migrations:
+
+            name, applied, path, is_manual = migration
+            stylist.draw_checkbox(name, checked=applied)
+            stylist.echo()
