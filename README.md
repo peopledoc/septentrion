@@ -32,6 +32,12 @@ west --help
 
 ----
 
+## Launch a postgres DB with Docker
+
+```console
+$ docker run --rm -it -p 5432:5432 -e POSTGRES_PASSWORD=password postgres
+```
+
 ## Licensing
 
 `west` is published under the terms of the Apache Software License.
