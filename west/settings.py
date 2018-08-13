@@ -2,17 +2,27 @@
 This is the code around settings loading. For a definition of
 the settings, see cli.py (for now)
 """
+import configparser
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-def get_config_settings():
+def get_config_settings(path):
     """
-    TODO: read configuration file and return
+    Read configuration file and return
     a dict with values to use if they are
     not overriden in env vars or CLI flags
     """
+    config = configparser.ConfigParser()
+    if config:
+        config.read(path)
+        if "west" in config:
+            return config["west"]
+        else:
+            logger.warning(
+                "Found a config file but there isn't any 'west' section in it"
+            )
     return {}
 
 
