@@ -7,12 +7,22 @@ def test_version(cli_runner):
     assert cli_runner.invoke(main, ["--version"]).output == "West 0.1.0\n"
 
 
-def test_current_database_state(cli_runner):
+def test_current_database_state(cli_runner, db):
 
-    result = cli_runner.invoke(main, [
-        "--target-version",  "1.1",
-        "--migrations-root",  "example_migrations",
-        "migrate"])
+    result = cli_runner.invoke(
+        main,
+        [
+            # database connection settings
+            "--host", db["host"],
+            "--port", db["port"],
+            "--username", db["user"],
+            "--dbname", db["dbname"],
+            # migrate settings
+            "--target-version", "1.1",
+            "--migrations-root", "example_migrations",
+            "migrate",
+        ],
+    )
 
     assert result.exit_code == 0
     assert is_schema_initialized()
