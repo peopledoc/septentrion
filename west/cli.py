@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 CONTEXT_SETTINGS = {
     "help_option_names": ["-h", "--help"],
-    "default_map": settings.get_config_settings(),
+    "default_map": settings.get_config_settings("west.ini"),
     "auto_envvar_prefix": "WEST",
     "max_content_width": 120,
 }
