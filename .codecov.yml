@@ -1,0 +1,8 @@
+flags:
+  unittests:
+    paths:
+      - tests/unittests
+
+  integration:
+    paths:
+      - tests/integration
