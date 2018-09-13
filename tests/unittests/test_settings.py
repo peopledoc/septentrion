@@ -1,20 +1,24 @@
-import configparser
-import os
-
 from west.settings import get_config_settings
 
 
 def test_get_config_settings():
-    config = configparser.ConfigParser()
-    config["west"] = {
-        "table": "north_migrations",
+    config = """
+        [west]
+        table = north_migrations
+    """
+    settings = get_config_settings(config)
+
+    assert settings == {
+        "table": "north_migrations"
     }
-    with open("tests/test_west.ini", "w") as configfile:
-        config.write(configfile)
 
-    try:
-        settings = get_config_settings("tests/test_west.ini")
-    finally:
-        os.remove("tests/test_west.ini")
 
-    assert settings["table"] == "north_migrations"
+def test_get_config_settings_no_section(caplog):
+    config = """
+        [east]
+        table = north_migrations
+    """
+    settings = get_config_settings(config)
+    assert settings == {}
+    assert caplog.records[0].message == ("Found a config file but there "
+                                         "isn't any 'west' section in it")
