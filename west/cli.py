@@ -19,12 +19,23 @@ from west import utils
 
 logger = logging.getLogger(__name__)
 
-CONTEXT_SETTINGS = {
-    "help_option_names": ["-h", "--help"],
-    "default_map": settings.get_config_settings("west.ini"),
-    "auto_envvar_prefix": "WEST",
-    "max_content_width": 120,
-}
+
+def get_context_settings():
+    try:
+        with open("west.ini") as file:
+            config = file.read()
+    except FileNotFoundError:
+        config = ""
+
+    return {
+        "help_option_names": ["-h", "--help"],
+        "default_map": settings.get_config_settings(config),
+        "auto_envvar_prefix": "WEST",
+        "max_content_width": 120,
+    }
+
+
+CONTEXT_SETTINGS = get_context_settings()
 
 
 def print_version(ctx, __, value):

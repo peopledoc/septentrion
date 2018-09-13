@@ -1,13 +1,23 @@
 # Config file for automatic testing at travis-ci.org
 language: python
 
+services:
+  - postgresql
+
 matrix:
   include:
 
   - python: 3.6
     env: TOX_ENV=check-lint
   - python: 3.6
-    env: TOX_ENV=py36
+    env: TOX_ENV=py36-unit-tests
+  - python: 3.6
+    env:
+      TOX_ENV: py36-integration-tests
+      PGUSER: postgres
+      PGPORT: 5432
+      PGPASSWORD: ""
+      PGHOST: 127.0.0.1
 
 install:
   - pip install tox codecov
