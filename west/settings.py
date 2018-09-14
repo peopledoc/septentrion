@@ -27,7 +27,7 @@ def get_config_settings(content):
 class Settings(object):
     @staticmethod
     def _clean_key(key):
-        return key.upper().replace("-", "_")
+        return key.upper()
 
     def set(self, **kwargs):
         """
