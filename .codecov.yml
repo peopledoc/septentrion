@@ -1,8 +1,12 @@
-flags:
-  unittests:
-    paths:
-      - tests/unittests
+coverage:
+  status:
+    project:
+      default: off
+      unit:
+        flags: unit
+      integration:
+        flags: integration
 
+flags:
+  unit:
   integration:
-    paths:
-      - tests/integration

@@ -10,7 +10,7 @@ matrix:
   - python: 3.6
     env: TOX_ENV=check-lint
   - python: 3.6
-    env: TOX_ENV=py36-unit-tests
+    env: TOX_ENV=py36-unit-tests COVERAGE_FLAG=unit
   - python: 3.6
     env:
       TOX_ENV: py36-integration-tests
@@ -18,6 +18,7 @@ matrix:
       PGPORT: 5432
       PGPASSWORD: ""
       PGHOST: 127.0.0.1
+      COVERAGE_FLAG: integration
 
 install:
   - pip install tox codecov
@@ -26,4 +27,4 @@ script:
   - tox -e $TOX_ENV
 
 after_success:
-  - codecov
+  - bash <(curl -s https://codecov.io/bash) -c -F $COVERAGE_FLAG
