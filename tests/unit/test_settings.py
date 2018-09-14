@@ -8,9 +8,7 @@ def test_get_config_settings():
     """
     settings = get_config_settings(config)
 
-    assert settings == {
-        "table": "north_migrations"
-    }
+    assert settings == {"table": "north_migrations"}
 
 
 def test_get_config_settings_no_section(caplog):
@@ -20,5 +18,6 @@ def test_get_config_settings_no_section(caplog):
     """
     settings = get_config_settings(config)
     assert settings == {}
-    assert caplog.records[0].message == ("Found a config file but there "
-                                         "isn't any 'west' section in it")
+    assert caplog.records[0].message == (
+        "Found a config file but there isn't any 'west' section in it"
+    )

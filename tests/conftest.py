@@ -1,8 +1,9 @@
 import os
 
-import pytest
 import psycopg2
 from psycopg2 import sql
+
+import pytest
 
 
 @pytest.fixture

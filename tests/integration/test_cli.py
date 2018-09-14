@@ -13,13 +13,19 @@ def test_current_database_state(cli_runner, db):
         main,
         [
             # database connection settings
-            "--host", db["host"],
-            "--port", db["port"],
-            "--username", db["user"],
-            "--dbname", db["dbname"],
+            "--host",
+            db["host"],
+            "--port",
+            db["port"],
+            "--username",
+            db["user"],
+            "--dbname",
+            db["dbname"],
             # migrate settings
-            "--target-version", "1.1",
-            "--migrations-root", "example_migrations",
+            "--target-version",
+            "1.1",
+            "--migrations-root",
+            "example_migrations",
             "migrate",
         ],
     )
