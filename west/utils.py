@@ -34,7 +34,7 @@ def until(iterable, value):
     """
     Returns the values from iterable up until element is found
     >>> list(until(range(300), 3))
-    [1, 2, 3]
+    [0, 1, 2, 3]
     """
     for element in iterable:
         yield element
