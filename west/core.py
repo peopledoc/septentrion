@@ -3,7 +3,7 @@ This is where the migration plan is computed, by merging information
 from the existing files (west.files) and from the db (west.db)
 """
 
-import io
+import os
 
 from west import db
 from west import exceptions
@@ -128,8 +128,7 @@ def build_migration_plan():
         for mig in migs:
             applied = mig in applied_migrations
             path = migrations_to_apply[mig]
-            with io.open(path, "r", encoding="utf8") as f:
-                is_manual = files.is_manual_migration(f.name)
+            is_manual = files.is_manual_migration(os.path.abspath(path))
             version_plan.append((mig, applied, path, is_manual))
         yield {"version": version, "plan": version_plan}
 
