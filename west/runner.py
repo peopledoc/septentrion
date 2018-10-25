@@ -39,7 +39,7 @@ class Block(object):
             raise SQLRunnerException("Block closed !")
         self.closed = True
 
-    def run(self, connection):
+    def run(self, cursor):
         statements = sqlparse.parse(self.content)
 
         text_type = type(u"")  # Remove when only PY3 is supported
@@ -48,24 +48,22 @@ class Block(object):
             raise SQLRunnerException("sqlparse failed to properly split input")
 
         rows = 0
-        with connection.cursor() as cursor:
-            for statement in statements:
-                if clean_sql_code(str(statement)).strip() in ("", ";"):
-                    # Sometimes sqlparse keeps the empty lines here,
-                    # this could negatively affect libpq
-                    continue
-                logger.debug("Running one statement... <<%s>>", str(statement))
-                cursor.execute(str(statement).replace("\\timing\n", ""))
-                logger.debug("Affected %s rows", cursor.rowcount)
-                rows += cursor.rowcount
+        for statement in statements:
+            if clean_sql_code(str(statement)).strip() in ("", ";"):
+                # Sometimes sqlparse keeps the empty lines here,
+                # this could negatively affect libpq
+                continue
+            logger.debug("Running one statement... <<%s>>", str(statement))
+            cursor.execute(str(statement).replace("\\timing\n", ""))
+            logger.debug("Affected %s rows", cursor.rowcount)
+            rows += cursor.rowcount
         return rows
 
 
 class SimpleBlock(Block):
-    def run(self, connection):
-        with connection.cursor() as cursor:
-            statements = clean_sql_code(self.content)
-            cursor.execute(statements)
+    def run(self, cursor):
+        statements = clean_sql_code(self.content)
+        cursor.execute(statements)
 
 
 class MetaBlock(Block):
@@ -75,7 +73,7 @@ class MetaBlock(Block):
         if command != "do-until-0":
             raise SQLRunnerException("Unexpected command {}".format(command))
 
-    def run(self, db):
+    def run(self, cursor):
         total_rows = 0
         # Simply call super().run in a loop...
         delta = 0
@@ -83,7 +81,7 @@ class MetaBlock(Block):
         while batch_delta != 0:
             batch_delta = 0
             logger.debug("Running one block in a loop")
-            delta = super(MetaBlock, self).run(db)
+            delta = super(MetaBlock, self).run(cursor)
             if delta > 0:
                 total_rows += delta
                 batch_delta = delta
@@ -114,9 +112,10 @@ class Script(object):
                 self.block_list[-1].append_line(line)
         self.block_list[-1].close()
 
-    def run(self, db):
-        for block in self.block_list:
-            block.run(db)
+    def run(self, connection):
+        with connection.cursor() as cursor:
+            for block in self.block_list:
+                block.run(cursor)
 
     def contains_non_transactional_keyword(self, file_handler):
         keywords = settings.NON_TRANSACTIONAL_KEYWORD
