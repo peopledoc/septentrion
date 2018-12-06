@@ -13,7 +13,9 @@ def known_versions(mocker):
 
 
 def test_get_applied_versions(mocker, known_versions):
-    mocker.patch("septentrion.core.db.get_applied_versions", return_value=["1.0", "1.1"])
+    mocker.patch(
+        "septentrion.core.db.get_applied_versions", return_value=["1.0", "1.1"]
+    )
 
     versions = core.get_applied_versions()
 

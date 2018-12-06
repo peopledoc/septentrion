@@ -12,7 +12,7 @@ def get_config_settings(content):
     """
     Read configuration file and return
     a dict with values to use if they are
-    not overriden in env vars or CLI flags
+    not overwritten in env vars or CLI flags
     """
     parser = configparser.ConfigParser()
     parser.read_string(content)
@@ -20,7 +20,9 @@ def get_config_settings(content):
     if "septentrion" in parser:
         return dict(parser["septentrion"])
 
-    logger.warning("Found a config file but there isn't any 'septentrion' section in it")
+    logger.warning(
+        "Found a config file but there isn't any 'septentrion' section in it"
+    )
     return {}
 
 
