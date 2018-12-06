@@ -76,26 +76,10 @@ class CommaSeparatedMultipleString(StringParamType):
     is_eager=True,
 )
 @click.option("-v", "--verbose", count=True)
+@click.option("--host", "-H", help="Database host (env: SEPTENTRION_HOST or PGHOST)")
+@click.option("--port", "-p", help="Database port (env: SEPTENTRION_PORT or PGPORT)")
 @click.option(
-    "--host",
-    "-H",
-    help="Database host (env: SEPTENTRION_HOST or PGHOST)",
-    show_default=True,
-    default="localhost",
-)
-@click.option(
-    "--port",
-    "-p",
-    help="Database port (env: SEPTENTRION_PORT or PGPORT)",
-    show_default=True,
-    default=5432,
-)
-@click.option(
-    "--username",
-    "-U",
-    help="Database host (env: SEPTENTRION_USERNAME or PGUSER)",
-    show_default=True,
-    default="postgres",
+    "--username", "-U", help="Database host (env: SEPTENTRION_USERNAME or PGUSER)"
 )
 @click.option(
     "--password/--no-password",
@@ -103,16 +87,10 @@ class CommaSeparatedMultipleString(StringParamType):
     "password_flag",
     help="Prompt for the database password, otherwise read from environment variable "
     "PGPASSWORD, SEPTENTRION_PASSWORD, or ~/.pgpass",
-    show_default=True,
-    default=False,
     envvar=None,
 )
 @click.option(
-    "--dbname",
-    "-d",
-    help="Database name (env: SEPTENTRION_DBNAME or PGDATABASE)",
-    show_default=True,
-    default="postgres",
+    "--dbname", "-d", help="Database name (env: SEPTENTRION_DBNAME or PGDATABASE)"
 )
 @click.option(
     "--table",
