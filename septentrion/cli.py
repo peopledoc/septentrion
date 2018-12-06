@@ -9,20 +9,20 @@ import os
 import click
 from click.types import StringParamType
 
-from west import __version__
-from west import core
-from west import db
-from west import migrate
-from west import settings
-from west import style
-from west import utils
+from septentrion import __version__
+from septentrion import core
+from septentrion import db
+from septentrion import migrate
+from septentrion import settings
+from septentrion import style
+from septentrion import utils
 
 logger = logging.getLogger(__name__)
 
 
 def get_context_settings():
     try:
-        with open("west.ini") as file:
+        with open("septentrion.ini") as file:
             config = file.read()
     except FileNotFoundError:
         config = ""
@@ -30,7 +30,7 @@ def get_context_settings():
     return {
         "help_option_names": ["-h", "--help"],
         "default_map": settings.get_config_settings(config),
-        "auto_envvar_prefix": "WEST",
+        "auto_envvar_prefix": "SEPTENTRION",
         "max_content_width": 120,
     }
 
@@ -41,7 +41,7 @@ CONTEXT_SETTINGS = get_context_settings()
 def print_version(ctx, __, value):
     if not value or ctx.resilient_parsing:
         return
-    click.echo("West {}".format(__version__))
+    click.echo("Septentrion {}".format(__version__))
     ctx.exit()
 
 
@@ -62,7 +62,7 @@ class CommaSeparatedMultipleString(StringParamType):
 @click.group(
     context_settings=CONTEXT_SETTINGS,
     help="""
-    West is a command line tool to manage execution of PostgreSQL
+    Septentrion is a command line tool to manage execution of PostgreSQL
     migrations. It uses a migration table to synchronize migration
     execution.
     """,
@@ -79,21 +79,21 @@ class CommaSeparatedMultipleString(StringParamType):
 @click.option(
     "--host",
     "-H",
-    help="Database host (env: WEST_HOST or PGHOST)",
+    help="Database host (env: SEPTENTRION_HOST or PGHOST)",
     show_default=True,
     default="localhost",
 )
 @click.option(
     "--port",
     "-p",
-    help="Database port (env: WEST_PORT or PGPORT)",
+    help="Database port (env: SEPTENTRION_PORT or PGPORT)",
     show_default=True,
     default=5432,
 )
 @click.option(
     "--username",
     "-U",
-    help="Database host (env: WEST_USERNAME or PGUSER)",
+    help="Database host (env: SEPTENTRION_USERNAME or PGUSER)",
     show_default=True,
     default="postgres",
 )
@@ -102,7 +102,7 @@ class CommaSeparatedMultipleString(StringParamType):
     "-W/-w",
     "password_flag",
     help="Prompt for the database password, otherwise read from environment variable "
-    "PGPASSWORD, WEST_PASSWORD, or ~/.pgpass",
+    "PGPASSWORD, SEPTENTRION_PASSWORD, or ~/.pgpass",
     show_default=True,
     default=False,
     envvar=None,
@@ -110,45 +110,45 @@ class CommaSeparatedMultipleString(StringParamType):
 @click.option(
     "--dbname",
     "-d",
-    help="Database name (env: WEST_DBNAME or PGDATABASE)",
+    help="Database name (env: SEPTENTRION_DBNAME or PGDATABASE)",
     show_default=True,
     default="postgres",
 )
 @click.option(
     "--table",
     help="Database table in which to write migrations. The table will be created"
-    "immediately if it doesn't exist (env: WEST_TABLE)",
+    "immediately if it doesn't exist (env: SEPTENTRION_TABLE)",
     show_default=True,
-    default="west_migrations",
+    default="septentrion_migrations",
 )
 @click.option(
     "--migrations-root",
-    help="Path to the migration files (env: WEST_MIGRATION_ROOT)",
+    help="Path to the migration files (env: SEPTENTRION_MIGRATION_ROOT)",
     type=click.Path(exists=True, file_okay=False, resolve_path=True),
     show_default=True,
     default=".",
 )
 @click.option(
     "--target-version",
-    help="Desired final version of the Database (env: WEST_TARGET_VERSION)",
+    help="Desired final version of the Database (env: SEPTENTRION_TARGET_VERSION)",
     callback=validate_version,
     required=True,
 )
 @click.option(
     "--schema-version",
     help="Version of the initial schema (if not specified, the most resent schema "
-    "will be used) (env: WEST_SCHEMA_VERSION)",
+    "will be used) (env: SEPTENTRION_SCHEMA_VERSION)",
     callback=validate_version,
 )
 @click.option(
     "--schema-template",
-    help="Template name for schema files " "(env: WEST_SCHEMA_TEMPLATE)",
+    help="Template name for schema files " "(env: SEPTENTRION_SCHEMA_TEMPLATE)",
     show_default=True,
     default="schema_{}.sql",
 )
 @click.option(
     "--fixtures-template",
-    help="Template name for schema files " "(env: WEST_FIXTURES_TEMPLATE)",
+    help="Template name for schema files " "(env: SEPTENTRION_FIXTURES_TEMPLATE)",
     show_default=True,
     default="fixtures_{}.sql",
 )
@@ -159,7 +159,7 @@ class CommaSeparatedMultipleString(StringParamType):
     type=CommaSeparatedMultipleString(),
     help="When those words are found in the migration, it is executed outside of a "
     "transaction (repeat the flag as many times as necessary) "
-    "(env: WEST_NON_TRANSACTIONAL_KEYWORD, comma separated values)",
+    "(env: SEPTENTRION_NON_TRANSACTIONAL_KEYWORD, comma separated values)",
     default=["CONCURRENTLY", "ALTER TYPE", "VACUUM"],
 )
 @click.option(
@@ -168,14 +168,14 @@ class CommaSeparatedMultipleString(StringParamType):
     type=CommaSeparatedMultipleString(),
     help="Path to a SQL file relative to <migration-root>/schemas, to be run in "
     "addition to the migrations, e.g for installing postgres extensions (repeat the "
-    "flag as many times as necessary) (env: WEST_ADDITIONAL_SCHEMA_FILE, comma "
+    "flag as many times as necessary) (env: SEPTENTRION_ADDITIONAL_SCHEMA_FILE, comma "
     "separated values)",
 )
 def cli(**kwargs):
     if kwargs.pop("password_flag"):
         password = click.prompt("Database password", hide_input=True)
     else:
-        password = os.getenv("WEST_PASSWORD")
+        password = os.getenv("SEPTENTRION_PASSWORD")
     kwargs["password"] = password
 
     settings.consolidate(**kwargs)
@@ -213,6 +213,6 @@ def fake(version):
     Fake migrations until version.
     Write migrations in the migration table without applying them, for
     all migrations up until the given version (included). This is useful
-    when installing west on an existing DB.
+    when installing septentrion on an existing DB.
     """
     migrate.create_fake_entries(version)

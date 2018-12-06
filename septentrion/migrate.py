@@ -3,14 +3,14 @@ import io
 import logging
 import os.path
 
-from west import core
-from west import db
-from west import exceptions
-from west import files
-from west import runner
-from west import style
-from west import utils
-from west.settings import settings
+from septentrion import core
+from septentrion import db
+from septentrion import exceptions
+from septentrion import files
+from septentrion import runner
+from septentrion import style
+from septentrion import utils
+from septentrion.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +105,7 @@ def init_schema(init_version, stylist=style.noop_stylist):
             content_after="Applied fixtures {}".format(fixtures_version),
         ):
             run_script(fixtures_path)
-    except exceptions.WestException as exception:
+    except exceptions.SeptentrionException as exception:
         logger.info("Not applying fixtures: %s", exception)
 
 

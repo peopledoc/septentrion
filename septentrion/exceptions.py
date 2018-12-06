@@ -1,0 +1,2 @@
+class SeptentrionException(Exception):
+    pass

@@ -1,16 +1,16 @@
 """
 This is where the migration plan is computed, by merging information
-from the existing files (west.files) and from the db (west.db)
+from the existing files (septentrion.files) and from the db (septentrion.db)
 """
 
 import os
 
-from west import db
-from west import exceptions
-from west import files
-from west import style
-from west import utils
-from west.settings import settings
+from septentrion import db
+from septentrion import exceptions
+from septentrion import files
+from septentrion import style
+from septentrion import utils
+from septentrion.settings import settings
 
 
 def get_applied_versions():
@@ -78,7 +78,7 @@ def get_best_schema_version():
     )
 
     if version is None:
-        raise exceptions.WestException("Can not find a schema to init the DB.")
+        raise exceptions.SeptentrionException("Can not find a schema to init the DB.")
     return version
 
 
@@ -94,7 +94,7 @@ def get_fixtures_version(target_version):
     )
 
     if version is None:
-        raise exceptions.WestException("Can not find fixtures to init the DB.")
+        raise exceptions.SeptentrionException("Can not find fixtures to init the DB.")
     return version
 
 

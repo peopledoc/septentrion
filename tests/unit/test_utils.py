@@ -1,7 +1,7 @@
 import pytest
-from west.utils import is_version
-from west.utils import sort_versions
-from west.utils import until
+from septentrion.utils import is_version
+from septentrion.utils import sort_versions
+from septentrion.utils import until
 
 
 def test_sort_versions():

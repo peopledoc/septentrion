@@ -17,10 +17,10 @@ def get_config_settings(content):
     parser = configparser.ConfigParser()
     parser.read_string(content)
 
-    if "west" in parser:
-        return dict(parser["west"])
+    if "septentrion" in parser:
+        return dict(parser["septentrion"])
 
-    logger.warning("Found a config file but there isn't any 'west' section in it")
+    logger.warning("Found a config file but there isn't any 'septentrion' section in it")
     return {}
 
 

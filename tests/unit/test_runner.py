@@ -2,8 +2,8 @@ import io
 import logging
 
 import pytest
-from west import runner
-from west import settings
+from septentrion import runner
+from septentrion import settings
 
 
 def test_clean_sql_code():
@@ -67,10 +67,10 @@ def test_block_run(mocker, caplog):
     assert count == 2
 
     assert caplog.record_tuples == [
-        ("west.runner", 10, "Running one statement... <<select true;>>"),
-        ("west.runner", 10, "Affected 1 rows"),
-        ("west.runner", 10, "Running one statement... <<select false;>>"),
-        ("west.runner", 10, "Affected 1 rows"),
+        ("septentrion.runner", 10, "Running one statement... <<select true;>>"),
+        ("septentrion.runner", 10, "Affected 1 rows"),
+        ("septentrion.runner", 10, "Running one statement... <<select false;>>"),
+        ("septentrion.runner", 10, "Affected 1 rows"),
     ]
 
 
@@ -100,10 +100,10 @@ def test_meta_block_run(mocker, caplog):
     block.run(cursor)
 
     assert caplog.record_tuples == [
-        ("west.runner", 10, "Running one block in a loop"),
-        ("west.runner", 10, "Running one statement... <<select true>>"),
-        ("west.runner", 10, "Affected 0 rows"),
-        ("west.runner", 10, "Batch delta done : 0"),
+        ("septentrion.runner", 10, "Running one block in a loop"),
+        ("septentrion.runner", 10, "Running one statement... <<select true>>"),
+        ("septentrion.runner", 10, "Affected 0 rows"),
+        ("septentrion.runner", 10, "Batch delta done : 0"),
     ]
 
 

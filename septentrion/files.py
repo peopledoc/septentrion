@@ -6,8 +6,8 @@ import io
 import os
 from distutils.version import StrictVersion
 
-from west import utils
-from west.settings import settings
+from septentrion import utils
+from septentrion.settings import settings
 
 
 def list_dirs(root):

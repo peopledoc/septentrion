@@ -1,6 +1,6 @@
-# West
+# Septentrion
 
-[![Build Status](https://travis-ci.org/peopledoc/west.svg?branch=master)](https://travis-ci.org/peopledoc/west) [![codecov](https://codecov.io/gh/peopledoc/west/branch/master/graph/badge.svg)](https://codecov.io/gh/peopledoc/west)
+[![Build Status](https://travis-ci.org/peopledoc/septentrion.svg?branch=master)](https://travis-ci.org/peopledoc/septentrion) [![codecov](https://codecov.io/gh/peopledoc/septentrion/branch/master/graph/badge.svg)](https://codecov.io/gh/peopledoc/septentrion)
 
 > A CLI tool to apply PostgreSQL migrations to a database.
 
@@ -10,7 +10,7 @@ You're looking for a tool to take care of Database migrations in your project. F
 
 But you're looking for a tool that just focuses on running existing SQL migrations and keeping track of what was applied, through time. That's [`django-north`](https://github.com/peopledoc/django-north).
 
-You're looking for that, but without Django. You're looking for west. Congratulations, you've found it.
+You're looking for that, but without Django. You're looking for septentrion. Congratulations, you've found it.
 
 ## Requirements
 
@@ -21,7 +21,7 @@ This project would only work for PostgreSQL databases 9.6+. We aim to be compati
 At the moment, there are no proper releases on PyPI. As a consequence, you'll have to clone this repository locally and install it via:
 
 ```sh
-pip install git+https://github.com/peopledoc/west.git
+pip install git+https://github.com/peopledoc/septentrion.git
 ```
 
 ## What does it do?
@@ -29,7 +29,7 @@ pip install git+https://github.com/peopledoc/west.git
 Project is still pre-alpha, moving fast and breaking things. Best way to know what it does, is to call:
 
 ```sh
-west --help
+septentrion --help
 ```
 
 ----
@@ -42,7 +42,7 @@ $ docker run --rm -it -p 5432:5432 -e POSTGRES_PASSWORD=password postgres
 
 ## Licensing
 
-`west` is published under the terms of the Apache Software License.
+`septentrion` is published under the terms of the Apache Software License.
 
 
 ## Testing
