@@ -64,7 +64,10 @@ def get_known_schemas():
 
 
 def get_known_fixtures():
-    return os.listdir(os.path.join(settings.MIGRATIONS_ROOT, "fixtures"))
+    try:
+        return os.listdir(os.path.join(settings.MIGRATIONS_ROOT, "fixtures"))
+    except FileNotFoundError:
+        return []
 
 
 def get_migrations_files_mapping(version):
