@@ -9,7 +9,7 @@ from distutils.version import StrictVersion
 import psycopg2
 from psycopg2.extras import DictCursor
 
-from west.settings import settings
+from septentrion.settings import settings
 
 logger = logging.getLogger(__name__)
 

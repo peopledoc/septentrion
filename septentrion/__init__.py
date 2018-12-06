@@ -8,4 +8,4 @@ def _extract_version(package_name):
         return "not_installed"
 
 
-__version__ = _extract_version("west")
+__version__ = _extract_version("septentrion")

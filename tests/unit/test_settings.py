@@ -1,12 +1,12 @@
 import logging
 
 import pytest
-from west import settings
+from septentrion import settings
 
 
 def test_get_config_settings():
     config = """
-        [west]
+        [septentrion]
         table = north_migrations
     """
     s = settings.get_config_settings(config)
@@ -23,7 +23,7 @@ def test_get_config_settings_no_section(caplog):
 
     assert s == {}
     assert caplog.records[0].message == (
-        "Found a config file but there isn't any 'west' section in it"
+        "Found a config file but there isn't any 'septentrion' section in it"
     )
 
 

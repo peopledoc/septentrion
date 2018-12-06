@@ -1,6 +1,6 @@
 import pytest
-from west.style import noop_stylist
-from west.style import stylist
+from septentrion.style import noop_stylist
+from septentrion.style import stylist
 
 CHECKED = "\x1b[32m[X] \x1b[0m"
 NOT_CHECKED = "\x1b[31m[ ] \x1b[0m"

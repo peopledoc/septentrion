@@ -2,8 +2,8 @@ import logging
 
 import sqlparse
 
-from west import files
-from west.settings import settings
+from septentrion import files
+from septentrion.settings import settings
 
 logger = logging.getLogger(__name__)
 

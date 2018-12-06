@@ -28,7 +28,7 @@ def db():
     cursor = connection.cursor()
 
     # create test database to running the test
-    settings["dbname"] = "test_west"
+    settings["dbname"] = "test_septentrion"
     cursor.execute(
         sql.SQL("CREATE DATABASE {}").format(sql.Identifier(settings["dbname"]))
     )

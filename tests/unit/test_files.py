@@ -1,8 +1,8 @@
 import io
 
 import pytest
-from west import files
-from west import settings
+from septentrion import files
+from septentrion import settings
 
 
 @pytest.mark.parametrize("isdir,expected", [(True, ["15.0"]), (False, [])])
@@ -64,7 +64,7 @@ def test_get_known_fixtures(mocker):
 
 
 def test_get_known_versions(mocker):
-    mocker.patch("west.files.list_dirs", return_value=["16.11", "16.12", "16.9"])
+    mocker.patch("septentrion.files.list_dirs", return_value=["16.11", "16.12", "16.9"])
     mocker.patch("os.path.islink", return_value=False)
 
     values = files.get_known_versions()
@@ -73,7 +73,7 @@ def test_get_known_versions(mocker):
 
 
 def test_get_known_versions_error(mocker):
-    mocker.patch("west.files.list_dirs", side_effect=OSError)
+    mocker.patch("septentrion.files.list_dirs", side_effect=OSError)
 
     with pytest.raises(ValueError):
         files.get_known_versions()
@@ -81,7 +81,7 @@ def test_get_known_versions_error(mocker):
 
 def test_get_migrations_files_mapping_ok(mocker):
     mocker.patch(
-        "west.files.list_files",
+        "septentrion.files.list_files",
         return_value=["file.sql", "file.dml.sql", "file.ddl.sql"],
     )
     settings.consolidate(migrations_root="tests/test_data/sql", verbose=0)
@@ -95,7 +95,7 @@ def test_get_migrations_files_mapping_ok(mocker):
 
 
 def test_get_migrations_files_mapping_ko(mocker):
-    mocker.patch("west.files.list_files", side_effect=OSError)
+    mocker.patch("septentrion.files.list_files", side_effect=OSError)
 
     with pytest.raises(ValueError):
         files.get_migrations_files_mapping("17.1")
