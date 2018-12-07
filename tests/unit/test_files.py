@@ -63,6 +63,15 @@ def test_get_known_fixtures(mocker):
     assert values == ["fixtures_16.12.sql"]
 
 
+def test_get_known_fixtures_unknown_path(mocker):
+    mocker.patch("os.listdir", side_effect=FileNotFoundError())
+    settings.consolidate(migrations_root="tests/test_data/sql", verbose=0)
+
+    values = files.get_known_fixtures()
+
+    assert values == []
+
+
 def test_get_known_versions(mocker):
     mocker.patch("septentrion.files.list_dirs", return_value=["16.11", "16.12", "16.9"])
     mocker.patch("os.path.islink", return_value=False)
