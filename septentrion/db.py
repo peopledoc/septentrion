@@ -36,7 +36,10 @@ def get_connection():
         if value:
             kwargs[psycopg_name] = value
 
-    connection = psycopg2.connect(**kwargs)
+    # We provide an empty DSN that will be overriden by kwargs in psycopg2
+    # It allows us to give no arguments to connect and libpq will use its
+    # default settings or its own environment variables (PGHOST, PGUSER, ...)
+    connection = psycopg2.connect(dsn="", **kwargs)
 
     # Autocommit=true means we'll have more control over when the code is commited
     # (even if this sounds strange)
