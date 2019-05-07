@@ -78,7 +78,7 @@ def get_best_schema_version():
     )
 
     if version is None:
-        raise exceptions.SeptentrionException("Can not find a schema to init the DB.")
+        raise exceptions.SeptentrionException("Cannot find a schema to init the DB.")
     return version
 
 
@@ -94,7 +94,7 @@ def get_fixtures_version(target_version):
     )
 
     if version is None:
-        raise exceptions.SeptentrionException("Can not find fixtures to init the DB.")
+        raise exceptions.SeptentrionException("Cannot find fixtures to init the DB.")
     return version
 
 
