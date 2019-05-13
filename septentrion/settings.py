@@ -18,7 +18,13 @@ def get_config_settings(content):
     parser.read_string(content)
 
     if "septentrion" in parser:
-        return dict(parser["septentrion"])
+        config = dict(parser["septentrion"])
+        if "additional_schema_file" in config:
+            config["additional_schema_file"] = [
+                line for line in config["additional_schema_file"].splitlines() if line
+            ]
+
+        return config
 
     logger.warning(
         "Found a config file but there isn't any 'septentrion' section in it"
