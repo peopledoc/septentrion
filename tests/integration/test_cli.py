@@ -4,7 +4,7 @@ from septentrion.db import is_schema_initialized
 
 
 def test_version(cli_runner):
-    assert cli_runner.invoke(main, ["--version"]).output == "Septentrion 0.1.0\n"
+    assert cli_runner.invoke(main, ["--version"]).output == "Septentrion 0.1.4.dev0\n"
 
 
 def test_current_database_state(cli_runner, db):
