@@ -2,15 +2,15 @@
 
 [![Build Status](https://travis-ci.org/peopledoc/septentrion.svg?branch=master)](https://travis-ci.org/peopledoc/septentrion) [![codecov](https://codecov.io/gh/peopledoc/septentrion/branch/master/graph/badge.svg)](https://codecov.io/gh/peopledoc/septentrion)
 
-> A CLI tool to apply PostgreSQL migrations to a database.
+A CLI tool to apply PostgreSQL migrations to a database.
 
 ## Overview
 
-You're looking for a tool to take care of Database migrations in your project. For Django projects, that tool used to be [`South`](https://bitbucket.org/andrewgodwin/south/src), and then it became Django itself.
+Maybe you're looking for a tool to take care of Database migrations in your project. For Django projects, that tool used to be [`South`](https://bitbucket.org/andrewgodwin/south/src), and then it became Django itself.
 
-But you're looking for a tool that just focuses on running existing SQL migrations and keeping track of what was applied, through time. That's [`django-north`](https://github.com/peopledoc/django-north).
+But maybe you're looking for a tool that just focuses on running existing SQL migrations and keeping track of what was applied. Your tool of choice would not generate those migration, because you prefer your migrations to be manually written in SQL. Then your tool is [`django-north`](https://github.com/peopledoc/django-north).
 
-You're looking for that, but without Django. You're looking for septentrion. Congratulations, you've found it.
+But you're not using Django. You would like a standalone migration tool. You're looking for septentrion. Congratulations, you've found it.
 
 ## Requirements
 
