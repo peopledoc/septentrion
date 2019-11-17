@@ -44,9 +44,7 @@ def migrate(stylist=style.noop_stylist):
                 title += " (manual)"
             title += " "
             if applied:
-                stylist.draw_checkbox(
-                    checked=True, content="Already applied".format(title)
-                )
+                stylist.draw_checkbox(checked=True, content="Already applied")
                 stylist.echo("")  # new line
             else:
                 with stylist.checkbox(
