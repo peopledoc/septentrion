@@ -1,6 +1,9 @@
 .. include:: ../README.rst
   :end-before: end-of-index-doc
 
+Table of contents
+-----------------
+
 .. toctree::
    :maxdepth: 2
 
