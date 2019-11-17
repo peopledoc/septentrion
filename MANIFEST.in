@@ -7,4 +7,5 @@ exclude requirements.txt
 exclude CONTRIBUTING.rst
 exclude CODE_OF_CONDUCT.md
 exclude tox.ini
+exclude pre-commit-hook
 include LICENSE.rst
