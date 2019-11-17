@@ -14,7 +14,7 @@ But you're not using Django. You would like a standalone migration tool. You're 
 
 ## Requirements
 
-This project would only work for PostgreSQL databases 9.6+. We aim to be compatible with Python 2.7+ and Python 3+ (but Python 2 will not stay for long).
+This project would only work for PostgreSQL databases 9.6+. We aim to be compatible with Python 3.6+.
 
 ## Install
 
