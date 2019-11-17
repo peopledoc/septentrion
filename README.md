@@ -34,10 +34,10 @@ septentrion --help
 
 ----
 
-## Launch a postgres DB with Docker
+## Launch a postgres DB with Docker compose
 
 ```console
-$ docker run --rm -it -p 5432:5432 -e POSTGRES_PASSWORD=password postgres
+$ docker-compose up -d
 ```
 
 ## Licensing
@@ -55,5 +55,5 @@ Nothing is done so far, but we have some guidelines we'd like to follow,
 You must have access to a postgres database, then:
 
 ```bash
-PGPASSWORD=password PGHOST=127.0.0.1 PGUSER=postgres PGPORT=5432 tox
+PGHOST=127.0.0.1 PGUSER=postgres tox
 ```
