@@ -1,6 +1,7 @@
 import io
 
 import pytest
+
 from septentrion import files
 from septentrion import settings
 

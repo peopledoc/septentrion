@@ -2,6 +2,7 @@ import io
 import logging
 
 import pytest
+
 from septentrion import runner
 from septentrion import settings
 

@@ -1,6 +1,7 @@
 import logging
 
 import pytest
+
 from septentrion import settings
 
 

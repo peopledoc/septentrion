@@ -1,4 +1,5 @@
 import pytest
+
 from septentrion import core
 from septentrion import exceptions
 from septentrion import settings

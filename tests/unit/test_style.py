@@ -1,4 +1,5 @@
 import pytest
+
 from septentrion.style import noop_stylist
 from septentrion.style import stylist
 
