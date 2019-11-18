@@ -1,0 +1,64 @@
+#!/bin/bash -eu
+
+BASE_BRANCH="master"
+REPO_OWNER="peopledoc"
+REPO="septentrion"
+
+# Check that you're on a clean checkout
+if ! git diff-index --quiet HEAD -- ;
+then
+    echo "Repository not clean"
+    git status
+    exit 1
+fi
+
+function increment_version() {
+    python3 - "$1" <<EOF
+import sys
+version = sys.argv[1]
+rest, last = version.rsplit('.', 1)
+print(rest + '.' + str(int(last) + 1))
+EOF
+}
+
+CHANGELOG="$(changelog $REPO_OWNER $REPO)"
+echo "Here are all the PRs merged since the last tag:"
+echo $CHANGELOG
+echo
+
+LATEST_VERSION=$(git describe --abbrev=0)
+echo "Latest version was $LATEST_VERSION"
+
+LATEST_INCREMENTED=$(increment_version $LATEST_VERSION)
+read -p "Version to release ($LATEST_INCREMENTED): " VERSION
+VERSION=${VERSION:-$LATEST_INCREMENTED}
+
+echo "Releasing $VERSION:"
+
+echo "- Writing version number to setup.cfg"
+sed -i "s/# version placeholder.\\+$/version = ${VERSION}/" setup.cfg
+
+# Python release
+echo "- Removing previous build artifacts"
+rm -rf dist/ build/
+echo "- Creating the release"
+python3 setup.py sdist bdist_wheel
+echo "- Uploading to PyPI"
+twine upload dist/*
+
+echo "- Resetting setup.cfg"
+git checkout -- setup.cfg
+
+# Tag
+echo "- Creating (signed) tag ${VERSION}"
+git tag -s -m "Tag ${VERSION}" ${VERSION}
+echo "- Pushing tag"
+git push origin ${VERSION}
+
+echo "Released ${VERSION}"
+echo
+
+URL="https://github.com/peopledoc/septentrion/releases/new?title=Release $VERSION&body=$CHANGELOG&tag=$VERSION"
+echo "Please create the release in github:"
+echo "    $URL"
+python -m webbrowser $URL

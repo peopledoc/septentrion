@@ -1,0 +1,13 @@
+prune tests
+prune docs
+prune example_migrations
+prune *.egg-info
+exclude .codecov.yml
+exclude requirements.txt
+exclude CONTRIBUTING.rst
+exclude CODE_OF_CONDUCT.md
+exclude tox.ini
+exclude docker-compose.yml
+exclude release
+exclude pre-commit-hook
+include LICENSE.rst

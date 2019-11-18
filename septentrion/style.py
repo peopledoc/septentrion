@@ -1,7 +1,6 @@
-from __future__ import print_function
-
 from collections import defaultdict
 from contextlib import contextmanager
+from typing import Dict
 
 import colorama
 
@@ -48,7 +47,7 @@ class Stylist(object):
 
 
 class NoopStylist(Stylist):
-    styles = defaultdict(str)
+    styles: Dict[str, str] = defaultdict(str)
 
     def echo(self, *args, **kwargs):
         pass

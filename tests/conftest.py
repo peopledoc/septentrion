@@ -1,8 +1,4 @@
-import os
-
 import psycopg2
-from psycopg2 import sql
-
 import pytest
 
 
@@ -12,29 +8,14 @@ def db():
     Create a new database for running the test
     Drop it at the end
     """
-    settings = {
-        "host": os.environ.get("PGHOST"),
-        "port": os.environ.get("PGPORT"),
-        "user": os.environ.get("PGUSER"),
-        "password": os.environ.get("PGPASSWORD"),
-    }
-    for key, value in settings.items():
-        assert value is not None, "PG{} need to be defined".format(key.upper())
-
-    # default database to connect to
-    settings["dbname"] = "postgres"
-    connection = psycopg2.connect(**settings)
+    connection = psycopg2.connect(dbname="postgres")
     connection.set_session(autocommit=True)
     cursor = connection.cursor()
-
+    test_db_name = "test_septentrion"
     # create test database to running the test
-    settings["dbname"] = "test_septentrion"
-    cursor.execute(
-        sql.SQL("CREATE DATABASE {}").format(sql.Identifier(settings["dbname"]))
-    )
+    cursor.execute(f"DROP DATABASE IF EXISTS {test_db_name}")
+    cursor.execute(f"CREATE DATABASE {test_db_name}")
 
-    yield settings
+    yield connection.get_dsn_parameters()
 
-    cursor.execute(
-        sql.SQL("DROP DATABASE {}").format(sql.Identifier(settings["dbname"]))
-    )
+    cursor.execute(f"DROP DATABASE {test_db_name}")

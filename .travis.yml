@@ -6,14 +6,44 @@ services:
 
 matrix:
   include:
+  # Linting
+  - python: 3.6
+    env:
+      TOX_ENV: check-lint
 
   - python: 3.6
-    env: TOX_ENV=check-lint
-  - python: 3.6
-    env: TOX_ENV=py36-unit-tests COVERAGE_FLAG=unit
+    env:
+      TOX_ENV: py36-unit-tests
+      COVERAGE_FLAG: unit
   - python: 3.6
     env:
       TOX_ENV: py36-integration-tests
+      PGUSER: postgres
+      PGPORT: 5432
+      PGPASSWORD: ""
+      PGHOST: 127.0.0.1
+      COVERAGE_FLAG: integration
+
+  - python: 3.7
+    env:
+      TOX_ENV: py37-unit-tests
+      COVERAGE_FLAG: unit
+  - python: 3.7
+    env:
+      TOX_ENV: py37-integration-tests
+      PGUSER: postgres
+      PGPORT: 5432
+      PGPASSWORD: ""
+      PGHOST: 127.0.0.1
+      COVERAGE_FLAG: integration
+
+  - python: 3.8
+    env:
+      TOX_ENV: py38-unit-tests
+      COVERAGE_FLAG: unit
+  - python: 3.8
+    env:
+      TOX_ENV: py38-integration-tests
       PGUSER: postgres
       PGPORT: 5432
       PGPASSWORD: ""
