@@ -5,6 +5,7 @@ it.
 """
 import logging
 import os
+from typing import Any, Dict
 
 import click
 from click.types import StringParamType
@@ -14,7 +15,7 @@ from septentrion import __version__, core, db, migrate, settings, style, utils
 logger = logging.getLogger(__name__)
 
 
-def get_context_settings():
+def get_context_settings() -> Dict[str, Any]:
     try:
         with open("septentrion.ini") as file:
             config = file.read()
@@ -32,14 +33,15 @@ def get_context_settings():
 CONTEXT_SETTINGS = get_context_settings()
 
 
-def print_version(ctx, __, value):
+def print_version(ctx: click.Context, param: Any, value: bool):
+    # Value will be True is --version is present, false otherwise.
     if not value or ctx.resilient_parsing:
         return
     click.echo("Septentrion {}".format(__version__))
     ctx.exit()
 
 
-def validate_version(ctx, param, value):
+def validate_version(ctx: click.Context, param: Any, value: str):
     if value and not utils.is_version(value):
         raise click.BadParameter("{value} is not a valid version")
     return value
@@ -48,7 +50,7 @@ def validate_version(ctx, param, value):
 class CommaSeparatedMultipleString(StringParamType):
     envvar_list_splitter = ","
 
-    def split_envvar_value(self, rv):
+    def split_envvar_value(self, rv: str):
         values = super(CommaSeparatedMultipleString, self).split_envvar_value(rv)
         return tuple(value.strip() for value in values)
 
@@ -180,7 +182,7 @@ def migrate_func():
 
 @cli.command()
 @click.argument("version", callback=validate_version)
-def fake(version):
+def fake(version: str):
     """
     Fake migrations until version.
     Write migrations in the migration table without applying them, for
