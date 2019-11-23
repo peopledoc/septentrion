@@ -2,8 +2,7 @@ import io
 
 import pytest
 
-from septentrion import files
-from septentrion import settings
+from septentrion import files, settings
 
 
 @pytest.mark.parametrize("isdir,expected", [(True, ["15.0"]), (False, [])])

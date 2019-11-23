@@ -9,13 +9,7 @@ import os
 import click
 from click.types import StringParamType
 
-from septentrion import __version__
-from septentrion import core
-from septentrion import db
-from septentrion import migrate
-from septentrion import settings
-from septentrion import style
-from septentrion import utils
+from septentrion import __version__, core, db, migrate, settings, style, utils
 
 logger = logging.getLogger(__name__)
 

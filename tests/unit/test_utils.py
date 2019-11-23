@@ -1,8 +1,6 @@
 import pytest
 
-from septentrion.utils import is_version
-from septentrion.utils import sort_versions
-from septentrion.utils import until
+from septentrion.utils import is_version, sort_versions, until
 
 
 def test_sort_versions():

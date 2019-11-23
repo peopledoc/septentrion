@@ -3,8 +3,7 @@ import logging
 
 import pytest
 
-from septentrion import runner
-from septentrion import settings
+from septentrion import runner, settings
 
 
 def test_clean_sql_code():

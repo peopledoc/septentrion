@@ -3,13 +3,7 @@ import io
 import logging
 import os.path
 
-from septentrion import core
-from septentrion import db
-from septentrion import exceptions
-from septentrion import files
-from septentrion import runner
-from septentrion import style
-from septentrion import utils
+from septentrion import core, db, exceptions, files, runner, style, utils
 from septentrion.settings import settings
 
 logger = logging.getLogger(__name__)

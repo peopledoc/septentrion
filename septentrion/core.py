@@ -5,11 +5,7 @@ from the existing files (septentrion.files) and from the db (septentrion.db)
 
 import os
 
-from septentrion import db
-from septentrion import exceptions
-from septentrion import files
-from septentrion import style
-from septentrion import utils
+from septentrion import db, exceptions, files, style, utils
 from septentrion.settings import settings
 
 
