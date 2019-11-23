@@ -8,6 +8,7 @@ from distutils.version import StrictVersion
 from typing import Any, Iterable, Optional, Tuple
 
 import psycopg2
+from psycopg2.extensions import connection as Connection
 from psycopg2.extras import DictCursor
 
 from septentrion.settings import settings
@@ -15,7 +16,7 @@ from septentrion.settings import settings
 logger = logging.getLogger(__name__)
 
 
-def get_connection() -> psycopg2.extentions.connection:
+def get_connection() -> Connection:
     """
     Opens a PostgreSQL connection using psycopg2.
     """

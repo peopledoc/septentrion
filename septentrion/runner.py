@@ -1,8 +1,8 @@
 import logging
 from typing import Iterable
 
-import psycopg2
 import sqlparse
+from psycopg2.extensions import cursor as Cursor
 
 from septentrion import files
 from septentrion.settings import settings
@@ -41,7 +41,7 @@ class Block(object):
             raise SQLRunnerException("Block closed !")
         self.closed = True
 
-    def run(self, cursor: psycopg2.extentions.cursor) -> int:
+    def run(self, cursor: Cursor) -> int:
         statements = sqlparse.parse(self.content)
 
         text_type = type(u"")  # Remove when only PY3 is supported
@@ -75,7 +75,7 @@ class MetaBlock(Block):
         if command != "do-until-0":
             raise SQLRunnerException("Unexpected command {}".format(command))
 
-    def run(self, cursor: psycopg2.extensions.cursor) -> int:
+    def run(self, cursor: Cursor) -> int:
         total_rows = 0
         # Simply call super().run in a loop...
         delta = 0

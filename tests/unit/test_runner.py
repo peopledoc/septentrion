@@ -121,11 +121,10 @@ from author_data;
 select true;
 """
     )
-    handler.name = "/manual/foo.sql"
     settings.consolidate(
         non_transactional_keyword=["CONCURRENTLY", "ALTER TYPE", "VACUUM"], verbose=0
     )
-    script = runner.Script(handler)
+    script = runner.Script(handler, "/manual/foo.sql")
 
     b1, b2, b3 = script.block_list
 
