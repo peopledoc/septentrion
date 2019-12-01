@@ -33,12 +33,10 @@ def test_current_database_state(cli_runner, db):
     )
     settings = configuration.Settings.from_cli(
         {
-            "table": "septentrion_migrations",
             "host": db["host"],
             "port": db["port"],
             "username": db["user"],
             "dbname": db["dbname"],
-            "password": None,
         }
     )
     assert result.exit_code == 0

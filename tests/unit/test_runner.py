@@ -121,12 +121,7 @@ from author_data;
 select true;
 """
     )
-    settings = configuration.Settings.from_cli(
-        {
-            "non_transactional_keyword": ["CONCURRENTLY", "ALTER TYPE", "VACUUM"],
-            "verbose": 0,
-        }
-    )
+    settings = configuration.Settings.from_cli({})
     script = runner.Script(
         settings=settings, file_handler=handler, name="/manual/foo.sql"
     )

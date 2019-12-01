@@ -22,7 +22,7 @@ def test_get_applied_versions(mocker, known_versions):
 
 
 def test_get_closest_version_unknown_target_version(known_versions):
-    settings = configuration.Settings.from_cli({"target_version": "1.5", "verbose": 0})
+    settings = configuration.Settings.from_cli({"target_version": "1.5"})
 
     # target_version is not a known version
     with pytest.raises(ValueError):
@@ -35,7 +35,7 @@ def test_get_closest_version_unknown_target_version(known_versions):
 
 
 def test_get_closest_version_ok(known_versions):
-    settings = configuration.Settings.from_cli({"verbose": 0})
+    settings = configuration.Settings.from_cli({})
 
     version = core.get_closest_version(
         settings=settings,
@@ -48,7 +48,7 @@ def test_get_closest_version_ok(known_versions):
 
 
 def test_get_closest_version_schema_doesnt_exist(known_versions):
-    settings = configuration.Settings.from_cli({"verbose": 0})
+    settings = configuration.Settings.from_cli({})
 
     version = core.get_closest_version(
         settings=settings,
@@ -62,7 +62,7 @@ def test_get_closest_version_schema_doesnt_exist(known_versions):
 
 
 def test_get_closest_version_schema_force_ko(known_versions):
-    settings = configuration.Settings.from_cli({"verbose": 0})
+    settings = configuration.Settings.from_cli({})
 
     with pytest.raises(ValueError):
         core.get_closest_version(
@@ -75,7 +75,7 @@ def test_get_closest_version_schema_force_ko(known_versions):
 
 
 def test_get_closest_version_schema_force_ok(known_versions):
-    settings = configuration.Settings.from_cli({"verbose": 0})
+    settings = configuration.Settings.from_cli({})
 
     version = core.get_closest_version(
         settings=settings,
@@ -89,7 +89,7 @@ def test_get_closest_version_schema_force_ok(known_versions):
 
 
 def test_get_closest_version_schema_force_dont_exist(known_versions):
-    settings = configuration.Settings.from_cli({"verbose": 0})
+    settings = configuration.Settings.from_cli({})
 
     version = core.get_closest_version(
         settings=settings,
@@ -108,14 +108,7 @@ def test_get_best_schema_version_ok(mocker, known_versions):
         "septentrion.core.files.get_known_schemas",
         return_value=["schema_1.1.sql", "schema_1.2.sql"],
     )
-    settings = configuration.Settings.from_cli(
-        {
-            "target_version": "1.2",
-            "schema_template": "schema_{}.sql",
-            "schema_version": None,
-            "verbose": "0",
-        }
-    )
+    settings = configuration.Settings.from_cli({"target_version": "1.2"})
 
     version = core.get_best_schema_version(settings=settings)
 
@@ -127,21 +120,14 @@ def test_get_best_schema_version_ko(mocker, known_versions):
         "septentrion.core.files.get_known_schemas",
         return_value=["schema_1.0.sql", "schema_1.3.sql"],
     )
-    settings = configuration.Settings.from_cli(
-        {
-            "target_version": "1.2",
-            "schema_template": "schema_{}.sql",
-            "schema_version": None,
-            "verbose": 0,
-        }
-    )
+    settings = configuration.Settings.from_cli({"target_version": "1.2"})
 
     with pytest.raises(exceptions.SeptentrionException):
         core.get_best_schema_version(settings=settings)
 
 
 def test_build_migration_plan_unknown_version(known_versions):
-    settings = configuration.Settings.from_cli({"target_version": "1.5", "verbose": 0})
+    settings = configuration.Settings.from_cli({"target_version": "1.5"})
 
     with pytest.raises(ValueError):
         list(core.build_migration_plan(settings))
@@ -157,7 +143,7 @@ def test_build_migration_plan_ok(mocker, known_versions):
         },
     )
     mocker.patch("septentrion.core.files.is_manual_migration", return_value=True)
-    settings = configuration.Settings.from_cli({"target_version": "1.2", "verbose": 0})
+    settings = configuration.Settings.from_cli({"target_version": "1.2",})
 
     plan = core.build_migration_plan(settings=settings)
 

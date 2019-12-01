@@ -28,6 +28,15 @@ DEFAULTS = {
     "schema_template": "schema_{}.sql",
     "fixtures_template": "fixtures_{}.sql",
     "non_transactional_keyword": ["CONCURRENTLY", "ALTER TYPE", "VACUUM"],
+    # Values that don't have a default need to be present too
+    "verbose": 0,
+    "host": None,
+    "port": None,
+    "username": None,
+    "password": False,
+    "dbname": None,
+    "schema_version": None,
+    "additional_schema_file": [],
 }
 
 
@@ -84,12 +93,14 @@ def log_level(verbosity: int) -> int:
 
 
 def clean_key(key: str) -> str:
+    # CLI settings are lowercase
     return key.upper()
 
 
 class Settings:
     def __init__(self):
         self._settings = {}
+        self.update(DEFAULTS)
 
     def __getattr__(self, key: str) -> Any:
         return self._settings[key]
@@ -100,11 +111,13 @@ class Settings:
     def __repr__(self):
         return repr(self._settings)
 
+    def update(self, values: Dict) -> None:
+        for key, value in values.items():
+            self.set(key, value)
+
     @classmethod
     def from_cli(cls, cli_settings: Dict):
-        # CLI settings are lowercase
         settings = cls()
-        for key, value in cli_settings.items():
-            settings.set(key, value)
+        settings.update(cli_settings)
 
         return settings
