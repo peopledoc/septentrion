@@ -3,7 +3,8 @@ from septentrion import __main__, configuration, db as db_module
 
 def test_version(cli_runner):
     assert (
-        cli_runner.invoke(__main__.main, ["--version"]).output == "Septentrion 0.0.0\n"
+        cli_runner.invoke(__main__.main, ["--version"]).output
+        == "septentrion, version 0.0.0\n"
     )
 
 

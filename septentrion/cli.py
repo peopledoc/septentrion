@@ -59,14 +59,6 @@ CONTEXT_SETTINGS = {
 }
 
 
-def print_version(ctx: click.Context, param: Any, value: bool):
-    # Value will be True is --version is present, false otherwise.
-    if not value or ctx.resilient_parsing:
-        return
-    click.echo("Septentrion {}".format(__version__))
-    ctx.exit()
-
-
 def validate_version(ctx: click.Context, param: Any, value: str):
     if value and not utils.is_version(value):
         raise click.BadParameter(f"{value} is not a valid version")
@@ -98,14 +90,7 @@ class CommaSeparatedMultipleString(StringParamType):
     f"[default: {' or '.join(configuration.CONFIGURATION_FILES)}]",
     type=click.File("rb"),
 )
-@click.option(
-    "-V",
-    "--version",
-    is_flag=True,
-    callback=print_version,
-    expose_value=False,
-    is_eager=True,
-)
+@click.version_option(__version__, "-V", "--version", prog_name="septentrion")
 @click.option("-v", "--verbose", count=True)
 @click.option("--host", "-H", help="Database host (env: SEPTENTRION_HOST or PGHOST)")
 @click.option("--port", "-p", help="Database port (env: SEPTENTRION_PORT or PGPORT)")
