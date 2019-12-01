@@ -91,7 +91,13 @@ class CommaSeparatedMultipleString(StringParamType):
     type=click.File("rb"),
 )
 @click.version_option(__version__, "-V", "--version", prog_name="septentrion")
-@click.option("-v", "--verbose", count=True)
+@click.option(
+    "-v",
+    "--verbose",
+    count=True,
+    show_default=False,
+    help="Raises verbosity level (can be used multiple times)",
+)
 @click.option("--host", "-H", help="Database host (env: SEPTENTRION_HOST or PGHOST)")
 @click.option("--port", "-p", help="Database port (env: SEPTENTRION_PORT or PGPORT)")
 @click.option(
