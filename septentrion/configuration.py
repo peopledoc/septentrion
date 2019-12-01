@@ -22,6 +22,14 @@ COMMON_CONFIGURATION_FILES = ["./setup.cfg"]
 
 ALL_CONFIGURATION_FILES = CONFIGURATION_FILES + COMMON_CONFIGURATION_FILES
 
+DEFAULTS = {
+    "table": "septentrion_migrations",
+    "migrations_root": ".",
+    "schema_template": "schema_{}.sql",
+    "fixtures_template": "fixtures_{}.sql",
+    "non_transactional_keyword": ["CONCURRENTLY", "ALTER TYPE", "VACUUM"],
+}
+
 
 def read_default_configuration_files() -> Tuple[str, str]:
     for file in ALL_CONFIGURATION_FILES:

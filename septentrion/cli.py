@@ -3,6 +3,7 @@ All things related to the CLI and only that. This module can call functions
 from other modules to get the information it needs, then format it and display
 it.
 """
+import functools
 import logging
 import os
 from typing import Any, TextIO
@@ -22,6 +23,9 @@ from septentrion import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+click.option = functools.partial(click.option, show_default=True)  # type: ignore
 
 
 def load_config(ctx: click.Context, param: click.Parameter, value: TextIO) -> None:
@@ -90,10 +94,9 @@ class CommaSeparatedMultipleString(StringParamType):
     "--config-file",
     is_eager=True,
     callback=load_config,
-    help="Config file to use. "
-    f"Default value: " + " or ".join(configuration.CONFIGURATION_FILES),
+    help="Config file to use (env: SEPTENTRION_CONFIG_FILE)  "
+    f"[default: {' or '.join(configuration.CONFIGURATION_FILES)}]",
     type=click.File("rb"),
-    default=None,
 )
 @click.option(
     "-V",
@@ -122,17 +125,15 @@ class CommaSeparatedMultipleString(StringParamType):
 )
 @click.option(
     "--table",
-    help="Database table in which to write migrations. The table will be created"
+    help="Database table in which to write migrations. The table will be created "
     "immediately if it doesn't exist (env: SEPTENTRION_TABLE)",
-    show_default=True,
-    default="septentrion_migrations",
+    default=configuration.DEFAULTS["table"],
 )
 @click.option(
     "--migrations-root",
     help="Path to the migration files (env: SEPTENTRION_MIGRATION_ROOT)",
     type=click.Path(exists=True, file_okay=False, resolve_path=True),
-    show_default=True,
-    default=".",
+    default=configuration.DEFAULTS["migrations_root"],
 )
 @click.option(
     "--target-version",
@@ -149,24 +150,21 @@ class CommaSeparatedMultipleString(StringParamType):
 @click.option(
     "--schema-template",
     help="Template name for schema files " "(env: SEPTENTRION_SCHEMA_TEMPLATE)",
-    show_default=True,
-    default="schema_{}.sql",
+    default=configuration.DEFAULTS["schema_template"],
 )
 @click.option(
     "--fixtures-template",
     help="Template name for schema files " "(env: SEPTENTRION_FIXTURES_TEMPLATE)",
-    show_default=True,
-    default="fixtures_{}.sql",
+    default=configuration.DEFAULTS["fixtures_template"],
 )
 @click.option(
     "--non-transactional-keyword",
     multiple=True,
-    show_default=True,
     type=CommaSeparatedMultipleString(),
     help="When those words are found in the migration, it is executed outside of a "
     "transaction (repeat the flag as many times as necessary) "
     "(env: SEPTENTRION_NON_TRANSACTIONAL_KEYWORD, comma separated values)",
-    default=["CONCURRENTLY", "ALTER TYPE", "VACUUM"],
+    default=configuration.DEFAULTS["non_transactional_keyword"],
 )
 @click.option(
     "--additional-schema-file",
