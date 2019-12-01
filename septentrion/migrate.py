@@ -3,26 +3,27 @@ import io
 import logging
 import os.path
 
-from septentrion import core, db, exceptions, files, runner, style, utils
-from septentrion.settings import settings
+from septentrion import configuration, core, db, exceptions, files, runner, style, utils
 
 logger = logging.getLogger(__name__)
 
 
-def migrate(stylist: style.Stylist = style.noop_stylist) -> None:
+def migrate(
+    settings: configuration.Settings, stylist: style.Stylist = style.noop_stylist
+) -> None:
 
     logger.info("Starting migrations")
-    if not db.is_schema_initialized():
+    if not db.is_schema_initialized(settings=settings):
         logger.info("Migration table is empty, loading a schema")
         # schema not inited
-        schema_version = core.get_best_schema_version()
-        init_schema(schema_version, stylist=stylist)
+        schema_version = core.get_best_schema_version(settings=settings)
+        init_schema(settings=settings, init_version=schema_version, stylist=stylist)
 
     # play migrations
     with stylist.activate("title") as echo:
         echo("Applying migrations")
 
-    for plan in core.build_migration_plan():
+    for plan in core.build_migration_plan(settings=settings):
         version = plan["version"]
         logger.info("Processing version %s", version)
         with stylist.activate("subtitle") as echo:
@@ -45,12 +46,16 @@ def migrate(stylist: style.Stylist = style.noop_stylist) -> None:
                     content="Applying {}...".format(title),
                     content_after="Applied {}".format(title),
                 ):
-                    run_script(path)
+                    run_script(settings=settings, path=path)
                     logger.info("Saving operation in the database")
-                    db.write_migration(version, mig)
+                    db.write_migration(settings=settings, version=version, name=mig)
 
 
-def init_schema(init_version: str, stylist: style.Stylist = style.noop_stylist) -> None:
+def init_schema(
+    settings: configuration.Settings,
+    init_version: str,
+    stylist: style.Stylist = style.noop_stylist,
+) -> None:
     # load additional files
     logger.info("Looking for additional files to run")
     additional_files = settings.ADDITIONAL_SCHEMA_FILE
@@ -59,7 +64,7 @@ def init_schema(init_version: str, stylist: style.Stylist = style.noop_stylist) 
             continue
         file_path = os.path.join(settings.MIGRATIONS_ROOT, "schemas", file_name)
         logger.info("Loading %s", file_path)
-        run_script(file_path)
+        run_script(settings=settings, path=file_path)
 
     # load schema
     with stylist.activate("title") as echo:
@@ -77,13 +82,15 @@ def init_schema(init_version: str, stylist: style.Stylist = style.noop_stylist) 
         content_after="Applied {}".format(init_version),
     ):
 
-        run_script(schema_path)
+        run_script(settings=settings, path=schema_path)
 
-    create_fake_entries(init_version)
+    create_fake_entries(settings=settings, version=init_version)
 
     # load fixtures
     try:
-        fixtures_version = core.get_fixtures_version(init_version)
+        fixtures_version = core.get_fixtures_version(
+            settings=settings, target_version=init_version
+        )
         fixtures_path = os.path.join(
             settings.MIGRATIONS_ROOT,
             "fixtures",
@@ -96,20 +103,22 @@ def init_schema(init_version: str, stylist: style.Stylist = style.noop_stylist) 
             content="Applying fixtures {}...".format(fixtures_version),
             content_after="Applied fixtures {}".format(fixtures_version),
         ):
-            run_script(fixtures_path)
+            run_script(settings=settings, path=fixtures_path)
     except exceptions.SeptentrionException as exception:
         logger.info("Not applying fixtures: %s", exception)
 
 
 def create_fake_entries(
-    version: str, stylist: style.Stylist = style.noop_stylist
+    settings: configuration.Settings,
+    version: str,
+    stylist: style.Stylist = style.noop_stylist,
 ) -> None:
     """
     Write entries in the migration table for all existing migrations
     up until the given version (included).
     """
     # Fake migrations <= init_version
-    known_versions = files.get_known_versions()
+    known_versions = files.get_known_versions(settings=settings)
     versions_to_fake = list(utils.until(known_versions, version))
     logger.info("Will now fake all migrations up to version %s (included)", version)
 
@@ -118,7 +127,9 @@ def create_fake_entries(
 
     for version in versions_to_fake:
         logger.info("Faking migrations from version %s", version)
-        migrations_to_apply = files.get_migrations_files_mapping(version)
+        migrations_to_apply = files.get_migrations_files_mapping(
+            settings=settings, version=version
+        )
         migs = list(migrations_to_apply)
         migs.sort()
         for migration_name in migs:
@@ -127,11 +138,13 @@ def create_fake_entries(
                 content="Faking {}...".format(migration_name),
                 content_after="Faked {}".format(migration_name),
             ):
-                db.write_migration(version, migration_name)
+                db.write_migration(
+                    settings=settings, version=version, name=migration_name
+                )
 
 
-def run_script(path: str) -> None:
+def run_script(settings: configuration.Settings, path: str) -> None:
     logger.info("Running SQL file %s", path)
     with io.open(path, "r", encoding="utf8") as f:
-        script = runner.Script(f, f.name)
-        script.run(db.get_connection())
+        script = runner.Script(settings=settings, file_handler=f, name=f.name)
+        script.run(connection=db.get_connection(settings=settings))

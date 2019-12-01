@@ -3,7 +3,7 @@ import logging
 
 import pytest
 
-from septentrion import runner, settings
+from septentrion import configuration, runner
 
 
 def test_clean_sql_code():
@@ -121,10 +121,15 @@ from author_data;
 select true;
 """
     )
-    settings.consolidate(
-        non_transactional_keyword=["CONCURRENTLY", "ALTER TYPE", "VACUUM"], verbose=0
+    settings = configuration.Settings.from_cli(
+        {
+            "non_transactional_keyword": ["CONCURRENTLY", "ALTER TYPE", "VACUUM"],
+            "verbose": 0,
+        }
     )
-    script = runner.Script(handler, "/manual/foo.sql")
+    script = runner.Script(
+        settings=settings, file_handler=handler, name="/manual/foo.sql"
+    )
 
     b1, b2, b3 = script.block_list
 
