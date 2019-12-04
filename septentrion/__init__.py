@@ -1,4 +1,4 @@
-def _extract_version(package_name):
+def _extract_version(package_name: str) -> str:
     try:
         # Package is installed (even with -e)
         import pkg_resources

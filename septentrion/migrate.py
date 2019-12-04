@@ -3,19 +3,13 @@ import io
 import logging
 import os.path
 
-from septentrion import core
-from septentrion import db
-from septentrion import exceptions
-from septentrion import files
-from septentrion import runner
-from septentrion import style
-from septentrion import utils
+from septentrion import core, db, exceptions, files, runner, style, utils
 from septentrion.settings import settings
 
 logger = logging.getLogger(__name__)
 
 
-def migrate(stylist=style.noop_stylist):
+def migrate(stylist: style.Stylist = style.noop_stylist) -> None:
 
     logger.info("Starting migrations")
     if not db.is_schema_initialized():
@@ -56,7 +50,7 @@ def migrate(stylist=style.noop_stylist):
                     db.write_migration(version, mig)
 
 
-def init_schema(init_version, stylist=style.noop_stylist):
+def init_schema(init_version: str, stylist: style.Stylist = style.noop_stylist) -> None:
     # load additional files
     logger.info("Looking for additional files to run")
     additional_files = settings.ADDITIONAL_SCHEMA_FILE
@@ -107,7 +101,9 @@ def init_schema(init_version, stylist=style.noop_stylist):
         logger.info("Not applying fixtures: %s", exception)
 
 
-def create_fake_entries(version, stylist=style.noop_stylist):
+def create_fake_entries(
+    version: str, stylist: style.Stylist = style.noop_stylist
+) -> None:
     """
     Write entries in the migration table for all existing migrations
     up until the given version (included).
@@ -134,8 +130,8 @@ def create_fake_entries(version, stylist=style.noop_stylist):
                 db.write_migration(version, migration_name)
 
 
-def run_script(path):
+def run_script(path: str) -> None:
     logger.info("Running SQL file %s", path)
     with io.open(path, "r", encoding="utf8") as f:
-        script = runner.Script(f)
+        script = runner.Script(f, f.name)
         script.run(db.get_connection())

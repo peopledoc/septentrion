@@ -1,6 +1,5 @@
 from septentrion.__main__ import main
-from septentrion.db import get_current_schema_version
-from septentrion.db import is_schema_initialized
+from septentrion.db import get_current_schema_version, is_schema_initialized
 
 
 def test_version(cli_runner):

@@ -4,16 +4,13 @@ from the existing files (septentrion.files) and from the db (septentrion.db)
 """
 
 import os
+from typing import Any, Dict, Iterable, Optional
 
-from septentrion import db
-from septentrion import exceptions
-from septentrion import files
-from septentrion import style
-from septentrion import utils
+from septentrion import db, exceptions, files, style, utils
 from septentrion.settings import settings
 
 
-def get_applied_versions():
+def get_applied_versions() -> Iterable[str]:
     """
     Return the list of applied versions.
     Reuse django migration table.
@@ -25,7 +22,12 @@ def get_applied_versions():
     return utils.sort_versions(applied_versions & known_versions)
 
 
-def get_closest_version(target_version, sql_tpl, existing_files, force_version=None):
+def get_closest_version(
+    target_version: str,
+    sql_tpl: str,
+    existing_files: Iterable[str],
+    force_version: Optional[str] = None,
+):
     """
     Get the version of a file (schema or fixtures) to use to init a DB.
     Take the closest to the target_version. Can be the same version, or older.
@@ -66,7 +68,7 @@ def get_closest_version(target_version, sql_tpl, existing_files, force_version=N
     return None
 
 
-def get_best_schema_version():
+def get_best_schema_version() -> str:
     """
     Get the best candidate to init the DB.
     """
@@ -82,7 +84,7 @@ def get_best_schema_version():
     return version
 
 
-def get_fixtures_version(target_version):
+def get_fixtures_version(target_version: str) -> str:
     """
     Get the closest fixtures to use to init a new DB
     to the current target version.
@@ -98,7 +100,7 @@ def get_fixtures_version(target_version):
     return version
 
 
-def build_migration_plan():
+def build_migration_plan() -> Iterable[Dict[str, Any]]:
     """
     Return the list of migrations by version,
     from the version used to init the DB to the current target version.
@@ -133,7 +135,7 @@ def build_migration_plan():
         yield {"version": version, "plan": version_plan}
 
 
-def describe_migration_plan(stylist=style.noop_stylist):
+def describe_migration_plan(stylist: style.Stylist = style.noop_stylist) -> None:
     current_version = db.get_current_schema_version()
     with stylist.activate("title") as echo:
         echo("Current version is {}".format(current_version))

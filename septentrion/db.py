@@ -5,8 +5,10 @@ Interact with the migrations table.
 import logging
 from contextlib import contextmanager
 from distutils.version import StrictVersion
+from typing import Any, Iterable, Optional, Tuple
 
 import psycopg2
+from psycopg2.extensions import connection as Connection
 from psycopg2.extras import DictCursor
 
 from septentrion.settings import settings
@@ -14,7 +16,7 @@ from septentrion.settings import settings
 logger = logging.getLogger(__name__)
 
 
-def get_connection():
+def get_connection() -> Connection:
     """
     Opens a PostgreSQL connection using psycopg2.
     """
@@ -48,7 +50,7 @@ def get_connection():
 
 
 @contextmanager
-def execute(query, args=tuple(), commit=False):
+def execute(query: str, args: Tuple = tuple(), commit: bool = False) -> Any:
     query = " ".join(query.format(table=settings.TABLE).split())
     with get_connection() as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
@@ -60,7 +62,7 @@ def execute(query, args=tuple(), commit=False):
 
 
 class Query(object):
-    def __init__(self, query, args=tuple(), commit=False):
+    def __init__(self, query: str, args: Tuple = tuple(), commit: bool = False):
         self.context_manager = execute(query, args, commit)
 
     def __enter__(self):
@@ -99,24 +101,24 @@ query_is_schema_initialized = """
 """
 
 
-def get_current_schema_version():
+def get_current_schema_version() -> Optional[str]:
     versions = get_applied_versions()
     if not versions:
         return None
-    return max(StrictVersion(version) for version in versions)
+    return str(max(StrictVersion(version) for version in versions))
 
 
-def get_applied_versions():
+def get_applied_versions() -> Iterable[str]:
     with Query(query_max_version) as cur:
         return [row[0] for row in cur]
 
 
-def get_applied_migrations(version):
+def get_applied_migrations(version: str) -> Iterable[str]:
     with Query(query_get_applied_migrations, (version,)) as cur:
         return [row[0] for row in cur]
 
 
-def is_schema_initialized():
+def is_schema_initialized() -> bool:
     with Query(query_is_schema_initialized) as cur:
         try:
             return next(cur)
@@ -124,9 +126,9 @@ def is_schema_initialized():
             return False
 
 
-def create_table():
+def create_table() -> None:
     Query(query_create_table, commit=True)()
 
 
-def write_migration(version, name):
+def write_migration(version: str, name: str) -> None:
     Query(query_write_migration, (version, name), commit=True)()

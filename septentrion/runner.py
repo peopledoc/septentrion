@@ -1,6 +1,8 @@
 import logging
+from typing import Iterable
 
 import sqlparse
+from psycopg2.extensions import cursor as Cursor
 
 from septentrion import files
 from septentrion.settings import settings
@@ -12,7 +14,7 @@ class SQLRunnerException(Exception):
     pass
 
 
-def clean_sql_code(code):
+def clean_sql_code(code: str) -> str:
     output = ""
     for line in code.split("\n"):
         stripped_line = line.strip()
@@ -29,17 +31,17 @@ class Block(object):
         self.closed = False
         self.content = ""
 
-    def append_line(self, line):
+    def append_line(self, line: str) -> None:
         if self.closed:
             raise SQLRunnerException("Block closed !")
         self.content += line
 
-    def close(self):
+    def close(self) -> None:
         if self.closed:
             raise SQLRunnerException("Block closed !")
         self.closed = True
 
-    def run(self, cursor):
+    def run(self, cursor: Cursor) -> int:
         statements = sqlparse.parse(self.content)
 
         text_type = type(u"")  # Remove when only PY3 is supported
@@ -67,13 +69,13 @@ class SimpleBlock(Block):
 
 
 class MetaBlock(Block):
-    def __init__(self, command):
+    def __init__(self, command: str):
         super(MetaBlock, self).__init__()
         self.command = command
         if command != "do-until-0":
             raise SQLRunnerException("Unexpected command {}".format(command))
 
-    def run(self, cursor):
+    def run(self, cursor: Cursor) -> int:
         total_rows = 0
         # Simply call super().run in a loop...
         delta = 0
@@ -90,8 +92,8 @@ class MetaBlock(Block):
 
 
 class Script(object):
-    def __init__(self, file_handler):
-        is_manual = files.is_manual_migration(file_handler.name)
+    def __init__(self, file_handler: Iterable[str], name: str):
+        is_manual = files.is_manual_migration(name)
         if is_manual:
             self.block_list = [Block()]
         elif self.contains_non_transactional_keyword(file_handler):

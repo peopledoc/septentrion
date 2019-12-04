@@ -5,20 +5,21 @@ Interact with the migration files.
 import io
 import os
 from distutils.version import StrictVersion
+from typing import Iterable
 
 from septentrion import utils
 from septentrion.settings import settings
 
 
-def list_dirs(root):
+def list_dirs(root: str) -> Iterable[str]:
     return [d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d))]
 
 
-def list_files(root):
+def list_files(root: str) -> Iterable[str]:
     return [d for d in os.listdir(root) if os.path.isfile(os.path.join(root, d))]
 
 
-def get_known_versions():
+def get_known_versions() -> Iterable[str]:
     """
     Return the list of the known versions defined in migration repository,
     ordered.
@@ -43,7 +44,7 @@ def get_known_versions():
     return versions
 
 
-def is_manual_migration(migration_path):
+def is_manual_migration(migration_path: str) -> bool:
 
     if "/manual/" in migration_path:
         return True
@@ -59,18 +60,18 @@ def is_manual_migration(migration_path):
     return False
 
 
-def get_known_schemas():
+def get_known_schemas() -> Iterable[str]:
     return os.listdir(os.path.join(settings.MIGRATIONS_ROOT, "schemas"))
 
 
-def get_known_fixtures():
+def get_known_fixtures() -> Iterable[str]:
     try:
         return os.listdir(os.path.join(settings.MIGRATIONS_ROOT, "fixtures"))
     except FileNotFoundError:
         return []
 
 
-def get_migrations_files_mapping(version):
+def get_migrations_files_mapping(version: str):
     """
     Return an dict containing the list of migrations for
     the given version.
@@ -78,7 +79,7 @@ def get_migrations_files_mapping(version):
     Value: path to the migration file.
     """
 
-    def filter_migrations(files):
+    def filter_migrations(files: Iterable[str]) -> Iterable[str]:
         return [f for f in files if f.endswith("ddl.sql") or f.endswith("dml.sql")]
 
     version_root = os.path.join(settings.MIGRATIONS_ROOT, version)

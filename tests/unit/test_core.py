@@ -1,8 +1,6 @@
 import pytest
 
-from septentrion import core
-from septentrion import exceptions
-from septentrion import settings
+from septentrion import core, exceptions, settings
 
 
 @pytest.fixture

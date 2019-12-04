@@ -4,11 +4,12 @@ the settings, see cli.py (for now)
 """
 import configparser
 import logging
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
 
-def get_config_settings(content):
+def get_config_settings(content: str) -> Dict:
     """
     Read configuration file and return
     a dict with values to use if they are
@@ -18,7 +19,7 @@ def get_config_settings(content):
     parser.read_string(content)
 
     if "septentrion" in parser:
-        config = dict(parser["septentrion"])
+        config: Dict[str, Any] = dict(parser["septentrion"])
         if "additional_schema_file" in config:
             config["additional_schema_file"] = [
                 line for line in config["additional_schema_file"].splitlines() if line
@@ -32,21 +33,22 @@ def get_config_settings(content):
     return {}
 
 
-class Settings(object):
+class Settings(dict):
+    def __getattr__(self, key: str) -> Any:
+        return self[key]
+
     @staticmethod
-    def _clean_key(key):
+    def _clean_key(key: str) -> str:
         return key.upper()
 
-    def set(self, **kwargs):
+    def set(self, **kwargs) -> None:
         """
         TODO: clean this.
         """
-        kwargs = {self._clean_key(key): value for key, value in kwargs.items()}
-
-        vars(self).update(kwargs)
+        self.update({self._clean_key(key): value for key, value in kwargs.items()})
 
 
-def log_level(verbosity):
+def log_level(verbosity: int) -> int:
     """
     verbosity  | log level
     (input)    | (output)
@@ -59,7 +61,7 @@ def log_level(verbosity):
     return 40 - 10 * min(verbosity, 3)
 
 
-def consolidate(**kwargs):
+def consolidate(**kwargs) -> None:
     settings.set(**kwargs)
 
     level = log_level(settings.VERBOSE)
