@@ -28,8 +28,8 @@ DEFAULTS = {
     "schema_template": "schema_{}.sql",
     "fixtures_template": "fixtures_{}.sql",
     "non_transactional_keyword": ["CONCURRENTLY", "ALTER TYPE", "VACUUM"],
-    # Values that don't have a default need to be present too
-    "verbose": 0,
+    # Values that don't have an explicit default need to be present too
+    "verbosity": 0,
     "host": None,
     "port": None,
     "username": None,

@@ -94,9 +94,11 @@ class CommaSeparatedMultipleString(StringParamType):
 @click.option(
     "-v",
     "--verbose",
+    "verbosity",
     count=True,
     show_default=False,
-    help="Raises verbosity level (can be used multiple times)",
+    help="Raises verbosity level (can be used multiple times)"
+    "(env: SEPTENTRION_VERBOSITY, int)",
 )
 @click.option("--host", "-H", help="Database host (env: SEPTENTRION_HOST or PGHOST)")
 @click.option("--port", "-p", help="Database port (env: SEPTENTRION_PORT or PGPORT)")
@@ -174,6 +176,10 @@ def cli(ctx: click.Context, **kwargs):
     kwargs["password"] = password
 
     ctx.obj = settings = configuration.Settings.from_cli(kwargs)
+
+    level = configuration.log_level(verbosity=settings.VERBOSITY)
+    logging.basicConfig(level=level)
+    logger.info("Verbosity level: %s", logging.getLevelName(level))
 
     # All other commands will need the table to be created
     logger.info("Ensuring migration table exists")
