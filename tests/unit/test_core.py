@@ -143,7 +143,7 @@ def test_build_migration_plan_ok(mocker, known_versions):
         },
     )
     mocker.patch("septentrion.core.files.is_manual_migration", return_value=True)
-    settings = configuration.Settings.from_cli({"target_version": "1.2",})
+    settings = configuration.Settings.from_cli({"target_version": "1.2"})
 
     plan = core.build_migration_plan(settings=settings)
 
