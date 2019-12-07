@@ -10,8 +10,8 @@ from septentrion import exceptions
 
 logger = logging.getLogger(__name__)
 
-# These are the dedicated septentrion configuration files
-CONFIGURATION_FILES = [
+# These are the configuration files only used by septentrion
+DEDICATED_CONFIGURATION_FILES = [
     "./septentrion.ini",
     "~/.config/septentrion.ini",
     "/etc/septentrion.ini",
@@ -20,7 +20,7 @@ CONFIGURATION_FILES = [
 # it's also ok if they exist and they don't configure septentrion.
 COMMON_CONFIGURATION_FILES = ["./setup.cfg"]
 
-ALL_CONFIGURATION_FILES = CONFIGURATION_FILES + COMMON_CONFIGURATION_FILES
+ALL_CONFIGURATION_FILES = DEDICATED_CONFIGURATION_FILES + COMMON_CONFIGURATION_FILES
 
 DEFAULTS = {
     "table": "septentrion_migrations",

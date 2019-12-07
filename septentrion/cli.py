@@ -42,7 +42,7 @@ def load_config(ctx: click.Context, param: click.Parameter, value: TextIO) -> No
     try:
         default = configuration.parse_configuration_file(file_contents)
     except exceptions.NoSeptentrionSection:
-        if file in configuration.CONFIGURATION_FILES:
+        if file in configuration.DEDICATED_CONFIGURATION_FILES:
             click.echo(
                 f"Configuration file found at {file} but contains no septentrion "
                 "section"
@@ -87,7 +87,7 @@ class CommaSeparatedMultipleString(StringParamType):
     is_eager=True,
     callback=load_config,
     help="Config file to use (env: SEPTENTRION_CONFIG_FILE)  "
-    f"[default: {' or '.join(configuration.CONFIGURATION_FILES)}]",
+    f"[default: {' or '.join(configuration.ALL_CONFIGURATION_FILES)}]",
     type=click.File("rb"),
 )
 @click.version_option(__version__, "-V", "--version", prog_name="septentrion")
