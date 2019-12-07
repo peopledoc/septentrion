@@ -25,6 +25,12 @@ from septentrion import (
 logger = logging.getLogger(__name__)
 
 
+# By default, click options don't show their default value, except if we pass
+# `show_default=True`. We could pass show_default in the context, but then we would not
+# be able to disable it for a single option, as stated in the doc:
+# https://click.palletsprojects.com/en/7.x/api/?highlight=show_default#context
+# So we modify the click.option callable and change the default value of the argument.
+# (From https://github.com/pallets/click/issues/1018#issuecomment-416969437)
 click.option = functools.partial(click.option, show_default=True)  # type: ignore
 
 
