@@ -8,47 +8,29 @@ from septentrion import configuration, core, db, exceptions, files, runner, styl
 logger = logging.getLogger(__name__)
 
 
-def migrate(
-    settings: configuration.Settings, stylist: style.Stylist = style.noop_stylist
-) -> None:
+def migrate(settings: configuration.Settings) -> None:
 
     logger.info("Starting migrations")
     if not db.is_schema_initialized(settings=settings):
         logger.info("Migration table is empty, loading a schema")
         # schema not inited
         schema_version = core.get_best_schema_version(settings=settings)
-        init_schema(settings=settings, init_version=schema_version, stylist=stylist)
-
-    # play migrations
-    with stylist.activate("title") as echo:
-        echo("Applying migrations")
+        init_schema(settings=settings, init_version=schema_version)
 
     for plan in core.build_migration_plan(settings=settings):
         version = plan["version"]
         logger.info("Processing version %s", version)
-        with stylist.activate("subtitle") as echo:
-            echo("Version {}".format(version))
+
         for mig, applied, path, is_manual in plan["plan"]:
             logger.debug(
                 "Processing migration %(mig)s, applied: %(applied)s, "
                 "path: %(path)s, manual: %(is_manual)s",
                 {"mig": mig, "applied": applied, "path": path, "is_manual": is_manual},
             )
-            title = mig
-            if is_manual:
-                title += " (manual)"
-            title += " "
-            if applied:
-                stylist.draw_checkbox(checked=True, content="Already applied")
-                stylist.echo("")  # new line
-            else:
-                with stylist.checkbox(
-                    content="Applying {}...".format(title),
-                    content_after="Applied {}".format(title),
-                ):
-                    run_script(settings=settings, path=path)
-                    logger.info("Saving operation in the database")
-                    db.write_migration(settings=settings, version=version, name=mig)
+            if not applied:
+                run_script(settings=settings, path=path)
+                logger.info("Saving operation in the database")
+                db.write_migration(settings=settings, version=version, name=mig)
 
 
 def init_schema(
