@@ -7,8 +7,7 @@ import os
 from distutils.version import StrictVersion
 from typing import Iterable
 
-from septentrion import utils
-from septentrion.settings import settings
+from septentrion import configuration, utils
 
 
 def list_dirs(root: str) -> Iterable[str]:
@@ -19,7 +18,7 @@ def list_files(root: str) -> Iterable[str]:
     return [d for d in os.listdir(root) if os.path.isfile(os.path.join(root, d))]
 
 
-def get_known_versions() -> Iterable[str]:
+def get_known_versions(settings: configuration.Settings) -> Iterable[str]:
     """
     Return the list of the known versions defined in migration repository,
     ordered.
@@ -60,18 +59,18 @@ def is_manual_migration(migration_path: str) -> bool:
     return False
 
 
-def get_known_schemas() -> Iterable[str]:
+def get_known_schemas(settings: configuration.Settings) -> Iterable[str]:
     return os.listdir(os.path.join(settings.MIGRATIONS_ROOT, "schemas"))
 
 
-def get_known_fixtures() -> Iterable[str]:
+def get_known_fixtures(settings: configuration.Settings) -> Iterable[str]:
     try:
         return os.listdir(os.path.join(settings.MIGRATIONS_ROOT, "fixtures"))
     except FileNotFoundError:
         return []
 
 
-def get_migrations_files_mapping(version: str):
+def get_migrations_files_mapping(settings: configuration.Settings, version: str):
     """
     Return an dict containing the list of migrations for
     the given version.

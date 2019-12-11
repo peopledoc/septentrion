@@ -3,47 +3,71 @@ All things related to the CLI and only that. This module can call functions
 from other modules to get the information it needs, then format it and display
 it.
 """
+import functools
 import logging
 import os
-from typing import Any, Dict
+from typing import Any, TextIO
 
 import click
 from click.types import StringParamType
 
-from septentrion import __version__, core, db, migrate, settings, style, utils
+from septentrion import (
+    __version__,
+    configuration,
+    core,
+    db,
+    exceptions,
+    migrate,
+    style,
+    utils,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def get_context_settings() -> Dict[str, Any]:
+# By default, click options don't show their default value, except if we pass
+# `show_default=True`. We could pass show_default in the context, but then we would not
+# be able to disable it for a single option, as stated in the doc:
+# https://click.palletsprojects.com/en/7.x/api/?highlight=show_default#context
+# So we modify the click.option callable and change the default value of the argument.
+# (From https://github.com/pallets/click/issues/1018#issuecomment-416969437)
+click.option = functools.partial(click.option, show_default=True)  # type: ignore
+
+
+def load_config(ctx: click.Context, param: click.Parameter, value: TextIO) -> None:
+    if not value:
+        try:
+            file_contents, file = configuration.read_default_configuration_files()
+        except exceptions.NoDefaultConfiguration:
+            pass
+    else:
+        file = getattr(value, "name", "stdin")
+        logger.info(f"Reading configuration from {file}")
+        file_contents = value.read()
+
     try:
-        with open("septentrion.ini") as file:
-            config = file.read()
-    except FileNotFoundError:
-        config = ""
+        default = configuration.parse_configuration_file(file_contents)
+    except exceptions.NoSeptentrionSection:
+        if file in configuration.DEDICATED_CONFIGURATION_FILES:
+            click.echo(
+                f"Configuration file found at {file} but contains no septentrion "
+                "section"
+            )
+        default = {}
 
-    return {
-        "help_option_names": ["-h", "--help"],
-        "default_map": settings.get_config_settings(config),
-        "auto_envvar_prefix": "SEPTENTRION",
-        "max_content_width": 120,
-    }
-
-
-CONTEXT_SETTINGS = get_context_settings()
+    ctx.default_map = default
 
 
-def print_version(ctx: click.Context, param: Any, value: bool):
-    # Value will be True is --version is present, false otherwise.
-    if not value or ctx.resilient_parsing:
-        return
-    click.echo("Septentrion {}".format(__version__))
-    ctx.exit()
+CONTEXT_SETTINGS = {
+    "help_option_names": ["-h", "--help"],
+    "auto_envvar_prefix": "SEPTENTRION",
+    "max_content_width": 120,
+}
 
 
 def validate_version(ctx: click.Context, param: Any, value: str):
     if value and not utils.is_version(value):
-        raise click.BadParameter("{value} is not a valid version")
+        raise click.BadParameter(f"{value} is not a valid version")
     return value
 
 
@@ -63,15 +87,25 @@ class CommaSeparatedMultipleString(StringParamType):
     execution.
     """,
 )
+@click.pass_context
 @click.option(
-    "-V",
-    "--version",
-    is_flag=True,
-    callback=print_version,
-    expose_value=False,
+    "--config-file",
     is_eager=True,
+    callback=load_config,
+    help="Config file to use (env: SEPTENTRION_CONFIG_FILE)  "
+    f"[default: {' or '.join(configuration.ALL_CONFIGURATION_FILES)}]",
+    type=click.File("rb"),
 )
-@click.option("-v", "--verbose", count=True)
+@click.version_option(__version__, "-V", "--version", prog_name="septentrion")
+@click.option(
+    "-v",
+    "--verbose",
+    "verbosity",
+    count=True,
+    show_default=False,
+    help="Raises verbosity level (can be used multiple times)"
+    "(env: SEPTENTRION_VERBOSITY, int)",
+)
 @click.option("--host", "-H", help="Database host (env: SEPTENTRION_HOST or PGHOST)")
 @click.option("--port", "-p", help="Database port (env: SEPTENTRION_PORT or PGPORT)")
 @click.option(
@@ -90,17 +124,15 @@ class CommaSeparatedMultipleString(StringParamType):
 )
 @click.option(
     "--table",
-    help="Database table in which to write migrations. The table will be created"
+    help="Database table in which to write migrations. The table will be created "
     "immediately if it doesn't exist (env: SEPTENTRION_TABLE)",
-    show_default=True,
-    default="septentrion_migrations",
+    default=configuration.DEFAULTS["table"],
 )
 @click.option(
     "--migrations-root",
     help="Path to the migration files (env: SEPTENTRION_MIGRATION_ROOT)",
     type=click.Path(exists=True, file_okay=False, resolve_path=True),
-    show_default=True,
-    default=".",
+    default=configuration.DEFAULTS["migrations_root"],
 )
 @click.option(
     "--target-version",
@@ -117,24 +149,21 @@ class CommaSeparatedMultipleString(StringParamType):
 @click.option(
     "--schema-template",
     help="Template name for schema files " "(env: SEPTENTRION_SCHEMA_TEMPLATE)",
-    show_default=True,
-    default="schema_{}.sql",
+    default=configuration.DEFAULTS["schema_template"],
 )
 @click.option(
     "--fixtures-template",
     help="Template name for schema files " "(env: SEPTENTRION_FIXTURES_TEMPLATE)",
-    show_default=True,
-    default="fixtures_{}.sql",
+    default=configuration.DEFAULTS["fixtures_template"],
 )
 @click.option(
     "--non-transactional-keyword",
     multiple=True,
-    show_default=True,
     type=CommaSeparatedMultipleString(),
     help="When those words are found in the migration, it is executed outside of a "
     "transaction (repeat the flag as many times as necessary) "
     "(env: SEPTENTRION_NON_TRANSACTIONAL_KEYWORD, comma separated values)",
-    default=["CONCURRENTLY", "ALTER TYPE", "VACUUM"],
+    default=configuration.DEFAULTS["non_transactional_keyword"],
 )
 @click.option(
     "--additional-schema-file",
@@ -145,48 +174,55 @@ class CommaSeparatedMultipleString(StringParamType):
     "flag as many times as necessary) (env: SEPTENTRION_ADDITIONAL_SCHEMA_FILE, comma "
     "separated values)",
 )
-def cli(**kwargs):
+def cli(ctx: click.Context, **kwargs):
     if kwargs.pop("password_flag"):
         password = click.prompt("Database password", hide_input=True)
     else:
         password = os.getenv("SEPTENTRION_PASSWORD")
     kwargs["password"] = password
 
-    settings.consolidate(**kwargs)
+    ctx.obj = settings = configuration.Settings.from_cli(kwargs)
 
-    # All other commands will need to table to be created
+    level = configuration.log_level(verbosity=settings.VERBOSITY)
+    logging.basicConfig(level=level)
+    logger.info("Verbosity level: %s", logging.getLevelName(level))
+
+    # All other commands will need the table to be created
     logger.info("Ensuring migration table exists")
     # TODO: this probably deserves an option
-    db.create_table()  # idempotent
+    db.create_table(settings=settings)  # idempotent
 
 
 @cli.command(name="show-migrations")
-def show_migrations():
+@click.pass_obj
+def show_migrations(settings: configuration.Settings):
     """
     Show the current state of the database.
     Retrieves informations on the current version
     of the database schema, and the applied and
     unapplied migrations.
     """
-    core.describe_migration_plan(stylist=style.stylist)
+    core.describe_migration_plan(settings=settings, stylist=style.stylist)
 
 
 @cli.command(name="migrate")
-def migrate_func():
+@click.pass_obj
+def migrate_func(settings: configuration.Settings):
     """
     Run unapplied migrations.
 
     """
-    migrate.migrate(stylist=style.stylist)
+    migrate.migrate(settings=settings, stylist=style.stylist)
 
 
 @cli.command()
 @click.argument("version", callback=validate_version)
-def fake(version: str):
+@click.pass_obj
+def fake(settings: configuration.Settings, version: str):
     """
     Fake migrations until version.
     Write migrations in the migration table without applying them, for
     all migrations up until the given version (included). This is useful
     when installing septentrion on an existing DB.
     """
-    migrate.create_fake_entries(version)
+    migrate.create_fake_entries(settings=settings, version=version)

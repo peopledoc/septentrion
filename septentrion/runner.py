@@ -4,8 +4,7 @@ from typing import Iterable
 import sqlparse
 from psycopg2.extensions import cursor as Cursor
 
-from septentrion import files
-from septentrion.settings import settings
+from septentrion import configuration, files
 
 logger = logging.getLogger(__name__)
 
@@ -92,8 +91,11 @@ class MetaBlock(Block):
 
 
 class Script(object):
-    def __init__(self, file_handler: Iterable[str], name: str):
+    def __init__(
+        self, settings: configuration.Settings, file_handler: Iterable[str], name: str
+    ):
         is_manual = files.is_manual_migration(name)
+        self.settings = settings
         if is_manual:
             self.block_list = [Block()]
         elif self.contains_non_transactional_keyword(file_handler):
@@ -120,7 +122,7 @@ class Script(object):
                 block.run(cursor)
 
     def contains_non_transactional_keyword(self, file_handler):
-        keywords = settings.NON_TRANSACTIONAL_KEYWORD
+        keywords = self.settings.NON_TRANSACTIONAL_KEYWORD
         for line in file_handler:
             for kw in keywords:
                 if kw.lower() in line.lower():

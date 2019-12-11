@@ -6,23 +6,23 @@ from the existing files (septentrion.files) and from the db (septentrion.db)
 import os
 from typing import Any, Dict, Iterable, Optional
 
-from septentrion import db, exceptions, files, style, utils
-from septentrion.settings import settings
+from septentrion import configuration, db, exceptions, files, style, utils
 
 
-def get_applied_versions() -> Iterable[str]:
+def get_applied_versions(settings: configuration.Settings) -> Iterable[str]:
     """
     Return the list of applied versions.
     Reuse django migration table.
     """
-    applied_versions = set(db.get_applied_versions())
+    applied_versions = set(db.get_applied_versions(settings=settings))
 
-    known_versions = set(files.get_known_versions())
+    known_versions = set(files.get_known_versions(settings=settings))
 
     return utils.sort_versions(applied_versions & known_versions)
 
 
 def get_closest_version(
+    settings: configuration.Settings,
     target_version: str,
     sql_tpl: str,
     existing_files: Iterable[str],
@@ -33,7 +33,7 @@ def get_closest_version(
     Take the closest to the target_version. Can be the same version, or older.
     """
     # get known versions
-    known_versions = files.get_known_versions()
+    known_versions = files.get_known_versions(settings=settings)
     # find target version
 
     try:
@@ -41,7 +41,7 @@ def get_closest_version(
     except ValueError:
         raise ValueError(
             "settings.TARGET_VERSION is improperly configured: "
-            "version {} not found.".format(settings.TARGET_VERSION)
+            "version {} not found.".format(target_version)
         )
 
     # should we set a version from settings ?
@@ -68,14 +68,15 @@ def get_closest_version(
     return None
 
 
-def get_best_schema_version() -> str:
+def get_best_schema_version(settings: configuration.Settings) -> str:
     """
     Get the best candidate to init the DB.
     """
     version = get_closest_version(
+        settings=settings,
         target_version=settings.TARGET_VERSION,
         sql_tpl=settings.SCHEMA_TEMPLATE,
-        existing_files=files.get_known_schemas(),
+        existing_files=files.get_known_schemas(settings=settings),
         force_version=settings.SCHEMA_VERSION,
     )
 
@@ -84,14 +85,15 @@ def get_best_schema_version() -> str:
     return version
 
 
-def get_fixtures_version(target_version: str) -> str:
+def get_fixtures_version(settings: configuration.Settings, target_version: str) -> str:
     """
     Get the closest fixtures to use to init a new DB
     to the current target version.
     """
     version = get_closest_version(
+        settings=settings,
         target_version=target_version,
-        existing_files=files.get_known_fixtures(),
+        existing_files=files.get_known_fixtures(settings=settings),
         sql_tpl=settings.FIXTURES_TEMPLATE,
     )
 
@@ -100,13 +102,13 @@ def get_fixtures_version(target_version: str) -> str:
     return version
 
 
-def build_migration_plan() -> Iterable[Dict[str, Any]]:
+def build_migration_plan(settings: configuration.Settings) -> Iterable[Dict[str, Any]]:
     """
     Return the list of migrations by version,
     from the version used to init the DB to the current target version.
     """
     # get known versions
-    known_versions = files.get_known_versions()
+    known_versions = files.get_known_versions(settings=settings)
 
     # get all versions to apply
     try:
@@ -121,9 +123,13 @@ def build_migration_plan() -> Iterable[Dict[str, Any]]:
     for version in versions_to_apply:
         version_plan = []
         # get applied migrations
-        applied_migrations = db.get_applied_migrations(version)
+        applied_migrations = db.get_applied_migrations(
+            settings=settings, version=version
+        )
         # get migrations to apply
-        migrations_to_apply = files.get_migrations_files_mapping(version)
+        migrations_to_apply = files.get_migrations_files_mapping(
+            settings=settings, version=version
+        )
         migs = list(migrations_to_apply)
         migs.sort()
         # build plan
@@ -135,8 +141,10 @@ def build_migration_plan() -> Iterable[Dict[str, Any]]:
         yield {"version": version, "plan": version_plan}
 
 
-def describe_migration_plan(stylist: style.Stylist = style.noop_stylist) -> None:
-    current_version = db.get_current_schema_version()
+def describe_migration_plan(
+    settings: configuration.Settings, stylist: style.Stylist = style.noop_stylist
+) -> None:
+    current_version = db.get_current_schema_version(settings=settings)
     with stylist.activate("title") as echo:
         echo("Current version is {}".format(current_version))
 
@@ -144,7 +152,7 @@ def describe_migration_plan(stylist: style.Stylist = style.noop_stylist) -> None
     with stylist.activate("title") as echo:
         echo("Target version is {}".format(target_version))
 
-    for plan in build_migration_plan():
+    for plan in build_migration_plan(settings=settings):
         version = plan["version"]
         migrations = plan["plan"]
 

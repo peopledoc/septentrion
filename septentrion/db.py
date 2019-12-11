@@ -11,12 +11,12 @@ import psycopg2
 from psycopg2.extensions import connection as Connection
 from psycopg2.extras import DictCursor
 
-from septentrion.settings import settings
+from septentrion import configuration
 
 logger = logging.getLogger(__name__)
 
 
-def get_connection() -> Connection:
+def get_connection(settings: configuration.Settings) -> Connection:
     """
     Opens a PostgreSQL connection using psycopg2.
     """
@@ -50,9 +50,14 @@ def get_connection() -> Connection:
 
 
 @contextmanager
-def execute(query: str, args: Tuple = tuple(), commit: bool = False) -> Any:
+def execute(
+    settings: configuration.Settings,
+    query: str,
+    args: Tuple = tuple(),
+    commit: bool = False,
+) -> Any:
     query = " ".join(query.format(table=settings.TABLE).split())
-    with get_connection() as conn:
+    with get_connection(settings=settings) as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             logger.debug("Executing %s -- Args: %s", query, args)
             cur.execute(query, args)
@@ -62,8 +67,16 @@ def execute(query: str, args: Tuple = tuple(), commit: bool = False) -> Any:
 
 
 class Query(object):
-    def __init__(self, query: str, args: Tuple = tuple(), commit: bool = False):
-        self.context_manager = execute(query, args, commit)
+    def __init__(
+        self,
+        settings: configuration.Settings,
+        query: str,
+        args: Tuple = tuple(),
+        commit: bool = False,
+    ):
+        self.context_manager = execute(
+            settings=settings, query=query, args=args, commit=commit
+        )
 
     def __enter__(self):
         return self.context_manager.__enter__()
@@ -101,34 +114,43 @@ query_is_schema_initialized = """
 """
 
 
-def get_current_schema_version() -> Optional[str]:
-    versions = get_applied_versions()
+def get_current_schema_version(settings: configuration.Settings) -> Optional[str]:
+    versions = get_applied_versions(settings=settings)
     if not versions:
         return None
     return str(max(StrictVersion(version) for version in versions))
 
 
-def get_applied_versions() -> Iterable[str]:
-    with Query(query_max_version) as cur:
+def get_applied_versions(settings: configuration.Settings) -> Iterable[str]:
+    with Query(settings=settings, query=query_max_version) as cur:
         return [row[0] for row in cur]
 
 
-def get_applied_migrations(version: str) -> Iterable[str]:
-    with Query(query_get_applied_migrations, (version,)) as cur:
+def get_applied_migrations(
+    settings: configuration.Settings, version: str
+) -> Iterable[str]:
+    with Query(
+        settings=settings, query=query_get_applied_migrations, args=(version,)
+    ) as cur:
         return [row[0] for row in cur]
 
 
-def is_schema_initialized() -> bool:
-    with Query(query_is_schema_initialized) as cur:
+def is_schema_initialized(settings: configuration.Settings) -> bool:
+    with Query(settings=settings, query=query_is_schema_initialized) as cur:
         try:
             return next(cur)
         except StopIteration:
             return False
 
 
-def create_table() -> None:
-    Query(query_create_table, commit=True)()
+def create_table(settings: configuration.Settings) -> None:
+    Query(settings=settings, query=query_create_table, commit=True)()
 
 
-def write_migration(version: str, name: str) -> None:
-    Query(query_write_migration, (version, name), commit=True)()
+def write_migration(settings: configuration.Settings, version: str, name: str) -> None:
+    Query(
+        settings=settings,
+        query=query_write_migration,
+        args=(version, name),
+        commit=True,
+    )()

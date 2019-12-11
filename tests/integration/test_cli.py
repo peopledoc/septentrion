@@ -1,15 +1,17 @@
-from septentrion.__main__ import main
-from septentrion.db import get_current_schema_version, is_schema_initialized
+from septentrion import __main__, configuration, db as db_module
 
 
 def test_version(cli_runner):
-    assert cli_runner.invoke(main, ["--version"]).output == "Septentrion 0.0.0\n"
+    assert (
+        cli_runner.invoke(__main__.main, ["--version"]).output
+        == "septentrion, version 0.0.0\n"
+    )
 
 
 def test_current_database_state(cli_runner, db):
 
     result = cli_runner.invoke(
-        main,
+        __main__.main,
         [
             # database connection settings
             "--host",
@@ -27,8 +29,16 @@ def test_current_database_state(cli_runner, db):
             "example_migrations",
             "migrate",
         ],
+        catch_exceptions=False,
     )
-
+    settings = configuration.Settings.from_cli(
+        {
+            "host": db["host"],
+            "port": db["port"],
+            "username": db["user"],
+            "dbname": db["dbname"],
+        }
+    )
     assert result.exit_code == 0
-    assert is_schema_initialized()
-    assert get_current_schema_version() == "1.1"
+    assert db_module.is_schema_initialized(settings=settings)
+    assert db_module.get_current_schema_version(settings=settings) == "1.1"
