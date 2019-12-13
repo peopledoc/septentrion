@@ -105,7 +105,7 @@ def test_get_closest_version_schema_force_dont_exist(known_versions):
 
 def test_get_best_schema_version_ok(mocker, known_versions):
     mocker.patch(
-        "septentrion.core.files.get_known_schemas",
+        "septentrion.core.files.get_special_files",
         return_value=["schema_1.1.sql", "schema_1.2.sql"],
     )
     settings = configuration.Settings.from_cli({"target_version": "1.2"})
@@ -117,7 +117,7 @@ def test_get_best_schema_version_ok(mocker, known_versions):
 
 def test_get_best_schema_version_ko(mocker, known_versions):
     mocker.patch(
-        "septentrion.core.files.get_known_schemas",
+        "septentrion.core.files.get_special_files",
         return_value=["schema_1.0.sql", "schema_1.3.sql"],
     )
     settings = configuration.Settings.from_cli({"target_version": "1.2"})

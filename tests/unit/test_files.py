@@ -1,66 +1,55 @@
-import io
+import pathlib
 
 import pytest
 
-from septentrion import configuration, files
+from septentrion import configuration, exceptions, files
 
 
 @pytest.mark.parametrize(
-    "value,expected", [("/foo/manual/bar", True), ("/blah.tgz", False)]
+    "migration_path,migration_contents,expected",
+    [
+        ("/foo/manual/bar", [], True),
+        ("/foo.dml.sql", ["--meta-psql:done"], True),
+        ("/blah.tgz", [], False),
+        ("/foo.dml.sql", ["foo"], False),
+    ],
 )
-def test_is_manual_migration(value, expected):
-    assert files.is_manual_migration(value) == expected
-
-
-def test_is_manual_migration_true(mocker):
-    mocker.patch("io.open", return_value=io.StringIO("--meta-psql:done"))
-
-    assert files.is_manual_migration("/foo.dml.sql") is True
-
-
-def test_is_manual_migration_false(mocker):
-    mocker.patch("io.open", return_value=io.StringIO("foo"))
-
-    assert files.is_manual_migration("/foo.dml.sql") is False
-
-
-def test_get_known_schemas(mocker):
-    mocker.patch("os.listdir", return_value=["schema_17.02.sql", "schema_16.12.sql"])
-    settings = configuration.Settings.from_cli(
-        {"migrations_root": "tests/test_data/sql"}
+def test_is_manual_migration(migration_path, migration_contents, expected):
+    assert (
+        files.is_manual_migration(
+            migration_path=pathlib.Path(migration_path),
+            migration_contents=migration_contents,
+        )
+        == expected
     )
 
-    values = files.get_known_schemas(settings=settings)
+
+def test_get_special_files(mocker):
+    mocker.patch(
+        "septentrion.files.iter_files",
+        return_value=[
+            pathlib.Path("schema_17.02.sql"),
+            pathlib.Path("schema_16.12.sql"),
+        ],
+    )
+
+    values = files.get_special_files(
+        root=pathlib.Path("tests/test_data/sql"), folder="schemas"
+    )
 
     expected = ["schema_16.12.sql", "schema_17.02.sql"]
     assert sorted(values) == expected
 
 
-def test_get_known_fixtures(mocker):
-    mocker.patch("os.listdir", return_value=["fixtures_16.12.sql"])
-    settings = configuration.Settings.from_cli(
-        {"migrations_root": "tests/test_data/sql"}
-    )
-
-    values = files.get_known_fixtures(settings=settings)
-
-    assert values == ["fixtures_16.12.sql"]
-
-
-def test_get_known_fixtures_unknown_path(mocker):
-    mocker.patch("os.listdir", side_effect=FileNotFoundError())
-    settings = configuration.Settings.from_cli(
-        {"migrations_root": "tests/test_data/sql"}
-    )
-
-    values = files.get_known_fixtures(settings=settings)
-
-    assert values == []
-
-
 def test_get_known_versions(mocker):
-    mocker.patch("septentrion.files.list_dirs", return_value=["16.11", "16.12", "16.9"])
-    mocker.patch("os.path.islink", return_value=False)
+    mocker.patch(
+        "septentrion.files.iter_dirs",
+        return_value=[
+            pathlib.Path("16.11"),
+            pathlib.Path("16.12"),
+            pathlib.Path("16.9"),
+        ],
+    )
     settings = configuration.Settings.from_cli({})
 
     values = files.get_known_versions(settings=settings)
@@ -69,36 +58,29 @@ def test_get_known_versions(mocker):
 
 
 def test_get_known_versions_error(mocker):
-    mocker.patch("septentrion.files.list_dirs", side_effect=OSError)
+    mocker.patch("septentrion.files.iter_dirs", side_effect=OSError)
     settings = configuration.Settings.from_cli({})
 
-    with pytest.raises(ValueError):
+    with pytest.raises(exceptions.SeptentrionException):
         files.get_known_versions(settings=settings)
 
 
-def test_get_migrations_files_mapping_ok(mocker):
+def test_get_migrations_files_mapping(mocker):
     mocker.patch(
-        "septentrion.files.list_files",
-        return_value=["file.sql", "file.dml.sql", "file.ddl.sql"],
+        "septentrion.files.iter_files",
+        return_value=[
+            pathlib.Path("tests/test_data/sql/17.1/manual/file.sql"),
+            pathlib.Path("tests/test_data/sql/17.1/manual/file.dml.sql"),
+            pathlib.Path("tests/test_data/sql/17.1/manual/file.ddl.sql"),
+        ],
     )
     settings = configuration.Settings.from_cli(
-        {"migrations_root": "tests/test_data/sql"}
+        {"migrations_root": "tests/test_data/sql", "ignore_symlinks": True}
     )
 
     values = files.get_migrations_files_mapping(settings=settings, version="17.1")
 
     assert values == {
-        "file.dml.sql": "tests/test_data/sql/17.1/manual/file.dml.sql",
-        "file.ddl.sql": "tests/test_data/sql/17.1/manual/file.ddl.sql",
+        "file.dml.sql": pathlib.Path("tests/test_data/sql/17.1/manual/file.dml.sql"),
+        "file.ddl.sql": pathlib.Path("tests/test_data/sql/17.1/manual/file.ddl.sql"),
     }
-
-
-def test_get_migrations_files_mapping_ko(mocker):
-    mocker.patch("septentrion.files.list_files", side_effect=OSError)
-
-    settings = configuration.Settings.from_cli(
-        {"migrations_root": "tests/test_data/sql"}
-    )
-
-    with pytest.raises(ValueError):
-        files.get_migrations_files_mapping(settings=settings, version="17.1")

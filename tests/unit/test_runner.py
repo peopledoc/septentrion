@@ -1,5 +1,6 @@
 import io
 import logging
+import pathlib
 
 import pytest
 
@@ -123,7 +124,7 @@ select true;
     )
     settings = configuration.Settings.from_cli({})
     script = runner.Script(
-        settings=settings, file_handler=handler, name="/manual/foo.sql"
+        settings=settings, file_handler=handler, path=pathlib.Path("/manual/foo.sql")
     )
 
     b1, b2, b3 = script.block_list
