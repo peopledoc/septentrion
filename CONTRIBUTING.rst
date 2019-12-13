@@ -214,3 +214,7 @@ With a running database:
 
 .. code-block:: console
 
+    (venv) $ export PGDATABASE=septentrion PGHOST=localhost PGUSER=postgres
+    (venv) $ createdb
+    (venv) $ export SEPTENTRION_MIGRATIONS_ROOT=example_migrations SEPTENTRION_TARGET_VERSION=1.1
+    (venv) $ septentrion migrate
