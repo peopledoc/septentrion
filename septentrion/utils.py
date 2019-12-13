@@ -1,19 +1,20 @@
 """
 All functions in here should be easily unit testable
 """
+from typing import Iterable, Optional, Tuple, TypeVar
 
-from distutils.version import StrictVersion
-from typing import Iterable, TypeVar
+from septentrion import exceptions
 
 
-def sort_versions(iterable: Iterable[str]) -> Iterable[str]:
-    """
-    Sorts an iterable of strings by increasing
-    equivalent version number
-    >>> sort_versions(["1.0.1", "2.0", "1.0.3"])
-    ["1.0.1", "1.0.3", "2.0"]
-    """
-    return sorted(iterable, key=StrictVersion)
+class Version:
+    def __init__(self, version: str):
+        try:
+            assert version
+            version_tuple = tuple(int(e) for e in version.split("."))
+        except (AssertionError, ValueError) as exc:
+            raise exceptions.InvalidVersion(str(exc)) from exc
+
+        self._version = version_tuple
 
 
 def is_version(vstring: str) -> bool:
@@ -25,8 +26,8 @@ def is_version(vstring: str) -> bool:
     False
     """
     try:
-        StrictVersion(vstring)
-    except ValueError:
+        Version(vstring)
+    except exceptions.InvalidVersion:
         return False
     return True
 

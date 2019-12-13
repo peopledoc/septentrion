@@ -3,60 +3,49 @@ Interact with the migration files.
 """
 
 import io
-import os
-from distutils.version import StrictVersion
+import pathlib
 from typing import Iterable
 
-from septentrion import configuration, utils
+from septentrion import configuration, utils, exceptions
 
 
-def list_dirs(root: str) -> Iterable[str]:
-    return [d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d))]
-
-
-def list_files(root: str) -> Iterable[str]:
-    return [d for d in os.listdir(root) if os.path.isfile(os.path.join(root, d))]
-
-
-def get_known_versions(settings: configuration.Settings) -> Iterable[str]:
+def list_dirs(root: pathlib.Path) -> Iterable[pathlib.Path]:
     """
-    Return the list of the known versions defined in migration repository,
-    ordered.
-    Ignore symlinks.
+    List dirs under root
+    """
+    try:
+        return [d for d in root.iterdir() if d.is_dir()]
+    except OSError as exc:
+        raise exceptions.FileError from exc
+
+
+def list_files(root: pathlib.Path) -> Iterable[pathlib.Path]:
+    """
+    List files under root that are not symlinks
+    """
+    try:
+        return [f for f in root.iterdir() if f.is_file() and not f.is_symlink()]
+    except OSError as exc:
+        raise exceptions.FileError from exc
+
+
+def get_file_versions(migration_root: pathlib.Path) -> Iterable[utils.Version]:
+    """
+    Return the list of the folders in migration root for which the name is a valid
+    version numbers. There are the migration version we know from the files.
     """
     # get all subfolders
-    try:
-        dirs = list_dirs(settings.MIGRATIONS_ROOT)
-    except OSError:
-        raise ValueError("settings.MIGRATIONS_ROOT is improperly configured.")
+    dirs = list_dirs(migration_root)
 
-    # exclude symlinks and some folders (like schemas, fixtures, etc)
-    versions = [
-        d
-        for d in dirs
-        if not os.path.islink(os.path.join(settings.MIGRATIONS_ROOT, d))
-        and utils.is_version(d)
-    ]
+    # Keep only folder names that are valid version numbers
+    versions = []
+    for dir in dirs:
+        try:
+            versions.append(utils.Version(str(dir)))
+        except exceptions.InvalidVersion:
+            continue
 
-    # sort versions
-    versions.sort(key=StrictVersion)
-    return versions
-
-
-def is_manual_migration(migration_path: str) -> bool:
-
-    if "/manual/" in migration_path:
-        return True
-
-    if not migration_path.endswith("dml.sql"):
-        return False
-
-    with io.open(migration_path, "r", encoding="utf8") as f:
-        for line in f:
-            if "--meta-psql:" in line:
-                return True
-
-    return False
+    return sorted(versions)
 
 
 def get_known_schemas(settings: configuration.Settings) -> Iterable[str]:

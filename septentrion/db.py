@@ -4,14 +4,13 @@ Interact with the migrations table.
 
 import logging
 from contextlib import contextmanager
-from distutils.version import StrictVersion
 from typing import Any, Iterable, Optional, Tuple
 
 import psycopg2
 from psycopg2.extensions import connection as Connection
 from psycopg2.extras import DictCursor
 
-from septentrion import configuration
+from septentrion import configuration, version
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +117,7 @@ def get_current_schema_version(settings: configuration.Settings) -> Optional[str
     versions = get_applied_versions(settings=settings)
     if not versions:
         return None
-    return str(max(StrictVersion(version) for version in versions))
+    return str(max(version.Version(version) for version in versions))
 
 
 def get_applied_versions(settings: configuration.Settings) -> Iterable[str]:
