@@ -8,3 +8,7 @@ class NoDefaultConfiguration(SeptentrionException):
 
 class NoSeptentrionSection(SeptentrionException):
     pass
+
+
+class InvalidVersion(SeptentrionException):
+    pass

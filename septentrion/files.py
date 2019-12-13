@@ -4,7 +4,6 @@ Interact with the migration files.
 
 import io
 import os
-from distutils.version import StrictVersion
 from typing import Iterable
 
 from septentrion import configuration, utils
@@ -38,9 +37,7 @@ def get_known_versions(settings: configuration.Settings) -> Iterable[str]:
         and utils.is_version(d)
     ]
 
-    # sort versions
-    versions.sort(key=StrictVersion)
-    return versions
+    return utils.sort_versions(versions)
 
 
 def is_manual_migration(migration_path: str) -> bool:

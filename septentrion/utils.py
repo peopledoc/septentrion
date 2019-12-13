@@ -2,8 +2,9 @@
 All functions in here should be easily unit testable
 """
 
-from distutils.version import StrictVersion
 from typing import Iterable, TypeVar
+
+from septentrion import exceptions, versions
 
 
 def sort_versions(iterable: Iterable[str]) -> Iterable[str]:
@@ -13,7 +14,16 @@ def sort_versions(iterable: Iterable[str]) -> Iterable[str]:
     >>> sort_versions(["1.0.1", "2.0", "1.0.3"])
     ["1.0.1", "1.0.3", "2.0"]
     """
-    return sorted(iterable, key=StrictVersion)
+    return sorted(iterable, key=versions.Version)
+
+
+def get_max_version(iterable: Iterable[str]) -> str:
+    """
+    Returns the latest version in the input iterable
+    >>> get_max_version(["1.3", "1.2"])
+    "1.3"
+    """
+    return max(iterable, key=versions.Version)
 
 
 def is_version(vstring: str) -> bool:
@@ -25,8 +35,8 @@ def is_version(vstring: str) -> bool:
     False
     """
     try:
-        StrictVersion(vstring)
-    except ValueError:
+        versions.Version(vstring)
+    except exceptions.InvalidVersion:
         return False
     return True
 
