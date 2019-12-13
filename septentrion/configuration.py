@@ -5,7 +5,7 @@ the settings, see cli.py (for now)
 import configparser
 import logging
 import pathlib
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, Union
 
 from septentrion import exceptions
 
@@ -115,6 +115,13 @@ class Settings:
         # TODO: remove the .upper() and fix the tests: from_cli() should be
         # the only one doing the .upper()
         self._settings[key.upper()] = value
+
+    def clean_migrations_root(
+        self, migrations_root: Union[str, pathlib.Path]
+    ) -> pathlib.Path:
+        if isinstance(migrations_root, str):
+            migrations_root = pathlib.Path(migrations_root)
+        return migrations_root
 
     def __repr__(self):
         return repr(self._settings)
