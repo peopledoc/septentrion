@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import io
 import logging
-import os.path
+import pathlib
 
 from septentrion import configuration, core, db, exceptions, files, runner, style, utils
 
@@ -62,7 +62,7 @@ def init_schema(
     for file_name in additional_files:
         if not file_name:
             continue
-        file_path = os.path.join(settings.MIGRATIONS_ROOT, "schemas", file_name)
+        file_path = settings.MIGRATIONS_ROOT / "schemas" / file_name
         logger.info("Loading %s", file_path)
         run_script(settings=settings, path=file_path)
 
@@ -70,11 +70,12 @@ def init_schema(
     with stylist.activate("title") as echo:
         echo("Loading schema")
 
-    schema_path = os.path.join(
-        settings.MIGRATIONS_ROOT,
-        "schemas",
-        settings.SCHEMA_TEMPLATE.format(init_version),
+    schema_path = (
+        settings.MIGRATIONS_ROOT
+        / "schemas"
+        / settings.SCHEMA_TEMPLATE.format(init_version)
     )
+
     logger.info("Loading %s", schema_path)
 
     with stylist.checkbox(
@@ -91,11 +92,12 @@ def init_schema(
         fixtures_version = core.get_fixtures_version(
             settings=settings, target_version=init_version
         )
-        fixtures_path = os.path.join(
-            settings.MIGRATIONS_ROOT,
-            "fixtures",
-            settings.FIXTURES_TEMPLATE.format(fixtures_version),
+        fixtures_path = (
+            settings.MIGRATIONS_ROOT
+            / "fixtures"
+            / settings.FIXTURES_TEMPLATE.format(fixtures_version)
         )
+
         with stylist.activate("title") as echo:
             echo("Loading fixtures")
         logger.info("Applying fixture %s (file %s)", fixtures_version, fixtures_path)
@@ -143,8 +145,8 @@ def create_fake_entries(
                 )
 
 
-def run_script(settings: configuration.Settings, path: str) -> None:
+def run_script(settings: configuration.Settings, path: pathlib.Path) -> None:
     logger.info("Running SQL file %s", path)
     with io.open(path, "r", encoding="utf8") as f:
-        script = runner.Script(settings=settings, file_handler=f, name=f.name)
+        script = runner.Script(settings=settings, file_handler=f, path=path)
         script.run(connection=db.get_connection(settings=settings))

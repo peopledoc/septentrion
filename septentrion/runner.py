@@ -1,4 +1,5 @@
 import logging
+import pathlib
 from typing import Iterable
 
 import sqlparse
@@ -91,17 +92,23 @@ class MetaBlock(Block):
 
 class Script(object):
     def __init__(
-        self, settings: configuration.Settings, file_handler: Iterable[str], name: str
+        self,
+        settings: configuration.Settings,
+        file_handler: Iterable[str],
+        path: pathlib.Path,
     ):
-        is_manual = files.is_manual_migration(name)
+        file_lines = list(file_handler)
+        is_manual = files.is_manual_migration(
+            migration_path=path, migration_contents=file_lines
+        )
         self.settings = settings
         if is_manual:
             self.block_list = [Block()]
-        elif self.contains_non_transactional_keyword(file_handler):
+        elif self.contains_non_transactional_keyword(file_lines):
             self.block_list = [Block()]
         else:
             self.block_list = [SimpleBlock()]
-        for line in file_handler:
+        for line in file_lines:
             if line.startswith("--meta-psql:") and is_manual:
                 self.block_list[-1].close()
                 command = line.split(":")[1].strip()
@@ -120,13 +127,11 @@ class Script(object):
             for block in self.block_list:
                 block.run(cursor)
 
-    def contains_non_transactional_keyword(self, file_handler):
+    def contains_non_transactional_keyword(self, file_lines: Iterable[str]) -> bool:
         keywords = self.settings.NON_TRANSACTIONAL_KEYWORD
-        for line in file_handler:
+        for line in file_lines:
             for kw in keywords:
                 if kw.lower() in line.lower():
-                    file_handler.seek(0)
                     return True
 
-        file_handler.seek(0)
         return False

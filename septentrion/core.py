@@ -3,7 +3,6 @@ This is where the migration plan is computed, by merging information
 from the existing files (septentrion.files) and from the db (septentrion.db)
 """
 
-import os
 from typing import Any, Dict, Iterable, Optional
 
 from septentrion import configuration, db, exceptions, files, style, utils
@@ -21,6 +20,8 @@ def get_applied_versions(settings: configuration.Settings) -> Iterable[str]:
     return utils.sort_versions(applied_versions & known_versions)
 
 
+# TODO: Refactor: this should just work with version numbers, not sql_tpl and
+# not force_version
 def get_closest_version(
     settings: configuration.Settings,
     target_version: str,
@@ -68,16 +69,21 @@ def get_closest_version(
     return None
 
 
+# TODO: refactor this and the function below
+# TODO: also remove files.get_special_files, it's not really useful
 def get_best_schema_version(settings: configuration.Settings) -> str:
     """
     Get the best candidate to init the DB.
     """
+    schema_files = files.get_special_files(
+        root=settings.MIGRATIONS_ROOT, folder="schemas"
+    )
     version = get_closest_version(
         settings=settings,
         target_version=settings.TARGET_VERSION,
         sql_tpl=settings.SCHEMA_TEMPLATE,
-        existing_files=files.get_known_schemas(settings=settings),
         force_version=settings.SCHEMA_VERSION,
+        existing_files=schema_files,
     )
 
     if version is None:
@@ -90,10 +96,13 @@ def get_fixtures_version(settings: configuration.Settings, target_version: str) 
     Get the closest fixtures to use to init a new DB
     to the current target version.
     """
+    fixture_files = files.get_special_files(
+        root=settings.MIGRATIONS_ROOT, folder="fixtures"
+    )
     version = get_closest_version(
         settings=settings,
         target_version=target_version,
-        existing_files=files.get_known_fixtures(settings=settings),
+        existing_files=fixture_files,
         sql_tpl=settings.FIXTURES_TEMPLATE,
     )
 
@@ -136,7 +145,10 @@ def build_migration_plan(settings: configuration.Settings) -> Iterable[Dict[str,
         for mig in migs:
             applied = mig in applied_migrations
             path = migrations_to_apply[mig]
-            is_manual = files.is_manual_migration(os.path.abspath(path))
+            contents = files.file_lines_generator(path)
+            is_manual = files.is_manual_migration(
+                migration_path=path, migration_contents=contents
+            )
             version_plan.append((mig, applied, path, is_manual))
         yield {"version": version, "plan": version_plan}
 
