@@ -5,26 +5,6 @@ import pytest
 from septentrion import configuration, files
 
 
-@pytest.mark.parametrize("isdir,expected", [(True, ["15.0"]), (False, [])])
-def test_list_dirs(mocker, isdir, expected):
-    mocker.patch("os.listdir", return_value=["15.0"])
-    mocker.patch("os.path.isdir", return_value=isdir)
-
-    dirs = files.list_dirs("tests/test_data")
-
-    assert dirs == expected
-
-
-@pytest.mark.parametrize("isfile,expected", [(True, ["file.sql"]), (False, [])])
-def test_list_files(mocker, isfile, expected):
-    mocker.patch("os.listdir", return_value=["file.sql"])
-    mocker.patch("os.path.isfile", return_value=isfile)
-
-    values = files.list_files("tests/test_data/sql/fixtures")
-
-    assert values == expected
-
-
 @pytest.mark.parametrize(
     "value,expected", [("/foo/manual/bar", True), ("/blah.tgz", False)]
 )
