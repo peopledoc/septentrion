@@ -61,6 +61,11 @@ Overview
 .. Below this line is content specific to the README that will not appear in the doc.
 .. end-of-index-doc
 
+We're currently working on this tool, and it's been used internally since 2018, but
+for now, if you want to use it without a direct access to the people who
+wrote it, you're going to have a lot of questions. We expect a proper documentation
+to be ready by mid-2020. Please feel free to contact us meanwhile.
+
 Where to go from here
 ---------------------
 
