@@ -43,8 +43,7 @@ class Block(object):
     def run(self, cursor: Cursor) -> int:
         statements = sqlparse.parse(self.content)
 
-        text_type = type(u"")  # Remove when only PY3 is supported
-        content = "".join(text_type(stmt) for stmt in statements)
+        content = "".join(str(stmt) for stmt in statements)
         if content != self.content:
             raise SQLRunnerException("sqlparse failed to properly split input")
 
