@@ -1,2 +1,8 @@
 # Main maintainers
 *                       @mgu @ewjoachim @samuelhamard
+
+
+# Documentation
+/docs/                  @mgu @ewjoachim @samuelhamard @CorBott
+*.rst                   @mgu @ewjoachim @samuelhamard @CorBott
+*.md                    @mgu @ewjoachim @samuelhamard @CorBott
