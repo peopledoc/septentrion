@@ -142,7 +142,7 @@ class CommaSeparatedMultipleString(StringParamType):
 )
 @click.option(
     "--schema-version",
-    help="Version of the initial schema (if not specified, the most resent schema "
+    help="Version of the initial schema (if not specified, the most recent schema "
     "will be used) (env: SEPTENTRION_SCHEMA_VERSION)",
     callback=validate_version,
 )
@@ -153,7 +153,7 @@ class CommaSeparatedMultipleString(StringParamType):
 )
 @click.option(
     "--fixtures-template",
-    help="Template name for schema files " "(env: SEPTENTRION_FIXTURES_TEMPLATE)",
+    help="Template name for fixtures files " "(env: SEPTENTRION_FIXTURES_TEMPLATE)",
     default=configuration.DEFAULTS["fixtures_template"],
 )
 @click.option(
