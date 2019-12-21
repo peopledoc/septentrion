@@ -212,26 +212,9 @@ Try our demo
 
 With a running database:
 
-Launch a worker with:
-
 .. code-block:: console
 
-    (venv) $ export PROCRASTINATE_APP=procrastinate_demo.app.app
-    (venv) $ procrastinate migrate
-    (venv) $ procrastinate worker
-
-Schedule some tasks with:
-
-.. code-block:: console
-
-    (venv) $ python -m procrastinate_demo
-
-Wait, there are ``async`` and ``await`` keywords everywhere!?
--------------------------------------------------------------
-
-Yes, in order to provide both a synchronous **and** asynchronous API, Procrastinate
-needs to be asynchronous at core. Find out more in the documentation, in the Discussions
-section. If you need informations on how to work with asynchronous Python, check out:
-
-- The official documentation: https://docs.python.org/3/library/asyncio.html
-- A more accessible guide by Brad Solomon: https://realpython.com/async-io-python/
+    (venv) $ export PGDATABASE=septentrion PGHOST=localhost PGUSER=postgres
+    (venv) $ createdb
+    (venv) $ export SEPTENTRION_MIGRATIONS_ROOT=example_migrations SEPTENTRION_TARGET_VERSION=1.1
+    (venv) $ septentrion migrate

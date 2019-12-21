@@ -16,6 +16,8 @@ def db():
     cursor.execute(f"DROP DATABASE IF EXISTS {test_db_name}")
     cursor.execute(f"CREATE DATABASE {test_db_name}")
 
-    yield connection.get_dsn_parameters()
+    params = connection.get_dsn_parameters()
+    params["dbname"] = test_db_name
+    yield params
 
     cursor.execute(f"DROP DATABASE {test_db_name}")

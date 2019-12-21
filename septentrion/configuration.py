@@ -4,7 +4,8 @@ the settings, see cli.py (for now)
 """
 import configparser
 import logging
-from typing import Any, Dict, Tuple
+import pathlib
+from typing import Any, Dict, Tuple, Union
 
 from septentrion import exceptions
 
@@ -28,6 +29,7 @@ DEFAULTS = {
     "schema_template": "schema_{}.sql",
     "fixtures_template": "fixtures_{}.sql",
     "non_transactional_keyword": ["CONCURRENTLY", "ALTER TYPE", "VACUUM"],
+    "ignore_symlinks": False,
     # Values that don't have an explicit default need to be present too
     "verbosity": 0,
     "host": None,
@@ -92,21 +94,34 @@ def log_level(verbosity: int) -> int:
     return 40 - 10 * min(verbosity, 3)
 
 
-def clean_key(key: str) -> str:
-    # CLI settings are lowercase
-    return key.upper()
-
-
 class Settings:
     def __init__(self):
         self._settings = {}
         self.update(DEFAULTS)
 
     def __getattr__(self, key: str) -> Any:
-        return self._settings[key]
+        try:
+            return self._settings[key]
+        except KeyError:
+            raise AttributeError(key)
 
     def set(self, key: str, value: Any) -> None:
-        self._settings[clean_key(key)] = value
+        try:
+            method = getattr(self, f"clean_{key.lower()}")
+        except AttributeError:
+            pass
+        else:
+            value = method(value)
+        # TODO: remove the .upper() and fix the tests: from_cli() should be
+        # the only one doing the .upper()
+        self._settings[key.upper()] = value
+
+    def clean_migrations_root(
+        self, migrations_root: Union[str, pathlib.Path]
+    ) -> pathlib.Path:
+        if isinstance(migrations_root, str):
+            migrations_root = pathlib.Path(migrations_root)
+        return migrations_root
 
     def __repr__(self):
         return repr(self._settings)
@@ -118,6 +133,7 @@ class Settings:
     @classmethod
     def from_cli(cls, cli_settings: Dict):
         settings = cls()
-        settings.update(cli_settings)
+        # CLI settings are lowercase
+        settings.update({key.upper(): value for key, value in cli_settings.items()})
 
         return settings

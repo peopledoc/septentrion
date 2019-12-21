@@ -174,6 +174,11 @@ class CommaSeparatedMultipleString(StringParamType):
     "flag as many times as necessary) (env: SEPTENTRION_ADDITIONAL_SCHEMA_FILE, comma "
     "separated values)",
 )
+@click.option(
+    "--ignore-symlinks/--no-ignore-symlinks",
+    default=configuration.DEFAULTS["ignore_symlinks"],
+    help="Ignore migration files that are symlinks",
+)
 def cli(ctx: click.Context, **kwargs):
     if kwargs.pop("password_flag"):
         password = click.prompt("Database password", hide_input=True)
@@ -210,7 +215,6 @@ def show_migrations(settings: configuration.Settings):
 def migrate_func(settings: configuration.Settings):
     """
     Run unapplied migrations.
-
     """
     migrate.migrate(settings=settings, stylist=style.stylist)
 

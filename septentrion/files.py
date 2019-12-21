@@ -2,19 +2,25 @@
 Interact with the migration files.
 """
 
-import io
-import os
-from typing import Iterable
+import pathlib
+from typing import Dict, Iterable, List, Tuple
 
-from septentrion import configuration, utils
-
-
-def list_dirs(root: str) -> Iterable[str]:
-    return [d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d))]
+from septentrion import configuration, exceptions, utils
 
 
-def list_files(root: str) -> Iterable[str]:
-    return [d for d in os.listdir(root) if os.path.isfile(os.path.join(root, d))]
+def iter_dirs(root: pathlib.Path) -> Iterable[pathlib.Path]:
+    return (d for d in root.iterdir() if d.is_dir())
+
+
+def iter_files(
+    root: pathlib.Path, ignore_symlinks: bool = False
+) -> Iterable[pathlib.Path]:
+    for f in root.iterdir():
+        if not f.is_file():
+            continue
+        if ignore_symlinks and f.is_symlink():
+            continue
+        yield f
 
 
 def get_known_versions(settings: configuration.Settings) -> Iterable[str]:
@@ -23,85 +29,82 @@ def get_known_versions(settings: configuration.Settings) -> Iterable[str]:
     ordered.
     Ignore symlinks.
     """
-    # get all subfolders
-    try:
-        dirs = list_dirs(settings.MIGRATIONS_ROOT)
-    except OSError:
-        raise ValueError("settings.MIGRATIONS_ROOT is improperly configured.")
-
     # exclude symlinks and some folders (like schemas, fixtures, etc)
-    versions = [
-        d
-        for d in dirs
-        if not os.path.islink(os.path.join(settings.MIGRATIONS_ROOT, d))
-        and utils.is_version(d)
-    ]
+    try:
+        folders_names = [str(d.name) for d in iter_dirs(settings.MIGRATIONS_ROOT)]
+    except OSError:
+        raise exceptions.SeptentrionException(
+            "settings.MIGRATIONS_ROOT is improperly configured."
+        )
 
-    return utils.sort_versions(versions)
+    return utils.sort_versions(name for name in folders_names if utils.is_version(name))
 
 
-def is_manual_migration(migration_path: str) -> bool:
+def is_manual_migration(
+    migration_path: pathlib.Path, migration_contents: Iterable[str]
+) -> bool:
 
-    if "/manual/" in migration_path:
+    if "manual" in migration_path.parts:
         return True
 
-    if not migration_path.endswith("dml.sql"):
+    if not migration_path.suffixes[-2:] == [".dml", ".sql"]:
         return False
 
-    with io.open(migration_path, "r", encoding="utf8") as f:
-        for line in f:
-            if "--meta-psql:" in line:
-                return True
+    for line in migration_contents:
+        if "--meta-psql:" in line:
+            return True
 
     return False
 
 
-def get_known_schemas(settings: configuration.Settings) -> Iterable[str]:
-    return os.listdir(os.path.join(settings.MIGRATIONS_ROOT, "schemas"))
-
-
-def get_known_fixtures(settings: configuration.Settings) -> Iterable[str]:
+# TODO: remove this function when get_best_schema_version is refactored
+def get_special_files(root: pathlib.Path, folder: str) -> List[str]:
     try:
-        return os.listdir(os.path.join(settings.MIGRATIONS_ROOT, "fixtures"))
+        return [str(f.name) for f in iter_files(root / folder)]
     except FileNotFoundError:
         return []
 
 
-def get_migrations_files_mapping(settings: configuration.Settings, version: str):
+def get_migrations_files_mapping(
+    settings: configuration.Settings, version: str
+) -> Dict[str, pathlib.Path]:
     """
     Return an dict containing the list of migrations for
     the given version.
     Key: name of the migration.
     Value: path to the migration file.
     """
+    ignore_symlinks = settings.IGNORE_SYMLINKS
 
-    def filter_migrations(files: Iterable[str]) -> Iterable[str]:
-        return [f for f in files if f.endswith("ddl.sql") or f.endswith("dml.sql")]
-
-    version_root = os.path.join(settings.MIGRATIONS_ROOT, version)
+    version_root = settings.MIGRATIONS_ROOT / version
     migrations = {}
 
-    # list auto migrations
-    try:
-        files = list_files(version_root)
-    except OSError:
-        raise ValueError("No sql folder found for version {}.".format(version))
-    # filter files (keep *ddl.sql and *dml.sql)
-    auto_migrations = filter_migrations(files)
-    # store migrations
-    for mig in auto_migrations:
-        migrations[mig] = os.path.join(version_root, mig)
-
-    # list manual migrations
-    manual_root = os.path.join(version_root, "manual")
-    try:
-        files = list_files(manual_root)
-    except OSError:
-        files = []
-    # filter files (keep *ddl.sql and *dml.sql)
-    auto_migrations = filter_migrations(files)
-    # store migrations
-    for mig in auto_migrations:
-        migrations[mig] = os.path.join(manual_root, mig)
+    # TODO: should be a setting
+    subfolders = [".", "manual"]
+    for subfolder_name in subfolders:
+        subfolder = version_root / subfolder_name
+        if not subfolder.exists():
+            continue
+        for mig, path in list_migrations_and_paths(
+            folder=subfolder, ignore_symlinks=ignore_symlinks
+        ):
+            migrations[mig] = path
 
     return migrations
+
+
+def list_migrations_and_paths(
+    folder: pathlib.Path, ignore_symlinks: bool
+) -> Iterable[Tuple[str, pathlib.Path]]:
+
+    for file in iter_files(root=folder, ignore_symlinks=ignore_symlinks):
+        if not file.suffix == ".sql" or not file.stem[-3:] in ("ddl", "dml"):
+            continue
+
+        yield file.name, file
+
+
+def file_lines_generator(path: pathlib.Path):
+    with open(path) as f:
+        for line in f:
+            yield line
