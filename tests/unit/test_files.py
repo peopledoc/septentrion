@@ -2,7 +2,7 @@ import pathlib
 
 import pytest
 
-from septentrion import configuration, exceptions, files
+from septentrion import configuration, exceptions, files, versions
 
 
 @pytest.mark.parametrize(
@@ -54,7 +54,11 @@ def test_get_known_versions(mocker):
 
     values = files.get_known_versions(settings=settings)
 
-    assert values == ["16.9", "16.11", "16.12"]
+    assert values == [
+        versions.Version("16.9"),
+        versions.Version("16.11"),
+        versions.Version("16.12"),
+    ]
 
 
 def test_get_known_versions_error(mocker):
@@ -73,6 +77,10 @@ def test_get_migrations_files_mapping(mocker):
             pathlib.Path("tests/test_data/sql/17.1/manual/file.dml.sql"),
             pathlib.Path("tests/test_data/sql/17.1/manual/file.ddl.sql"),
         ],
+    )
+    mocker.patch(
+        "septentrion.files.get_version_migration_dir",
+        return_value=pathlib.Path("tests/test_data/sql/17.1"),
     )
     settings = configuration.Settings.from_cli(
         {"migrations_root": "tests/test_data/sql", "ignore_symlinks": True}

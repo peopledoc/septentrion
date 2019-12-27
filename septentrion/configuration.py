@@ -5,9 +5,9 @@ the settings, see cli.py (for now)
 import configparser
 import logging
 import pathlib
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
-from septentrion import exceptions
+from septentrion import exceptions, versions
 
 logger = logging.getLogger(__name__)
 
@@ -122,6 +122,13 @@ class Settings:
         if isinstance(migrations_root, str):
             migrations_root = pathlib.Path(migrations_root)
         return migrations_root
+
+    def clean_target_version(self, target_version: str) -> versions.Version:
+        return versions.Version(target_version)
+
+    def clean_schema_version(self, schema_version: str) -> Optional[versions.Version]:
+        if schema_version is not None:
+            return versions.Version(schema_version)
 
     def __repr__(self):
         return repr(self._settings)

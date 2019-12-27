@@ -22,3 +22,9 @@ class Version:
     def __repr__(self) -> str:
         version_string = ".".join(str(n) for n in self._version)
         return f'{self.__class__.__name__}("{version_string}")'
+
+    def __hash__(self) -> int:
+        return hash(self._version)
+
+    def normalized_repr(self) -> str:
+        return ".".join(str(i) for i in self._version)

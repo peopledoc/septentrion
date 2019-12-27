@@ -20,6 +20,7 @@ from septentrion import (
     migrate,
     style,
     utils,
+    versions,
 )
 
 logger = logging.getLogger(__name__)
@@ -229,4 +230,4 @@ def fake(settings: configuration.Settings, version: str):
     all migrations up until the given version (included). This is useful
     when installing septentrion on an existing DB.
     """
-    migrate.create_fake_entries(settings=settings, version=version)
+    migrate.create_fake_entries(settings=settings, version=versions.Version(version))

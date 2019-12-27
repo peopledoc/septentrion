@@ -5,7 +5,7 @@ Interact with the migration files.
 import pathlib
 from typing import Dict, Iterable, List, Tuple
 
-from septentrion import configuration, exceptions, utils
+from septentrion import configuration, exceptions, utils, versions
 
 
 def iter_dirs(root: pathlib.Path) -> Iterable[pathlib.Path]:
@@ -23,7 +23,7 @@ def iter_files(
         yield f
 
 
-def get_known_versions(settings: configuration.Settings) -> Iterable[str]:
+def get_known_versions(settings: configuration.Settings) -> Iterable[versions.Version]:
     """
     Return the list of the known versions defined in migration repository,
     ordered.
@@ -37,7 +37,9 @@ def get_known_versions(settings: configuration.Settings) -> Iterable[str]:
             "settings.MIGRATIONS_ROOT is improperly configured."
         )
 
-    return utils.sort_versions(name for name in folders_names if utils.is_version(name))
+    return sorted(
+        versions.Version(name) for name in folders_names if utils.is_version(name)
+    )
 
 
 def is_manual_migration(
@@ -65,8 +67,21 @@ def get_special_files(root: pathlib.Path, folder: str) -> List[str]:
         return []
 
 
+def get_version_migration_dir(
+    root: pathlib.Path, version: versions.Version
+) -> pathlib.Path:
+    for version_dir in root.iterdir():
+        if (
+            version_dir.is_dir()
+            and utils.is_version(version_dir.name)
+            and versions.Version(version_dir.name) == version
+        ):
+            return version_dir
+    raise exceptions.SeptentrionException
+
+
 def get_migrations_files_mapping(
-    settings: configuration.Settings, version: str
+    settings: configuration.Settings, version: versions.Version
 ) -> Dict[str, pathlib.Path]:
     """
     Return an dict containing the list of migrations for
@@ -76,7 +91,7 @@ def get_migrations_files_mapping(
     """
     ignore_symlinks = settings.IGNORE_SYMLINKS
 
-    version_root = settings.MIGRATIONS_ROOT / version
+    version_root = get_version_migration_dir(settings.MIGRATIONS_ROOT, version)
     migrations = {}
 
     # TODO: should be a setting

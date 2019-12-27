@@ -34,3 +34,8 @@ def test_version_sort():
 
 def test_version_str():
     assert repr(versions.Version("1.2.3")) == 'Version("1.2.3")'
+
+
+@pytest.mark.parametrize("received,expected", (("1.2.3", "1.2.3"), ("0.01.2", "0.1.2")))
+def test_version_normalized_repr(received, expected):
+    assert versions.Version(received).normalized_repr() == expected

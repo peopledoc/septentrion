@@ -41,4 +41,7 @@ def test_current_database_state(cli_runner, db):
     )
     assert result.exit_code == 0
     assert db_module.is_schema_initialized(settings=settings)
-    assert db_module.get_current_schema_version(settings=settings) == "1.1"
+    assert (
+        db_module.get_current_schema_version(settings=settings).normalized_repr()
+        == "1.1"
+    )
