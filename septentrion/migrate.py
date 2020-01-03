@@ -83,7 +83,7 @@ def init_schema(
     schema_path = (
         settings.MIGRATIONS_ROOT
         / "schemas"
-        / settings.SCHEMA_TEMPLATE.format(init_version.normalized_repr())
+        / settings.SCHEMA_TEMPLATE.format(init_version.original_string)
     )
 
     logger.info("Loading %s", schema_path)
@@ -105,7 +105,7 @@ def init_schema(
         fixtures_path = (
             settings.MIGRATIONS_ROOT
             / "fixtures"
-            / settings.FIXTURES_TEMPLATE.format(fixtures_version.normalized_repr())
+            / settings.FIXTURES_TEMPLATE.format(fixtures_version.original_string)
         )
 
         with stylist.activate("title") as echo:

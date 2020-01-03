@@ -55,7 +55,7 @@ def get_closest_version(
                 "settings.SCHEMA_VERSION is more recent."
             )
 
-        file = sql_tpl.format(force_version.normalized_repr())
+        file = sql_tpl.format(force_version.original_string)
         if file in existing_files:
             return force_version
 
@@ -63,7 +63,7 @@ def get_closest_version(
         return None
 
     for version in previous_versions[::-1]:
-        schema_file = sql_tpl.format(version.normalized_repr())
+        schema_file = sql_tpl.format(version.original_string)
         if schema_file in existing_files:
             return version
 
