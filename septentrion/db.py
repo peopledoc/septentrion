@@ -126,7 +126,7 @@ def get_applied_versions(
     settings: configuration.Settings,
 ) -> Iterable[versions.Version]:
     with Query(settings=settings, query=query_max_version) as cur:
-        return [versions.Version(row[0]) for row in cur]
+        return [versions.Version.from_string(row[0]) for row in cur]
 
 
 def get_applied_migrations(

@@ -55,9 +55,9 @@ def test_get_known_versions(mocker):
     values = files.get_known_versions(settings=settings)
 
     assert values == [
-        versions.Version("16.9"),
-        versions.Version("16.11"),
-        versions.Version("16.12"),
+        versions.Version.from_string("16.9"),
+        versions.Version.from_string("16.11"),
+        versions.Version.from_string("16.12"),
     ]
 
 

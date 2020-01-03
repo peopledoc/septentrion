@@ -124,11 +124,11 @@ class Settings:
         return migrations_root
 
     def clean_target_version(self, target_version: str) -> versions.Version:
-        return versions.Version(target_version)
+        return versions.Version.from_string(target_version)
 
     def clean_schema_version(self, schema_version: str) -> Optional[versions.Version]:
         if schema_version is not None:
-            return versions.Version(schema_version)
+            return versions.Version.from_string(schema_version)
 
     def __repr__(self):
         return repr(self._settings)

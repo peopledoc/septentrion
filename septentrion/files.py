@@ -38,7 +38,9 @@ def get_known_versions(settings: configuration.Settings) -> Iterable[versions.Ve
         )
 
     return sorted(
-        versions.Version(name) for name in folders_names if utils.is_version(name)
+        versions.Version.from_string(name)
+        for name in folders_names
+        if utils.is_version(name)
     )
 
 
@@ -74,7 +76,7 @@ def get_version_migration_dir(
         if (
             version_dir.is_dir()
             and utils.is_version(version_dir.name)
-            and versions.Version(version_dir.name) == version
+            and versions.Version.from_string(version_dir.name) == version
         ):
             return version_dir
     raise exceptions.SeptentrionException

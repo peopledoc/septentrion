@@ -27,5 +27,5 @@ def test_get_version_migration_dir(tmp_path):
     (tmp_path / "1.0").mkdir()
     (tmp_path / "2.0").mkdir()
 
-    version = versions.Version("2.0")
+    version = versions.Version.from_string("2.0")
     assert files.get_version_migration_dir(tmp_path, version).name == "2.0"

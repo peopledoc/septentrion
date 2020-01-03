@@ -14,7 +14,7 @@ def sort_versions(iterable: Iterable[str]) -> Iterable[str]:
     >>> sort_versions(["1.0.1", "2.0", "1.0.3"])
     ["1.0.1", "1.0.3", "2.0"]
     """
-    return sorted(iterable, key=versions.Version)
+    return sorted(iterable, key=versions.Version.from_string)
 
 
 def get_max_version(iterable: Iterable[str]) -> str:
@@ -23,7 +23,7 @@ def get_max_version(iterable: Iterable[str]) -> str:
     >>> get_max_version(["1.3", "1.2"])
     "1.3"
     """
-    return max(iterable, key=versions.Version)
+    return max(iterable, key=versions.Version.from_string)
 
 
 def is_version(vstring: str) -> bool:
@@ -35,7 +35,7 @@ def is_version(vstring: str) -> bool:
     False
     """
     try:
-        versions.Version(vstring)
+        versions.Version.from_string(vstring)
     except exceptions.InvalidVersion:
         return False
     return True
