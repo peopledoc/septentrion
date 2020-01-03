@@ -67,9 +67,11 @@ CONTEXT_SETTINGS = {
 
 
 def validate_version(ctx: click.Context, param: Any, value: str):
-    if value and not utils.is_version(value):
+    if value is None:
+        return None
+    if not utils.is_version(value):
         raise click.BadParameter(f"{value} is not a valid version")
-    return value
+    return versions.Version.from_string(value)
 
 
 class CommaSeparatedMultipleString(StringParamType):
@@ -223,13 +225,11 @@ def migrate_func(settings: configuration.Settings):
 @cli.command()
 @click.argument("version", callback=validate_version)
 @click.pass_obj
-def fake(settings: configuration.Settings, version: str):
+def fake(settings: configuration.Settings, version: versions.Version):
     """
     Fake migrations until version.
     Write migrations in the migration table without applying them, for
     all migrations up until the given version (included). This is useful
     when installing septentrion on an existing DB.
     """
-    migrate.create_fake_entries(
-        settings=settings, version=versions.Version.from_string(version)
-    )
+    migrate.create_fake_entries(settings=settings, version=version)
