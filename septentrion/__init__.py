@@ -1,11 +1,8 @@
-def _extract_version(package_name: str) -> str:
-    try:
-        # Package is installed (even with -e)
-        import pkg_resources
+from septentrion import metadata as _metadata_module
 
-        return pkg_resources.get_distribution(package_name).version
-    except pkg_resources.DistributionNotFound:
-        return "not_installed"
-
-
-__version__ = _extract_version("septentrion")
+_metadata = _metadata_module.extract_metadata("septentrion")
+__author__ = _metadata["author"]
+__author_email__ = _metadata["email"]
+__license__ = _metadata["license"]
+__url__ = _metadata["url"]
+__version__ = _metadata["version"]
