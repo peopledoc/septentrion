@@ -19,7 +19,7 @@ from septentrion import (
     exceptions,
     migrate,
     style,
-    utils,
+    versions,
 )
 
 logger = logging.getLogger(__name__)
@@ -66,9 +66,13 @@ CONTEXT_SETTINGS = {
 
 
 def validate_version(ctx: click.Context, param: Any, value: str):
-    if value and not utils.is_version(value):
+    if value is None:
+        return None
+    try:
+        version = versions.Version.from_string(value)
+    except exceptions.InvalidVersion:
         raise click.BadParameter(f"{value} is not a valid version")
-    return value
+    return version
 
 
 class CommaSeparatedMultipleString(StringParamType):
@@ -222,7 +226,7 @@ def migrate_func(settings: configuration.Settings):
 @cli.command()
 @click.argument("version", callback=validate_version)
 @click.pass_obj
-def fake(settings: configuration.Settings, version: str):
+def fake(settings: configuration.Settings, version: versions.Version):
     """
     Fake migrations until version.
     Write migrations in the migration table without applying them, for

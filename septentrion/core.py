@@ -5,10 +5,12 @@ from the existing files (septentrion.files) and from the db (septentrion.db)
 
 from typing import Any, Dict, Iterable, Optional
 
-from septentrion import configuration, db, exceptions, files, style, utils
+from septentrion import configuration, db, exceptions, files, style, utils, versions
 
 
-def get_applied_versions(settings: configuration.Settings) -> Iterable[str]:
+def get_applied_versions(
+    settings: configuration.Settings,
+) -> Iterable[versions.Version]:
     """
     Return the list of applied versions.
     Reuse django migration table.
@@ -17,18 +19,18 @@ def get_applied_versions(settings: configuration.Settings) -> Iterable[str]:
 
     known_versions = set(files.get_known_versions(settings=settings))
 
-    return utils.sort_versions(applied_versions & known_versions)
+    return sorted(applied_versions & known_versions)
 
 
 # TODO: Refactor: this should just work with version numbers, not sql_tpl and
 # not force_version
 def get_closest_version(
     settings: configuration.Settings,
-    target_version: str,
+    target_version: versions.Version,
     sql_tpl: str,
     existing_files: Iterable[str],
-    force_version: Optional[str] = None,
-):
+    force_version: Optional[versions.Version] = None,
+) -> Optional[versions.Version]:
     """
     Get the version of a file (schema or fixtures) to use to init a DB.
     Take the closest to the target_version. Can be the same version, or older.
@@ -53,7 +55,7 @@ def get_closest_version(
                 "settings.SCHEMA_VERSION is more recent."
             )
 
-        file = sql_tpl.format(force_version)
+        file = sql_tpl.format(force_version.original_string)
         if file in existing_files:
             return force_version
 
@@ -61,7 +63,7 @@ def get_closest_version(
         return None
 
     for version in previous_versions[::-1]:
-        schema_file = sql_tpl.format(version)
+        schema_file = sql_tpl.format(version.original_string)
         if schema_file in existing_files:
             return version
 
@@ -71,7 +73,7 @@ def get_closest_version(
 
 # TODO: refactor this and the function below
 # TODO: also remove files.get_special_files, it's not really useful
-def get_best_schema_version(settings: configuration.Settings) -> str:
+def get_best_schema_version(settings: configuration.Settings) -> versions.Version:
     """
     Get the best candidate to init the DB.
     """
@@ -91,7 +93,9 @@ def get_best_schema_version(settings: configuration.Settings) -> str:
     return version
 
 
-def get_fixtures_version(settings: configuration.Settings, target_version: str) -> str:
+def get_fixtures_version(
+    settings: configuration.Settings, target_version: versions.Version
+) -> versions.Version:
     """
     Get the closest fixtures to use to init a new DB
     to the current target version.

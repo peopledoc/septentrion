@@ -3,7 +3,17 @@ import io
 import logging
 import pathlib
 
-from septentrion import configuration, core, db, exceptions, files, runner, style, utils
+from septentrion import (
+    configuration,
+    core,
+    db,
+    exceptions,
+    files,
+    runner,
+    style,
+    utils,
+    versions,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +63,7 @@ def migrate(
 
 def init_schema(
     settings: configuration.Settings,
-    init_version: str,
+    init_version: versions.Version,
     stylist: style.Stylist = style.noop_stylist,
 ) -> None:
     # load additional files
@@ -73,7 +83,7 @@ def init_schema(
     schema_path = (
         settings.MIGRATIONS_ROOT
         / "schemas"
-        / settings.SCHEMA_TEMPLATE.format(init_version)
+        / settings.SCHEMA_TEMPLATE.format(init_version.original_string)
     )
 
     logger.info("Loading %s", schema_path)
@@ -95,7 +105,7 @@ def init_schema(
         fixtures_path = (
             settings.MIGRATIONS_ROOT
             / "fixtures"
-            / settings.FIXTURES_TEMPLATE.format(fixtures_version)
+            / settings.FIXTURES_TEMPLATE.format(fixtures_version.original_string)
         )
 
         with stylist.activate("title") as echo:
@@ -112,7 +122,7 @@ def init_schema(
 
 def create_fake_entries(
     settings: configuration.Settings,
-    version: str,
+    version: versions.Version,
     stylist: style.Stylist = style.noop_stylist,
 ) -> None:
     """

@@ -10,7 +10,7 @@ import psycopg2
 from psycopg2.extensions import connection as Connection
 from psycopg2.extras import DictCursor
 
-from septentrion import configuration, utils
+from septentrion import configuration, versions
 
 logger = logging.getLogger(__name__)
 
@@ -113,23 +113,29 @@ query_is_schema_initialized = """
 """
 
 
-def get_current_schema_version(settings: configuration.Settings) -> Optional[str]:
+def get_current_schema_version(
+    settings: configuration.Settings,
+) -> Optional[versions.Version]:
     versions = get_applied_versions(settings=settings)
     if not versions:
         return None
-    return utils.get_max_version(versions)
+    return max(versions)
 
 
-def get_applied_versions(settings: configuration.Settings) -> Iterable[str]:
+def get_applied_versions(
+    settings: configuration.Settings,
+) -> Iterable[versions.Version]:
     with Query(settings=settings, query=query_max_version) as cur:
-        return [row[0] for row in cur]
+        return [versions.Version.from_string(row[0]) for row in cur]
 
 
 def get_applied_migrations(
-    settings: configuration.Settings, version: str
+    settings: configuration.Settings, version: versions.Version
 ) -> Iterable[str]:
     with Query(
-        settings=settings, query=query_get_applied_migrations, args=(version,)
+        settings=settings,
+        query=query_get_applied_migrations,
+        args=(version.original_string,),
     ) as cur:
         return [row[0] for row in cur]
 
@@ -146,10 +152,12 @@ def create_table(settings: configuration.Settings) -> None:
     Query(settings=settings, query=query_create_table, commit=True)()
 
 
-def write_migration(settings: configuration.Settings, version: str, name: str) -> None:
+def write_migration(
+    settings: configuration.Settings, version: versions.Version, name: str
+) -> None:
     Query(
         settings=settings,
         query=query_write_migration,
-        args=(version, name),
+        args=(version.original_string, name),
         commit=True,
     )()
