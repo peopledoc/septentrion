@@ -69,19 +69,6 @@ def get_special_files(root: pathlib.Path, folder: str) -> List[str]:
         return []
 
 
-def get_version_migration_dir(
-    root: pathlib.Path, version: versions.Version
-) -> pathlib.Path:
-    for version_dir in root.iterdir():
-        if (
-            version_dir.is_dir()
-            and utils.is_version(version_dir.name)
-            and versions.Version.from_string(version_dir.name) == version
-        ):
-            return version_dir
-    raise exceptions.SeptentrionException
-
-
 def get_migrations_files_mapping(
     settings: configuration.Settings, version: versions.Version
 ) -> Dict[str, pathlib.Path]:
@@ -93,7 +80,7 @@ def get_migrations_files_mapping(
     """
     ignore_symlinks = settings.IGNORE_SYMLINKS
 
-    version_root = get_version_migration_dir(settings.MIGRATIONS_ROOT, version)
+    version_root = settings.MIGRATIONS_ROOT / version.original_string
     migrations = {}
 
     # TODO: should be a setting

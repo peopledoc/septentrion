@@ -19,7 +19,6 @@ from septentrion import (
     exceptions,
     migrate,
     style,
-    utils,
     versions,
 )
 
@@ -69,9 +68,11 @@ CONTEXT_SETTINGS = {
 def validate_version(ctx: click.Context, param: Any, value: str):
     if value is None:
         return None
-    if not utils.is_version(value):
+    try:
+        version = versions.Version.from_string(value)
+    except exceptions.InvalidVersion:
         raise click.BadParameter(f"{value} is not a valid version")
-    return versions.Version.from_string(value)
+    return version
 
 
 class CommaSeparatedMultipleString(StringParamType):

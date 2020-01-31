@@ -1,12 +1,6 @@
 import pytest
 
-from septentrion.utils import is_version, sort_versions, until
-
-
-def test_sort_versions():
-    values = sort_versions(["1.0.1", "10.0", "2.0", "1.1", "1.0.3"])
-
-    assert values == ["1.0.1", "1.0.3", "1.1", "2.0", "10.0"]
+from septentrion.utils import is_version, until
 
 
 @pytest.mark.parametrize("value,expected", [("1.2", True), ("bananas", False)])

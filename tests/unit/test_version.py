@@ -44,8 +44,3 @@ def test_version_str():
         repr(versions.Version.from_string("1.2.3"))
         == "Version(version_tuple=(1, 2, 3), original_string='1.2.3')"
     )
-
-
-@pytest.mark.parametrize("received,expected", (("1.2.3", "1.2.3"), ("0.01.2", "0.1.2")))
-def test_version_normalized_repr(received, expected):
-    assert versions.Version.from_string(received).normalized_repr() == expected

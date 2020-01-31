@@ -135,7 +135,7 @@ def get_applied_migrations(
     with Query(
         settings=settings,
         query=query_get_applied_migrations,
-        args=(version.normalized_repr(),),
+        args=(version.original_string,),
     ) as cur:
         return [row[0] for row in cur]
 
@@ -158,6 +158,6 @@ def write_migration(
     Query(
         settings=settings,
         query=query_write_migration,
-        args=(version.normalized_repr(), name),
+        args=(version.original_string, name),
         commit=True,
     )()

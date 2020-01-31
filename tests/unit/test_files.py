@@ -78,15 +78,13 @@ def test_get_migrations_files_mapping(mocker):
             pathlib.Path("tests/test_data/sql/17.1/manual/file.ddl.sql"),
         ],
     )
-    mocker.patch(
-        "septentrion.files.get_version_migration_dir",
-        return_value=pathlib.Path("tests/test_data/sql/17.1"),
-    )
     settings = configuration.Settings.from_cli(
         {"migrations_root": "tests/test_data/sql", "ignore_symlinks": True}
     )
 
-    values = files.get_migrations_files_mapping(settings=settings, version="17.1")
+    values = files.get_migrations_files_mapping(
+        settings=settings, version=versions.Version.from_string("17.1")
+    )
 
     assert values == {
         "file.dml.sql": pathlib.Path("tests/test_data/sql/17.1/manual/file.dml.sql"),

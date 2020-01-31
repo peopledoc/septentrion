@@ -1,6 +1,6 @@
 import pytest
 
-from septentrion import files, versions
+from septentrion import files
 
 
 def test_iter_dirs(tmp_path):
@@ -21,11 +21,3 @@ def test_iter_files(tmp_path, ignore_symlinks, expected):
     assert list(files.iter_files(tmp_path, ignore_symlinks=ignore_symlinks)) == [
         tmp_path / e for e in expected
     ]
-
-
-def test_get_version_migration_dir(tmp_path):
-    (tmp_path / "1.0").mkdir()
-    (tmp_path / "2.0").mkdir()
-
-    version = versions.Version.from_string("2.0")
-    assert files.get_version_migration_dir(tmp_path, version).name == "2.0"
