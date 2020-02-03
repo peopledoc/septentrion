@@ -48,46 +48,21 @@ Septentrion supports PostgreSQL 9.6+ and Python 3.6+.
 Very quick start
 ----------------
 
-- *Step 1*: Write your PostgreSQL migrations, name files and folders according to
-  a convention.
-  See the folder `example_migrations` for an example:
+- *Step 1*: Create a folder for the version, and add some migration files.
 
 .. code-block:: console
 
-    example_migrations/
-    ├── 0.1
-    ├── 1.0
-    │   ├── 1.0-0-version-dml.sql
-    │   ├── 1.0-author-1-ddl.sql
-    │   ├── 1.0-author-2-dml.sql
-    │   ├── 1.0-book-1-ddl.sql
-    │   └── 1.0-book-2-dml.sql
-    ├── 1.1
-    │   ├── 1.1-0-version-dml.sql
-    │   ├── 1.1-add-num-pages-1-ddl.sql
-    │   ├── 1.1-add-num-pages-2-dml.sql
-    │   └── 1.1-index-ddl.sql
-    ├── 1.2
-    │   ├── 1.2-0-version-dml.sql
-    │   ├── 1.2-remove-author-dob-ddl.sql
-    │   └── 1.2-rename-num-pages-ddl.sql
-    ├── 1.3
-    │   ├── 1.3-0-version-dml.sql
-    │   ├── 1.3-add-readers-ddl.sql
-    │   ├── 1.3-add-readers-dml.sql
-    │   ├── 1.3-remove-author-dob-ddl.sql
-    │   └── 1.3-rename-num-pages-ddl.sql
-    ├── fixtures
-    │   ├── fixtures_0.1.sql
-    │   └── fixtures_1.0.sql
-    └── schemas
-        └── schema_0.1.sql
+    migrations/
+    └──  1.0
+        ├── 1.0-0-version-dml.sql
+        ├── 1.0-author-1-ddl.sql
+        └──  1.0-author-2-dml.sql
 
-- *Step 2*:
+- *Step 2*: Run septentrion
 
 .. code-block:: console
 
-    $ septentrion --target-version 1.2 migrate
+    $ septentrion --target-version 1.0 migrate
 
 - *Step 3*: That's it.
 
