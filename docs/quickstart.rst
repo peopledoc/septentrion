@@ -65,7 +65,7 @@ In this tutorial, we will use a configuration file, ``septentrion.ini``.
 
     With the Docker setup described above, you should be good to go.
     If you need additional configuration parameters to connect to your database, have a look at
-    :ref:`advanced configuration options <how-to/configure>`.
+    :ref:`advanced configuration options <howto/configure>`.
 
 
 Write migrations
@@ -121,7 +121,6 @@ First, we want to visualize what is going to happen, without making any change t
       [ ] 00-author.ddl.sql
 
 
-# TODO add a schema_0.1.sql else septentrion is crashing
 
 Great, we can now run it for real:
 
@@ -129,10 +128,7 @@ Great, we can now run it for real:
 
     $ septentrion --target-version 1.0 migrate
 
-    Loading schema
-      [X] Applied 0.1
     Applying migrations
-    Version 0.1
     Version 1.0
 
 
@@ -146,8 +142,8 @@ Great, we can now run it for real:
     The ``--target-version`` flag is a required option (it might change in the future).
 
 
-If something is not working as it should be, you probably want to check the :ref:`troubleshooting guide <how-to/troubleshoot>`
-or the :ref:`advanced options <how-to/advanced-options>`.
+If something is not working as it should be, you probably want to check the :ref:`troubleshooting guide <howto/troubleshoot>`
+or the :ref:`advanced options <howto/advanced-options>`.
 
 At this point, the ``author`` table has been created in the database. We can check that and simulate our application
 by creating a few rows in the table.
@@ -186,9 +182,8 @@ by creating a few rows in the table.
 
 
 
-
-More complex migrations
------------------------
+A more complex migration
+------------------------
 
 For version ``2.0`` of our application, we want to change ``birth_date`` from ``varchar`` to the ``date`` type.
 
@@ -216,7 +211,6 @@ We launch the migration.
     $ septentrion --target-version 2.0 migrate
 
     Applying migrations
-    Version 0.1
     Version 1.0
       [X] Already applied
     Version 2.0
@@ -236,10 +230,13 @@ Now we can check that our migration successfully changed the column type in the 
     (3 rows)
 
 
+
+Congratulations, you can now run migrations with *Septentrion*!
+
 Going further
 -------------
 
-To continue with practical steps, head to the :ref:`How-to... <how-to>` section.
+To continue with practical steps, head to the :ref:`How-to... <howto>` section.
 
 If you want to better understand some design decisions, head to the :ref:`Discussions
 <discussions>` sections.

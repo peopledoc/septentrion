@@ -1,6 +1,8 @@
 Configure database connection settings
 --------------------------------------
 
+# TODO expand documentation on database connection
+
 Ensure that your database connection settings are correctly configured.
 
  - Either your environment variables `PGHOST`, `PGPORT` and `PGUSER` are properly set.

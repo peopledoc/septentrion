@@ -1,6 +1,9 @@
 File naming convention
 ----------------------
 
+# TODO explain the file naming convention
+# The following extract was inspired by the DBA documentation.
+
 We recommend to use the following naming convention for migration files:
 
 .. code-block:: console
