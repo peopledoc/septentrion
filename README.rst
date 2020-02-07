@@ -34,11 +34,11 @@ itself.
 
 But maybe you're looking for a tool that just focuses on running existing SQL migrations
 and keeping track of what was applied. Your tool of choice would not generate those
-migration, because you prefer your migrations to be manually written in SQL. Then your
+migrations, because you prefer your migrations to be manually written in SQL. Then your
 tool would be django-north_.
 
 But maybe you're not using Django. You would like a standalone migration tool. You're
-looking for septentrion. Congratulations, you've found it.
+looking for Septentrion. Congratulations, you've found it.
 
 Septentrion supports PostgreSQL 9.6+ and Python 3.6+.
 
