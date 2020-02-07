@@ -9,13 +9,13 @@ from septentrion import configuration, exceptions, utils, versions
 
 
 def iter_dirs(root: pathlib.Path) -> Iterable[pathlib.Path]:
-    return (d for d in root.iterdir() if d.is_dir())
+    return (d for d in sorted(root.iterdir()) if d.is_dir())
 
 
 def iter_files(
     root: pathlib.Path, ignore_symlinks: bool = False
 ) -> Iterable[pathlib.Path]:
-    for f in root.iterdir():
+    for f in sorted(root.iterdir()):
         if not f.is_file():
             continue
         if ignore_symlinks and f.is_symlink():
