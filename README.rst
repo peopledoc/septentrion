@@ -45,16 +45,24 @@ Septentrion supports PostgreSQL 9.6+ and Python 3.6+.
 .. _South: https://bitbucket.org/andrewgodwin/south/src
 .. _django-north: https://github.com/peopledoc/django-north
 
-Overview
---------
+Very quick start
+----------------
 
-- *Step 1*: Write your PostgreSQL migrations, name files and folders according to
-  a convention.
-- *Step 2*:
+- *Step 1*: Create a folder for the version, and add some migration files.
 
 .. code-block:: console
 
-    $ septentrion migrate
+    migrations/
+    └──  1.0
+        ├── 1.0-0-version-dml.sql
+        ├── 1.0-author-1-ddl.sql
+        └──  1.0-author-2-dml.sql
+
+- *Step 2*: Run septentrion
+
+.. code-block:: console
+
+    $ septentrion --target-version 1.0 migrate
 
 - *Step 3*: That's it.
 
@@ -71,8 +79,11 @@ Where to go from here
 
 The complete docs_ is probably the best place to learn about the project.
 
+You can check the quickstart_ guide to start running your first migrations.
+
 If you encounter a bug, or want to get in touch, you're always welcome to open a
 ticket_.
 
 .. _docs: http://septentrion.readthedocs.io/en/latest
+.. _quickstart: http://septentrion.readthedocs.io/en/latest/quickstart.html
 .. _ticket: https://github.com/peopledoc/septentrion/issues/new
