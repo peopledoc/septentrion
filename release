@@ -21,10 +21,8 @@ print(rest + '.' + str(int(last) + 1))
 EOF
 }
 
-CHANGELOG="$(changelog $REPO_OWNER $REPO)"
 echo "Here are all the PRs merged since the last tag:"
-echo $CHANGELOG
-echo
+changelog $REPO_OWNER $REPO
 
 LATEST_VERSION=$(git describe --abbrev=0)
 echo "Latest version was $LATEST_VERSION"
@@ -36,7 +34,7 @@ VERSION=${VERSION:-$LATEST_INCREMENTED}
 echo "Releasing $VERSION:"
 
 echo "- Writing version number to setup.cfg"
-sed -i "s/# version placeholder.\\+$/version = ${VERSION}/" setup.cfg
+sed -i "s/# version placeholder$/version = ${VERSION}/" setup.cfg
 
 # Python release
 echo "- Removing previous build artifacts"
