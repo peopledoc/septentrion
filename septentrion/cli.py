@@ -176,7 +176,25 @@ class CommaSeparatedMultipleString(StringParamType):
     help="Path to a SQL file relative to <migration-root>/schemas, to be run in "
     "addition to the migrations, e.g for installing postgres extensions (repeat the "
     "flag as many times as necessary) (env: SEPTENTRION_ADDITIONAL_SCHEMA_FILE, comma "
-    "separated values)",
+    "separated values) DEPRECATED; please use --before-schema-file",
+)
+@click.option(
+    "--before-schema-file",
+    multiple=True,
+    type=CommaSeparatedMultipleString(),
+    help="Path to a SQL file relative to <migration-root>/schemas, to be run in "
+    "addition to the migrations, before the main schemas, e.g for installing postgres "
+    "extensions (repeat the flag as many times as necessary) (env: "
+    "SEPTENTRION_BEFORE_SCHEMA_FILE, comma separated values)",
+)
+@click.option(
+    "--after-schema-file",
+    multiple=True,
+    type=CommaSeparatedMultipleString(),
+    help="Path to a SQL file relative to <migration-root>/schemas, to be run in "
+    "addition to the migrations, after the main schemas, e.g for grant files "
+    "(repeat the flag as many times as necessary) (env: SEPTENTRION_AFTER_SCHEMA_FILE, "
+    "comma separated values)",
 )
 @click.option(
     "--ignore-symlinks/--no-ignore-symlinks",

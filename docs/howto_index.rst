@@ -6,4 +6,5 @@ How-to...
 .. toctree::
     :maxdepth: 1
 
-    howto/placeholder
+    howto/configure
+    howto/file_naming

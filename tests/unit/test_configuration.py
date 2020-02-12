@@ -31,3 +31,25 @@ def test_settings_from_cli():
 @pytest.mark.parametrize("verbosity,expected", [(0, 40), (3, 10), (4, 10)])
 def test_log_level(verbosity, expected):
     assert configuration.log_level(verbosity) == expected
+
+
+def test_get_config_files_settings():
+    config = """
+        [septentrion]
+        additional_schema_file=
+            more.sql
+            another.sql
+        before_schema_file=
+            before.sql
+            another_before.sql
+        after_schema_file=
+            after.sql
+            another_after.sql
+    """
+    s = configuration.parse_configuration_file(config)
+
+    assert s == {
+        "additional_schema_file": ["more.sql", "another.sql"],
+        "before_schema_file": ["before.sql", "another_before.sql"],
+        "after_schema_file": ["after.sql", "another_after.sql"],
+    }
