@@ -39,6 +39,8 @@ DEFAULTS = {
     "dbname": None,
     "schema_version": None,
     "additional_schema_file": [],
+    "before_schema_file": [],
+    "after_schema_file": [],
 }
 
 
@@ -74,6 +76,16 @@ def parse_configuration_file(content: str) -> Dict:
         if "additional_schema_file" in config:
             config["additional_schema_file"] = [
                 line for line in config["additional_schema_file"].splitlines() if line
+            ]
+
+        if "before_schema_file" in config:
+            config["before_schema_file"] = [
+                line for line in config["before_schema_file"].splitlines() if line
+            ]
+
+        if "after_schema_file" in config:
+            config["after_schema_file"] = [
+                line for line in config["after_schema_file"].splitlines() if line
             ]
 
         return config

@@ -2,6 +2,8 @@
 import io
 import logging
 import pathlib
+import warnings
+from typing import List
 
 from septentrion import (
     configuration,
@@ -61,20 +63,34 @@ def migrate(
                     db.write_migration(settings=settings, version=version, name=mig)
 
 
+def _load_schema_files(settings: configuration.Settings, schema_files: List[str]):
+    for file_name in schema_files:
+        if not file_name:
+            return
+        file_path = settings.MIGRATIONS_ROOT / "schemas" / file_name
+        logger.info("Loading %s", file_path)
+        run_script(settings=settings, path=file_path)
+
+
 def init_schema(
     settings: configuration.Settings,
     init_version: versions.Version,
     stylist: style.Stylist = style.noop_stylist,
 ) -> None:
-    # load additional files
-    logger.info("Looking for additional files to run")
+    # load before files
+    logger.info("Looking for additional files to run before main schema")
+    before_files = settings.BEFORE_SCHEMA_FILE
+    _load_schema_files(settings, before_files)
+
+    # load additional files (deprecated)
+    logger.info("Looking for additional files to run (deprecated)")
     additional_files = settings.ADDITIONAL_SCHEMA_FILE
-    for file_name in additional_files:
-        if not file_name:
-            continue
-        file_path = settings.MIGRATIONS_ROOT / "schemas" / file_name
-        logger.info("Loading %s", file_path)
-        run_script(settings=settings, path=file_path)
+    if additional_files:
+        warnings.warn(
+            "ADDITIONAL_SCHEMA_FILES will be deprecated. "
+            "Use BEFORE_SCHEMA_FILES instead."
+        )
+    _load_schema_files(settings, additional_files)
 
     # load schema
     with stylist.activate("title") as echo:
@@ -96,6 +112,11 @@ def init_schema(
         run_script(settings=settings, path=schema_path)
 
     create_fake_entries(settings=settings, version=init_version)
+
+    # load after files
+    logger.info("Looking for additional files to run after main schema")
+    after_files = settings.AFTER_SCHEMA_FILE
+    _load_schema_files(settings, after_files)
 
     # load fixtures
     try:
