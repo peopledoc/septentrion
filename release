@@ -23,7 +23,7 @@ EOF
 
 CHANGELOG="$(changelog $REPO_OWNER $REPO)"
 echo "Here are all the PRs merged since the last tag:"
-echo $CHANGELOG
+echo "$CHANGELOG"
 echo
 
 LATEST_VERSION=$(git describe --abbrev=0)
@@ -36,7 +36,7 @@ VERSION=${VERSION:-$LATEST_INCREMENTED}
 echo "Releasing $VERSION:"
 
 echo "- Writing version number to setup.cfg"
-sed -i "s/# version placeholder.\\+$/version = ${VERSION}/" setup.cfg
+sed -i "s/# version placeholder$/version = ${VERSION}/" setup.cfg
 
 # Python release
 echo "- Removing previous build artifacts"
@@ -58,7 +58,8 @@ git push origin ${VERSION}
 echo "Released ${VERSION}"
 echo
 
-URL="https://github.com/peopledoc/septentrion/releases/new?title=Release $VERSION&body=$CHANGELOG&tag=$VERSION"
+URLENCODED=$(echo $CHANGELOG | python3 -c "import urllib.parse, sys;print(urllib.parse.quote(sys.stdin.read()))")
+URL="https://github.com/peopledoc/septentrion/releases/new?title=Release%20$VERSION&body=$URLENCODED&tag=$VERSION"
 echo "Please create the release in github:"
 echo "    $URL"
-python -m webbrowser $URL
+python -m webbrowser "$URL"
