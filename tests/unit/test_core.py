@@ -132,8 +132,7 @@ def test_get_best_schema_version_ko(mocker, known_versions):
         {"target_version": versions.Version.from_string("1.2")}
     )
 
-    with pytest.raises(exceptions.SeptentrionException):
-        core.get_best_schema_version(settings=settings)
+    assert core.get_best_schema_version(settings=settings) is None
 
 
 def test_build_migration_plan_unknown_version(known_versions):

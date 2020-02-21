@@ -73,7 +73,9 @@ def get_closest_version(
 
 # TODO: refactor this and the function below
 # TODO: also remove files.get_special_files, it's not really useful
-def get_best_schema_version(settings: configuration.Settings) -> versions.Version:
+def get_best_schema_version(
+    settings: configuration.Settings,
+) -> Optional[versions.Version]:
     """
     Get the best candidate to init the DB.
     """
@@ -88,8 +90,6 @@ def get_best_schema_version(settings: configuration.Settings) -> versions.Versio
         existing_files=schema_files,
     )
 
-    if version is None:
-        raise exceptions.SeptentrionException("Cannot find a schema to init the DB.")
     return version
 
 

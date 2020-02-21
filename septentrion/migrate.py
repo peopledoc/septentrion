@@ -29,7 +29,8 @@ def migrate(
         logger.info("Migration table is empty, loading a schema")
         # schema not inited
         schema_version = core.get_best_schema_version(settings=settings)
-        init_schema(settings=settings, init_version=schema_version, stylist=stylist)
+        if schema_version is not None:
+            init_schema(settings=settings, init_version=schema_version, stylist=stylist)
 
     # play migrations
     with stylist.activate("title") as echo:
