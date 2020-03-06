@@ -1,13 +1,11 @@
 import pathlib
 from unittest.mock import call
 
-from septentrion import configuration, versions
-from septentrion.core import get_best_schema_version
-from septentrion.migrate import init_schema
+from septentrion import configuration, core, migration, versions
 
 
 def test_init_schema(mocker):
-    patch = mocker.patch("septentrion.migrate.run_script",)
+    patch = mocker.patch("septentrion.migration.run_script")
 
     settings = configuration.Settings(
         host="",
@@ -18,8 +16,8 @@ def test_init_schema(mocker):
         target_version=versions.Version.from_string("1.1"),
     )
 
-    init_schema(
-        settings=settings, init_version=get_best_schema_version(settings=settings)
+    migration.init_schema(
+        settings=settings, init_version=core.get_best_schema_version(settings=settings)
     )
 
     calls = [
@@ -36,7 +34,7 @@ def test_init_schema(mocker):
 
 
 def test_init_schema_extra_files(mocker):
-    patch = mocker.patch("septentrion.migrate.run_script",)
+    patch = mocker.patch("septentrion.migration.run_script")
 
     settings = configuration.Settings(
         host="",
@@ -50,8 +48,8 @@ def test_init_schema_extra_files(mocker):
         target_version=versions.Version.from_string("1.1"),
     )
 
-    init_schema(
-        settings=settings, init_version=get_best_schema_version(settings=settings)
+    migration.init_schema(
+        settings=settings, init_version=core.get_best_schema_version(settings=settings)
     )
 
     calls = [

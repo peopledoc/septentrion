@@ -175,8 +175,8 @@ def describe_migration_plan(
         with stylist.activate("title") as echo:
             echo("Version {}".format(version))
 
-        for migration in migrations:
+        for migration_elem in migrations:
 
-            name, applied, path, is_manual = migration
+            name, applied, path, is_manual = migration_elem
             stylist.draw_checkbox(name, checked=applied)
             stylist.echo()

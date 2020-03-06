@@ -17,7 +17,7 @@ from septentrion import (
     core,
     db,
     exceptions,
-    migrate,
+    migration,
     style,
     versions,
 )
@@ -232,13 +232,13 @@ def show_migrations(settings: configuration.Settings):
     core.describe_migration_plan(settings=settings, stylist=style.stylist)
 
 
-@cli.command(name="migrate")
+@cli.command()
 @click.pass_obj
-def migrate_func(settings: configuration.Settings):
+def migrate(settings: configuration.Settings):
     """
     Run unapplied migrations.
     """
-    migrate.migrate(settings=settings, stylist=style.stylist)
+    migration.migrate(settings=settings, stylist=style.stylist)
 
 
 @cli.command()
@@ -251,4 +251,4 @@ def fake(settings: configuration.Settings, version: versions.Version):
     all migrations up until the given version (included). This is useful
     when installing septentrion on an existing DB.
     """
-    migrate.create_fake_entries(settings=settings, version=version)
+    migration.create_fake_entries(settings=settings, version=version)
