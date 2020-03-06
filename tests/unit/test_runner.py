@@ -122,7 +122,7 @@ from author_data;
 select true;
 """
     )
-    settings = configuration.Settings.from_cli({})
+    settings = configuration.Settings()
     script = runner.Script(
         settings=settings, file_handler=handler, path=pathlib.Path("/manual/foo.sql")
     )

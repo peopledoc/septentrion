@@ -107,9 +107,10 @@ def log_level(verbosity: int) -> int:
 
 
 class Settings:
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._settings = {}
         self.update(DEFAULTS)
+        self.update(kwargs)
 
     def __getattr__(self, key: str) -> Any:
         try:
@@ -118,15 +119,15 @@ class Settings:
             raise AttributeError(key)
 
     def set(self, key: str, value: Any) -> None:
+        upper_key = key.upper()
+        lower_key = key.lower()
         try:
-            method = getattr(self, f"clean_{key.lower()}")
+            method = getattr(self, f"clean_{lower_key}")
         except AttributeError:
             pass
         else:
             value = method(value)
-        # TODO: remove the .upper() and fix the tests: from_cli() should be
-        # the only one doing the .upper()
-        self._settings[key.upper()] = value
+        self._settings[upper_key] = value
 
     def clean_migrations_root(
         self, migrations_root: Union[str, pathlib.Path]
@@ -141,11 +142,3 @@ class Settings:
     def update(self, values: Dict) -> None:
         for key, value in values.items():
             self.set(key, value)
-
-    @classmethod
-    def from_cli(cls, cli_settings: Dict):
-        settings = cls()
-        # CLI settings are lowercase
-        settings.update({key.upper(): value for key, value in cli_settings.items()})
-
-        return settings

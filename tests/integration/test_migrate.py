@@ -9,15 +9,13 @@ from septentrion.migrate import init_schema
 def test_init_schema(mocker):
     patch = mocker.patch("septentrion.migrate.run_script",)
 
-    settings = configuration.Settings.from_cli(
-        {
-            "host": "",
-            "port": "",
-            "username": "",
-            "dbname": "",
-            "migrations_root": "example_migrations",
-            "target_version": versions.Version.from_string("1.1"),
-        }
+    settings = configuration.Settings(
+        host="",
+        port="",
+        username="",
+        dbname="",
+        migrations_root="example_migrations",
+        target_version=versions.Version.from_string("1.1"),
     )
 
     init_schema(
@@ -40,18 +38,16 @@ def test_init_schema(mocker):
 def test_init_schema_extra_files(mocker):
     patch = mocker.patch("septentrion.migrate.run_script",)
 
-    settings = configuration.Settings.from_cli(
-        {
-            "host": "",
-            "port": "",
-            "username": "",
-            "dbname": "",
-            "migrations_root": "example_migrations",
-            "additional_schema_file": ["extra_file.sql"],
-            "before_schema_file": ["before_file.sql"],
-            "after_schema_file": ["after_file.sql"],
-            "target_version": versions.Version.from_string("1.1"),
-        }
+    settings = configuration.Settings(
+        host="",
+        port="",
+        username="",
+        dbname="",
+        migrations_root="example_migrations",
+        additional_schema_file=["extra_file.sql"],
+        before_schema_file=["before_file.sql"],
+        after_schema_file=["after_file.sql"],
+        target_version=versions.Version.from_string("1.1"),
     )
 
     init_schema(

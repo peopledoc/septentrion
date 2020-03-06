@@ -208,7 +208,7 @@ def cli(ctx: click.Context, **kwargs):
         password = os.getenv("SEPTENTRION_PASSWORD")
     kwargs["password"] = password
 
-    ctx.obj = settings = configuration.Settings.from_cli(kwargs)
+    ctx.obj = settings = configuration.Settings(**kwargs)
 
     level = configuration.log_level(verbosity=settings.VERBOSITY)
     logging.basicConfig(level=level)
