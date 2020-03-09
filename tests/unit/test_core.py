@@ -1,6 +1,7 @@
 import pytest
 
 from septentrion import configuration, core, exceptions, versions
+from septentrion.versions import Version
 
 
 @pytest.fixture
@@ -67,7 +68,24 @@ def test_get_closest_version_schema_doesnt_exist(known_versions):
     assert version is None
 
 
+def test_get_closest_version_earlier_schema(known_versions):
+    settings = configuration.Settings.from_cli({})
+
+    version = core.get_closest_version(
+        settings=settings,
+        target_version=versions.Version.from_string("1.3"),
+        sql_tpl="schema_{}.sql",
+        existing_files=["schema_1.0.sql", "schema_1.1.sql"],
+        force_version=versions.Version.from_string("1.2"),
+    )
+
+    assert version is None
+
+
 def test_get_closest_version_schema_force_ko(known_versions):
+    """
+    Will fail because "1.4" is unknown
+    """
     settings = configuration.Settings.from_cli({})
 
     with pytest.raises(ValueError):
@@ -196,5 +214,23 @@ def test_build_migration_plan_ok(mocker, known_versions):
             ],
             "version": versions.Version.from_string("1.2"),
         },
+    ]
+    assert list(plan) == expected
+
+
+def test_build_migration_plan_db_uptodate(mocker, known_versions):
+    mocker.patch(
+        "septentrion.core.db.get_applied_migrations",
+        return_value=[Version.from_string("1.1"), Version.from_string("1.2")],
+    )
+    settings = configuration.Settings.from_cli(
+        {"target_version": versions.Version.from_string("1.2")}
+    )
+
+    plan = core.build_migration_plan(settings=settings)
+
+    expected = [
+        {"plan": [], "version": versions.Version.from_string("1.1")},
+        {"plan": [], "version": versions.Version.from_string("1.2")},
     ]
     assert list(plan) == expected
