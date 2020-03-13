@@ -2,10 +2,27 @@
 This is where the migration plan is computed, by merging information
 from the existing files (septentrion.files) and from the db (septentrion.db)
 """
-
+import logging
 from typing import Any, Dict, Iterable, Optional
 
 from septentrion import configuration, db, exceptions, files, style, utils, versions
+
+logger = logging.getLogger(__name__)
+
+
+def initialize(**kwargs):
+    settings = configuration.Settings(**kwargs)
+
+    level = configuration.log_level(verbosity=settings.VERBOSITY)
+    logging.basicConfig(level=level)
+    logger.info("Verbosity level: %s", logging.getLevelName(level))
+
+    # All other commands will need the table to be created
+    logger.info("Ensuring migration table exists")
+    # TODO: this probably deserves an option
+    db.create_table(settings=settings)  # idempotent
+
+    return settings
 
 
 def get_applied_versions(

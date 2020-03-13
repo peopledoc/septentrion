@@ -15,7 +15,6 @@ from septentrion import (
     __version__,
     configuration,
     core,
-    db,
     exceptions,
     migration,
     style,
@@ -208,16 +207,7 @@ def cli(ctx: click.Context, **kwargs):
         password = os.getenv("SEPTENTRION_PASSWORD")
     kwargs["password"] = password
 
-    ctx.obj = settings = configuration.Settings(**kwargs)
-
-    level = configuration.log_level(verbosity=settings.VERBOSITY)
-    logging.basicConfig(level=level)
-    logger.info("Verbosity level: %s", logging.getLevelName(level))
-
-    # All other commands will need the table to be created
-    logger.info("Ensuring migration table exists")
-    # TODO: this probably deserves an option
-    db.create_table(settings=settings)  # idempotent
+    ctx.obj = core.initialize(**kwargs)
 
 
 @cli.command(name="show-migrations")
