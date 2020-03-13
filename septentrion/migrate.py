@@ -62,8 +62,6 @@ def migrate(
                 ):
                     run_script(settings=settings, path=path)
                     logger.info("Saving operation in the database")
-                    # TODO: do this XOR callback ?
-                    # And if callback only, do not create the table ?
                     db.write_migration(settings=settings, version=version, name=mig)
                     if migration_applied_callback is not None:
                         migration_applied_callback(version.original_string, mig)
