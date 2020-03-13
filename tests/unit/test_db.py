@@ -1,24 +1,7 @@
-from contextlib import contextmanager
-
 import pytest
 
 from septentrion import configuration, db
 from septentrion.versions import Version
-
-
-@pytest.fixture()
-def fake_db(mocker):
-    @contextmanager
-    def execute(response):
-        yield response
-
-    def _fake_db(response=None):
-        execute_mock = mocker.patch(
-            "septentrion.db.execute", return_value=execute(response)
-        )
-        return execute_mock
-
-    return _fake_db
 
 
 def test_get_applied_versions(fake_db):

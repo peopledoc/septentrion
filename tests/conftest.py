@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 import psycopg2
 import pytest
 
@@ -21,3 +23,18 @@ def db():
     yield params
 
     cursor.execute(f"DROP DATABASE {test_db_name}")
+
+
+@pytest.fixture()
+def fake_db(mocker):
+    @contextmanager
+    def execute(response):
+        yield response
+
+    def _fake_db(response=None):
+        execute_mock = mocker.patch(
+            "septentrion.db.execute", return_value=execute(response)
+        )
+        return execute_mock
+
+    return _fake_db
