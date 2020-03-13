@@ -13,10 +13,6 @@ logger = logging.getLogger(__name__)
 def initialize(**kwargs):
     settings = configuration.Settings(**kwargs)
 
-    level = configuration.log_level(verbosity=settings.VERBOSITY)
-    logging.basicConfig(level=level)
-    logger.info("Verbosity level: %s", logging.getLevelName(level))
-
     # All other commands will need the table to be created
     logger.info("Ensuring migration table exists")
     # TODO: this probably deserves an option

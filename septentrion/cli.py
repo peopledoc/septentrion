@@ -207,7 +207,11 @@ def cli(ctx: click.Context, **kwargs):
         password = os.getenv("SEPTENTRION_PASSWORD")
     kwargs["password"] = password
 
-    ctx.obj = core.initialize(**kwargs)
+    ctx.obj = settings = core.initialize(**kwargs)
+
+    level = configuration.log_level(verbosity=settings.VERBOSITY)
+    logging.basicConfig(level=level)
+    logger.info("Verbosity level: %s", logging.getLevelName(level))
 
 
 @cli.command(name="show-migrations")
