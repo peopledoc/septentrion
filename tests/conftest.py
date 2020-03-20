@@ -1,5 +1,3 @@
-from contextlib import contextmanager
-
 import psycopg2
 import pytest
 
@@ -27,14 +25,11 @@ def db():
 
 @pytest.fixture()
 def fake_db(mocker):
-    @contextmanager
-    def execute(response):
-        yield response
-
-    def _fake_db(response=None):
-        execute_mock = mocker.patch(
-            "septentrion.db.execute", return_value=execute(response)
-        )
-        return execute_mock
-
-    return _fake_db
+    """
+    Mutate the return_value property of the fixture to control
+    the canned db responses
+    """
+    fake_execute = mocker.Mock()
+    patch = mocker.patch("septentrion.db.execute")
+    patch.return_value.__enter__ = fake_execute
+    yield fake_execute

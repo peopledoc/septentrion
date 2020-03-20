@@ -12,22 +12,18 @@ from septentrion import lib, style, versions
     ],
 )
 def test_initialize_stylist(fake_db, kwargs, stylist):
-    fake_db()
     assert lib.initialize(kwargs)["stylist"] is stylist
 
 
 def test_initialize_settings(fake_db):
-    fake_db()
     assert lib.initialize({"a": 1})["settings"].A == 1
 
 
 def test_initialize(fake_db):
-    fake_db()
     assert sorted(lib.initialize({})) == ["settings", "stylist"]
 
 
 def test_migrate(fake_db, mocker):
-    fake_db()
     mock = mocker.patch("septentrion.migration.migrate")
     callback = mocker.Mock()
     lib.migrate(migration_applied_callback=callback)
@@ -38,7 +34,6 @@ def test_migrate(fake_db, mocker):
 
 
 def test_fake(fake_db, mocker):
-    fake_db()
     mock = mocker.patch("septentrion.migration.create_fake_entries")
 
     lib.fake(version="1.2.3")
@@ -49,7 +44,6 @@ def test_fake(fake_db, mocker):
 
 
 def test_show_migrations(fake_db, mocker):
-    fake_db()
     mock = mocker.patch("septentrion.core.describe_migration_plan")
 
     lib.show_migrations()
