@@ -1,8 +1,8 @@
 # Main maintainers
-*                       @mgu @ewjoachim @samuelhamard
+*                       @mgu @ewjoachim @samuelhamard @nadege
 
 
 # Documentation
-/docs/                  @mgu @ewjoachim @samuelhamard @CorBott
-*.rst                   @mgu @ewjoachim @samuelhamard @CorBott
-*.md                    @mgu @ewjoachim @samuelhamard @CorBott
+/docs/                  @mgu @ewjoachim @samuelhamard @nadege @CorBott
+*.rst                   @mgu @ewjoachim @samuelhamard @nadege @CorBott
+*.md                    @mgu @ewjoachim @samuelhamard @nadege @CorBott
