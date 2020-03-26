@@ -22,8 +22,8 @@ def test_get_config_settings_no_section():
         configuration.parse_configuration_file(config)
 
 
-def test_settings_from_cli():
-    s = configuration.Settings.from_cli({"foo": "blah"})
+def test_settings_init():
+    s = configuration.Settings(foo="blah")
 
     assert s.FOO == "blah"
 

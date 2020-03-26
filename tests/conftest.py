@@ -21,3 +21,15 @@ def db():
     yield params
 
     cursor.execute(f"DROP DATABASE {test_db_name}")
+
+
+@pytest.fixture()
+def fake_db(mocker):
+    """
+    Mutate the return_value property of the fixture to control
+    the canned db responses
+    """
+    fake_execute = mocker.Mock()
+    patch = mocker.patch("septentrion.db.execute")
+    patch.return_value.__enter__ = fake_execute
+    yield fake_execute

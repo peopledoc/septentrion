@@ -15,9 +15,8 @@ from septentrion import (
     __version__,
     configuration,
     core,
-    db,
     exceptions,
-    migrate,
+    migration,
     style,
     versions,
 )
@@ -208,16 +207,11 @@ def cli(ctx: click.Context, **kwargs):
         password = os.getenv("SEPTENTRION_PASSWORD")
     kwargs["password"] = password
 
-    ctx.obj = settings = configuration.Settings.from_cli(kwargs)
+    ctx.obj = settings = core.initialize(**kwargs)
 
     level = configuration.log_level(verbosity=settings.VERBOSITY)
     logging.basicConfig(level=level)
     logger.info("Verbosity level: %s", logging.getLevelName(level))
-
-    # All other commands will need the table to be created
-    logger.info("Ensuring migration table exists")
-    # TODO: this probably deserves an option
-    db.create_table(settings=settings)  # idempotent
 
 
 @cli.command(name="show-migrations")
@@ -232,13 +226,13 @@ def show_migrations(settings: configuration.Settings):
     core.describe_migration_plan(settings=settings, stylist=style.stylist)
 
 
-@cli.command(name="migrate")
+@cli.command()
 @click.pass_obj
-def migrate_func(settings: configuration.Settings):
+def migrate(settings: configuration.Settings):
     """
     Run unapplied migrations.
     """
-    migrate.migrate(settings=settings, stylist=style.stylist)
+    migration.migrate(settings=settings, stylist=style.stylist)
 
 
 @cli.command()
@@ -251,4 +245,4 @@ def fake(settings: configuration.Settings, version: versions.Version):
     all migrations up until the given version (included). This is useful
     when installing septentrion on an existing DB.
     """
-    migrate.create_fake_entries(settings=settings, version=version)
+    migration.create_fake_entries(settings=settings, version=version)

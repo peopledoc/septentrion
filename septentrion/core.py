@@ -2,10 +2,23 @@
 This is where the migration plan is computed, by merging information
 from the existing files (septentrion.files) and from the db (septentrion.db)
 """
-
+import logging
 from typing import Any, Dict, Iterable, Optional
 
 from septentrion import configuration, db, exceptions, files, style, utils, versions
+
+logger = logging.getLogger(__name__)
+
+
+def initialize(**kwargs):
+    settings = configuration.Settings(**kwargs)
+
+    # All other commands will need the table to be created
+    logger.info("Ensuring migration table exists")
+    # TODO: this probably deserves an option
+    db.create_table(settings=settings)  # idempotent
+
+    return settings
 
 
 def get_applied_versions(
@@ -175,8 +188,8 @@ def describe_migration_plan(
         with stylist.activate("title") as echo:
             echo("Version {}".format(version))
 
-        for migration in migrations:
+        for migration_elem in migrations:
 
-            name, applied, path, is_manual = migration
+            name, applied, path, is_manual = migration_elem
             stylist.draw_checkbox(name, checked=applied)
             stylist.echo()

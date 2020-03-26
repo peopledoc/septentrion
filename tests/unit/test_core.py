@@ -20,15 +20,15 @@ def test_get_applied_versions(mocker, known_versions):
             versions.Version.from_string("1.1"),
         ],
     )
-    settings = configuration.Settings.from_cli({})
+    settings = configuration.Settings()
     versions_ = core.get_applied_versions(settings=settings)
 
     assert versions_ == [versions.Version.from_string("1.1")]
 
 
 def test_get_closest_version_unknown_target_version(known_versions):
-    settings = configuration.Settings.from_cli(
-        {"target_version": versions.Version.from_string("1.5")}
+    settings = configuration.Settings(
+        target_version=versions.Version.from_string("1.5")
     )
 
     # target_version is not a known version
@@ -42,7 +42,7 @@ def test_get_closest_version_unknown_target_version(known_versions):
 
 
 def test_get_closest_version_ok(known_versions):
-    settings = configuration.Settings.from_cli({})
+    settings = configuration.Settings()
 
     version = core.get_closest_version(
         settings=settings,
@@ -55,7 +55,7 @@ def test_get_closest_version_ok(known_versions):
 
 
 def test_get_closest_version_schema_doesnt_exist(known_versions):
-    settings = configuration.Settings.from_cli({})
+    settings = configuration.Settings()
 
     version = core.get_closest_version(
         settings=settings,
@@ -69,7 +69,7 @@ def test_get_closest_version_schema_doesnt_exist(known_versions):
 
 
 def test_get_closest_version_earlier_schema(known_versions):
-    settings = configuration.Settings.from_cli({})
+    settings = configuration.Settings()
 
     version = core.get_closest_version(
         settings=settings,
@@ -86,7 +86,7 @@ def test_get_closest_version_schema_force_ko(known_versions):
     """
     Will fail because "1.4" is unknown
     """
-    settings = configuration.Settings.from_cli({})
+    settings = configuration.Settings()
 
     with pytest.raises(ValueError):
         core.get_closest_version(
@@ -99,7 +99,7 @@ def test_get_closest_version_schema_force_ko(known_versions):
 
 
 def test_get_closest_version_schema_force_ok(known_versions):
-    settings = configuration.Settings.from_cli({})
+    settings = configuration.Settings()
 
     version = core.get_closest_version(
         settings=settings,
@@ -113,7 +113,7 @@ def test_get_closest_version_schema_force_ok(known_versions):
 
 
 def test_get_closest_version_schema_force_dont_exist(known_versions):
-    settings = configuration.Settings.from_cli({})
+    settings = configuration.Settings()
 
     version = core.get_closest_version(
         settings=settings,
@@ -132,8 +132,8 @@ def test_get_best_schema_version_ok(mocker, known_versions):
         "septentrion.core.files.get_special_files",
         return_value=["schema_1.1.sql", "schema_1.2.sql"],
     )
-    settings = configuration.Settings.from_cli(
-        {"target_version": versions.Version.from_string("1.2")}
+    settings = configuration.Settings(
+        target_version=versions.Version.from_string("1.2")
     )
 
     version = core.get_best_schema_version(settings=settings)
@@ -146,8 +146,8 @@ def test_get_best_schema_version_ko(mocker, known_versions):
         "septentrion.core.files.get_special_files",
         return_value=["schema_1.0.sql", "schema_1.3.sql"],
     )
-    settings = configuration.Settings.from_cli(
-        {"target_version": versions.Version.from_string("1.2")}
+    settings = configuration.Settings(
+        target_version=versions.Version.from_string("1.2")
     )
 
     with pytest.raises(exceptions.SeptentrionException):
@@ -155,8 +155,8 @@ def test_get_best_schema_version_ko(mocker, known_versions):
 
 
 def test_build_migration_plan_unknown_version(known_versions):
-    settings = configuration.Settings.from_cli(
-        {"target_version": versions.Version.from_string("1.5")}
+    settings = configuration.Settings(
+        target_version=versions.Version.from_string("1.5")
     )
 
     with pytest.raises(ValueError):
@@ -173,8 +173,8 @@ def test_build_migration_plan_ok(mocker, known_versions):
         },
     )
     mocker.patch("septentrion.core.files.is_manual_migration", return_value=True)
-    settings = configuration.Settings.from_cli(
-        {"target_version": versions.Version.from_string("1.2")}
+    settings = configuration.Settings(
+        target_version=versions.Version.from_string("1.2")
     )
 
     plan = core.build_migration_plan(settings=settings)
@@ -223,8 +223,8 @@ def test_build_migration_plan_db_uptodate(mocker, known_versions):
         "septentrion.core.db.get_applied_migrations",
         return_value=[Version.from_string("1.1"), Version.from_string("1.2")],
     )
-    settings = configuration.Settings.from_cli(
-        {"target_version": versions.Version.from_string("1.2")}
+    settings = configuration.Settings(
+        target_version=versions.Version.from_string("1.2"),
     )
 
     plan = core.build_migration_plan(settings=settings)

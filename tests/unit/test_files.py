@@ -50,7 +50,7 @@ def test_get_known_versions(mocker):
             pathlib.Path("16.9"),
         ],
     )
-    settings = configuration.Settings.from_cli({})
+    settings = configuration.Settings()
 
     values = files.get_known_versions(settings=settings)
 
@@ -63,7 +63,7 @@ def test_get_known_versions(mocker):
 
 def test_get_known_versions_error(mocker):
     mocker.patch("septentrion.files.iter_dirs", side_effect=OSError)
-    settings = configuration.Settings.from_cli({})
+    settings = configuration.Settings()
 
     with pytest.raises(exceptions.SeptentrionException):
         files.get_known_versions(settings=settings)
@@ -78,8 +78,8 @@ def test_get_migrations_files_mapping(mocker):
             pathlib.Path("tests/test_data/sql/17.1/manual/file.ddl.sql"),
         ],
     )
-    settings = configuration.Settings.from_cli(
-        {"migrations_root": "tests/test_data/sql", "ignore_symlinks": True}
+    settings = configuration.Settings(
+        migrations_root="tests/test_data/sql", ignore_symlinks=True
     )
 
     values = files.get_migrations_files_mapping(
