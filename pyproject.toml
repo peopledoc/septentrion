@@ -1,0 +1,41 @@
+[tool]
+[tool.poetry]
+name = "septentrion"
+version = "0.0.0"
+description = "Python CLI tool for managing and executing hand-written PostgreSQL migrations"
+license = "MIT License"
+keywords = ["migrations", "postgresql"]
+classifiers = ["Development Status :: 4 - Beta", "Intended Audience :: Developers", "Programming Language :: Python :: 3", "Programming Language :: Python :: 3.6", "Programming Language :: Python :: 3.7", "Programming Language :: Python :: 3.8", "License :: OSI Approved :: MIT License"]
+homepage = "https://github.com/peopledoc/septentrion"
+authors = ["PeopleDoc <joachim.jablon@people-doc.com>"]
+
+[tool.poetry.dependencies]
+python = "*"
+black = {optional = true, version = "*"}
+check-manifest = {optional = true, version = "*"}
+click = "*"
+colorama = "*"
+dataclasses = {python = "<=3.6", version = "*"}
+doc8 = {optional = true, version = "*"}
+flake8 = {optional = true, version = "*"}
+github-changelog = {optional = true, version = "*"}
+importlib-metadata = "*"
+isort = {optional = true, version = "*"}
+mypy = {optional = true, version = "*"}
+psycopg2-binary = "*"
+pytest = {optional = true, version = "*"}
+pytest-click = {optional = true, version = "*"}
+pytest-cov = {optional = true, version = "*"}
+pytest-mock = {optional = true, version = "*"}
+sphinx = {optional = true, version = "*"}
+sphinx-autodoc-typehints = {optional = true, version = "*"}
+sphinxcontrib-programoutput = {optional = true, version = "*"}
+sphinxcontrib-spelling = {optional = true, version = "*"}
+sqlparse = "*"
+tox = {optional = true, version = "*"}
+
+[tool.poetry.extras]
+lint = ["black", "check-manifest", "flake8", "github-changelog", "isort", "mypy", "tox"]
+docs = ["doc8", "sphinx", "sphinx-autodoc-typehints", "sphinxcontrib-programoutput"]
+test = ["pytest", "pytest-click", "pytest-cov", "pytest-mock"]
+docs_spelling = ["sphinxcontrib-spelling"]
