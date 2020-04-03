@@ -39,3 +39,12 @@ def test_current_database_state(cli_runner, db):
     assert (
         db_module.get_current_schema_version(settings=settings).original_string == "1.1"
     )
+
+    assert "Loading schema" in result.output
+    assert "Applied 0.1" in result.output
+    assert "Version 1.0" in result.output
+    assert "Applying 1.0-0-version-dml.sql ..." in result.output
+    assert "Applied 1.0-0-version-dml.sql" in result.output
+    assert "Version 1.1" in result.output
+    assert "Applying 1.1-index-ddl.sql ..." in result.output
+    assert "Applied 1.1-index-ddl.sql" in result.output
