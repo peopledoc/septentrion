@@ -1,6 +1,6 @@
 import logging
 
-from septentrion import core, exceptions, migration, style, versions
+from septentrion import core, db, exceptions, migration, style, versions
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +31,16 @@ def migrate(*, migration_applied_callback=None, **settings_kwargs):
     migration.migrate(
         migration_applied_callback=migration_applied_callback, **lib_kwargs,
     )
+
+
+def is_schema_initialized(**settings_kwargs):
+    lib_kwargs = initialize(settings_kwargs)
+    return db.is_schema_initialized(settings=lib_kwargs["settings"])
+
+
+def build_migration_plan(**settings_kwargs):
+    lib_kwargs = initialize(settings_kwargs)
+    return core.build_migration_plan(settings=lib_kwargs["settings"])
 
 
 def fake(version: str, **settings_kwargs):
