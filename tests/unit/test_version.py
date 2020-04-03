@@ -39,8 +39,14 @@ def test_version_sort():
     ]
 
 
-def test_version_str():
+def test_version_repr():
     assert (
         repr(versions.Version.from_string("1.2.3"))
         == "Version(version_tuple=(1, 2, 3), original_string='1.2.3')"
     )
+
+
+def test_version_str():
+    assert str(versions.Version.from_string("1.2.3")) == "1.2.3"
+
+    assert str(versions.Version.from_string("1.2.03")) == "1.2.03"

@@ -17,3 +17,6 @@ class Version:
         except (AssertionError, ValueError) as exc:
             raise exceptions.InvalidVersion(str(exc)) from exc
         return cls(version_tuple=version_tuple, original_string=version_string)
+
+    def __str__(self):
+        return self.original_string
