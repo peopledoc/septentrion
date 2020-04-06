@@ -49,3 +49,19 @@ def test_show_migrations(fake_db, mocker):
     lib.show_migrations()
 
     mock.assert_called_with(settings=mocker.ANY, stylist=mocker.ANY)
+
+
+def test_is_schema_initialized(fake_db, mocker):
+    mock = mocker.patch("septentrion.db.is_schema_initialized", return_value="is it ?")
+
+    assert lib.is_schema_initialized() == "is it ?"
+
+    mock.assert_called_with(settings=mocker.ANY)
+
+
+def test_build_migration_plan(fake_db, mocker):
+    mock = mocker.patch("septentrion.core.build_migration_plan", return_value="is it ?")
+
+    assert lib.build_migration_plan() == "is it ?"
+
+    mock.assert_called_with(settings=mocker.ANY)

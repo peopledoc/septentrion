@@ -1,7 +1,19 @@
 from septentrion import metadata as _metadata_module
-from septentrion.lib import fake, migrate, show_migrations
+from septentrion.lib import (
+    build_migration_plan,
+    fake,
+    is_schema_initialized,
+    migrate,
+    show_migrations,
+)
 
-__all__ = ["fake", "migrate", "show_migrations"]
+__all__ = [
+    "build_migration_plan",
+    "fake",
+    "is_schema_initialized",
+    "migrate",
+    "show_migrations",
+]
 
 _metadata = _metadata_module.extract_metadata("septentrion")
 __author__ = _metadata["author"]
