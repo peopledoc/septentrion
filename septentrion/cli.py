@@ -34,27 +34,7 @@ click.option = functools.partial(click.option, show_default=True)  # type: ignor
 
 
 def load_config(ctx: click.Context, param: click.Parameter, value: TextIO) -> None:
-    if not value:
-        try:
-            file_contents, file = configuration.read_default_configuration_files()
-        except exceptions.NoDefaultConfiguration:
-            pass
-    else:
-        file = getattr(value, "name", "stdin")
-        logger.info(f"Reading configuration from {file}")
-        file_contents = value.read()
-
-    try:
-        default = configuration.parse_configuration_file(file_contents)
-    except exceptions.NoSeptentrionSection:
-        if file in configuration.DEDICATED_CONFIGURATION_FILES:
-            click.echo(
-                f"Configuration file found at {file} but contains no septentrion "
-                "section"
-            )
-        default = {}
-
-    ctx.default_map = default
+    ctx.default_map = configuration.load_configuration_files(value)
 
 
 CONTEXT_SETTINGS = {

@@ -33,3 +33,9 @@ def fake_db(mocker):
     patch = mocker.patch("septentrion.db.execute")
     patch.return_value.__enter__ = fake_execute
     yield fake_execute
+
+
+@pytest.fixture()
+def temporary_directory(tmpdir):
+    with tmpdir.as_cwd():
+        yield

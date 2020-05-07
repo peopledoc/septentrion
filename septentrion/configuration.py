@@ -5,7 +5,7 @@ the settings, see cli.py (for now)
 import configparser
 import logging
 import pathlib
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, TextIO, Tuple, Union
 
 from septentrion import exceptions
 
@@ -142,3 +142,30 @@ class Settings:
     def update(self, values: Dict) -> None:
         for key, value in values.items():
             self.set(key, value)
+
+
+def load_configuration_files(value: TextIO) -> Dict[str, Any]:
+    """
+    Load configuration from default source files.
+    """
+    if not value:
+        try:
+            file_contents, file = read_default_configuration_files()
+        except exceptions.NoDefaultConfiguration:
+            return {}
+    else:
+        file = getattr(value, "name", "stdin")
+        logger.info(f"Reading configuration from {file}")
+        file_contents = value.read()
+
+    try:
+        return parse_configuration_file(file_contents)
+    except exceptions.NoSeptentrionSection:
+        if file in DEDICATED_CONFIGURATION_FILES:
+            logger.warning(
+                f"Configuration file found at {file} but contains no "
+                "septentrion section"
+            )
+
+    # No configuration found in files ; use stock default values
+    return {}
