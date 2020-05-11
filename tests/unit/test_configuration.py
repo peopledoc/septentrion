@@ -1,3 +1,6 @@
+import pathlib
+from io import StringIO
+
 import pytest
 
 from septentrion import configuration, exceptions
@@ -53,3 +56,65 @@ def test_get_config_files_settings():
         "before_schema_file": ["before.sql", "another_before.sql"],
         "after_schema_file": ["after.sql", "another_after.sql"],
     }
+
+
+def test_load_configuration_files_no_file(mocker):
+    # There's no available file
+    mocker.patch(
+        "septentrion.configuration.read_default_configuration_files",
+        side_effect=exceptions.NoDefaultConfiguration,
+    )
+    s = configuration.load_configuration_files(value=None)
+    assert s == {}
+
+
+@pytest.mark.parametrize(
+    "conf, expected, has_warning",
+    [
+        ("", {}, True),
+        ("[stuff]", {}, True),
+        ("[septentrion]\na = b", {"a": "b"}, False),
+    ],
+)
+def test_load_configuration_files_value(caplog, conf, expected, has_warning):
+    value = StringIO(conf)
+    value.seek(0)
+    # Reminder: an empty StringIO is not considered as Falsy.
+    s = configuration.load_configuration_files(value=value)
+    assert s == expected
+
+    warnings = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert bool(warnings) is has_warning
+    assert all(
+        ["at stdin but contains no septentrion section" in r.message for r in warnings]
+    )
+
+
+@pytest.mark.parametrize(
+    "conf, filename, expected, has_warning",
+    [
+        ("", "setup.cfg", {}, False),
+        ("[stuff]", "setup.cfg", {}, False),
+        ("[septentrion]\na = b", "setup.cfg", {"a": "b"}, False),
+        ("", "septentrion.ini", {}, True),
+        ("[stuff]", "septentrion.ini", {}, True),
+        ("[septentrion]\na = b", "septentrion.ini", {"a": "b"}, False),
+    ],
+)
+def test_load_configuration_files_default_files(
+    mocker, caplog, conf, filename, expected, has_warning
+):
+    mocker.patch(
+        "septentrion.configuration.read_default_configuration_files",
+        return_value=(conf, pathlib.Path(filename).resolve()),
+    )
+    s = configuration.load_configuration_files(value=None)
+    assert s == expected
+    warnings = [record for record in caplog.records if record.levelname == "WARNING"]
+    assert bool(warnings) is has_warning
+    assert all(
+        [
+            f"/{filename} but contains no septentrion section" in r.message
+            for r in warnings
+        ]
+    )
