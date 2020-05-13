@@ -5,21 +5,27 @@ the settings, see cli.py (for now)
 import configparser
 import logging
 import pathlib
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Optional, TextIO, Tuple, Union
 
 from septentrion import exceptions
 
 logger = logging.getLogger(__name__)
 
 # These are the configuration files only used by septentrion
-DEDICATED_CONFIGURATION_FILES = [
-    "./septentrion.ini",
-    "~/.config/septentrion.ini",
-    "/etc/septentrion.ini",
+DEDICATED_CONFIGURATION_FILENAME = "septentrion.ini"
+CONFIGURATION_PATHS = [
+    pathlib.Path("./"),
+    pathlib.Path("~/.config/"),
+    pathlib.Path("/etc/"),
 ]
+DEDICATED_CONFIGURATION_FILES = [
+    folder.expanduser().resolve() / DEDICATED_CONFIGURATION_FILENAME
+    for folder in CONFIGURATION_PATHS
+]
+print(DEDICATED_CONFIGURATION_FILES)
 # These are the files that can contain septentrion configuration, but
 # it's also ok if they exist and they don't configure septentrion.
-COMMON_CONFIGURATION_FILES = ["./setup.cfg"]
+COMMON_CONFIGURATION_FILES = [pathlib.Path("./setup.cfg")]
 
 ALL_CONFIGURATION_FILES = DEDICATED_CONFIGURATION_FILES + COMMON_CONFIGURATION_FILES
 
@@ -44,7 +50,7 @@ DEFAULTS = {
 }
 
 
-def read_default_configuration_files() -> Tuple[str, str]:
+def read_default_configuration_files() -> Tuple[str, pathlib.Path]:
     for file in ALL_CONFIGURATION_FILES:
         try:
             return read_configuration_file(file), file
@@ -56,7 +62,7 @@ def read_default_configuration_files() -> Tuple[str, str]:
     raise exceptions.NoDefaultConfiguration
 
 
-def read_configuration_file(path: str) -> str:
+def read_configuration_file(path: pathlib.Path) -> str:
     with open(path, "r") as handler:
         logger.info(f"Reading configuration from {path}")
         return handler.read()
@@ -142,3 +148,39 @@ class Settings:
     def update(self, values: Dict) -> None:
         for key, value in values.items():
             self.set(key, value)
+
+
+def load_configuration_files(value: Optional[TextIO]) -> Dict[str, Any]:
+    """
+    Load configuration from default source files.
+    """
+    expected_section = True
+    file: Union[pathlib.Path, str]
+
+    if not value:
+        try:
+            file_contents, file = read_default_configuration_files()
+        except exceptions.NoDefaultConfiguration:
+            return {}
+        if file not in DEDICATED_CONFIGURATION_FILES:
+            expected_section = False
+    else:
+        if hasattr(value, "name"):
+            file = pathlib.Path(value.name)
+        else:
+            file = "stdin"
+        logger.info(f"Reading configuration from {file}")
+
+        file_contents = value.read()
+
+    try:
+        return parse_configuration_file(file_contents)
+    except exceptions.NoSeptentrionSection:
+        if expected_section:
+            logger.warning(
+                f"Configuration file found at {str(file)} but contains no "
+                "septentrion section"
+            )
+
+    # No configuration found in files ; use stock default values
+    return {}

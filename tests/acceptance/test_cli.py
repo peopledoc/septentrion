@@ -8,8 +8,18 @@ def test_version(cli_runner):
     )
 
 
-def test_current_database_state(cli_runner, db):
+def test_no_configuration_file(cli_runner, temporary_directory, mocker):
+    mocker.patch("septentrion.core.describe_migration_plan")
+    mocker.patch("septentrion.db.create_table")
+    result = cli_runner.invoke(
+        __main__.main,
+        ["--target-version=0.0.0", "show-migrations"],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.output,)
 
+
+def test_current_database_state(cli_runner, db):
     result = cli_runner.invoke(
         __main__.main,
         [
