@@ -1,6 +1,7 @@
 import logging
+from typing import Iterable
 
-from septentrion import core, db, exceptions, migration, style, versions
+from septentrion import core, db, exceptions, files, migration, style, versions
 
 logger = logging.getLogger(__name__)
 
@@ -47,3 +48,15 @@ def fake(version: str, **settings_kwargs):
     lib_kwargs = initialize(settings_kwargs)
     fake_version = versions.Version.from_string(version)
     migration.create_fake_entries(version=fake_version, **lib_kwargs)
+
+
+def load_fixtures(version: str, **settings_kwargs) -> None:
+    lib_kwargs = initialize(settings_kwargs)
+    init_version = versions.Version.from_string(version)
+    migration.load_fixtures(init_version=init_version, **lib_kwargs)
+
+
+def get_known_versions(**settings_kwargs) -> Iterable[str]:
+    lib_kwargs = initialize(settings_kwargs)
+    known_versions = files.get_known_versions(settings=lib_kwargs["settings"])
+    return [version.original_string for version in known_versions]

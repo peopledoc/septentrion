@@ -2,7 +2,9 @@ from septentrion import metadata as _metadata_module
 from septentrion.lib import (
     build_migration_plan,
     fake,
+    get_known_versions,
     is_schema_initialized,
+    load_fixtures,
     migrate,
     show_migrations,
 )
@@ -10,7 +12,9 @@ from septentrion.lib import (
 __all__ = [
     "build_migration_plan",
     "fake",
+    "get_known_versions",
     "is_schema_initialized",
+    "load_fixtures",
     "migrate",
     "show_migrations",
 ]
