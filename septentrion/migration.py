@@ -76,6 +76,33 @@ def _load_schema_files(settings: configuration.Settings, schema_files: List[str]
         run_script(settings=settings, path=file_path)
 
 
+def load_fixtures(
+    settings: configuration.Settings,
+    init_version: versions.Version,
+    stylist: style.Stylist = style.noop_stylist,
+) -> None:
+    try:
+        fixtures_version = core.get_fixtures_version(
+            settings=settings, target_version=init_version
+        )
+        fixtures_path = (
+            settings.MIGRATIONS_ROOT
+            / "fixtures"
+            / settings.FIXTURES_TEMPLATE.format(fixtures_version.original_string)
+        )
+
+        with stylist.activate("title") as echo:
+            echo("Loading fixtures")
+        logger.info("Applying fixture %s (file %s)", fixtures_version, fixtures_path)
+        with stylist.checkbox(
+            content="Applying fixtures {}...".format(fixtures_version),
+            content_after="Applied fixtures {}".format(fixtures_version),
+        ):
+            run_script(settings=settings, path=fixtures_path)
+    except exceptions.SeptentrionException as exception:
+        logger.info("Not applying fixtures: %s", exception)
+
+
 def init_schema(
     settings: configuration.Settings,
     init_version: versions.Version,
@@ -123,26 +150,7 @@ def init_schema(
     _load_schema_files(settings, after_files)
 
     # load fixtures
-    try:
-        fixtures_version = core.get_fixtures_version(
-            settings=settings, target_version=init_version
-        )
-        fixtures_path = (
-            settings.MIGRATIONS_ROOT
-            / "fixtures"
-            / settings.FIXTURES_TEMPLATE.format(fixtures_version.original_string)
-        )
-
-        with stylist.activate("title") as echo:
-            echo("Loading fixtures")
-        logger.info("Applying fixture %s (file %s)", fixtures_version, fixtures_path)
-        with stylist.checkbox(
-            content="Applying fixtures {}...".format(fixtures_version),
-            content_after="Applied fixtures {}".format(fixtures_version),
-        ):
-            run_script(settings=settings, path=fixtures_path)
-    except exceptions.SeptentrionException as exception:
-        logger.info("Not applying fixtures: %s", exception)
+    load_fixtures(settings, init_version, stylist)
 
 
 def create_fake_entries(
