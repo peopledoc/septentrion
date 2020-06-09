@@ -112,6 +112,23 @@ class CommaSeparatedMultipleString(StringParamType):
     default=configuration.DEFAULTS["table"],
 )
 @click.option(
+    "--version_column",
+    help="Version column name in the migration table. "
+    "(env: SEPTENTRION_VERSION_COLUMN)",
+    default=configuration.DEFAULTS["version_column"],
+)
+@click.option(
+    "--name_column",
+    help="Name column name in the migration table. " "(env: SEPTENTRION_NAME_COLUMN)",
+    default=configuration.DEFAULTS["name_column"],
+)
+@click.option(
+    "--applied_column",
+    help="Applied at column name in the migration table. "
+    "(env: SEPTENTRION_APPLIED_COLUMN)",
+    default=configuration.DEFAULTS["applied_column"],
+)
+@click.option(
     "--migrations-root",
     help="Path to the migration files (env: SEPTENTRION_MIGRATION_ROOT)",
     type=click.Path(exists=True, file_okay=False, resolve_path=True),

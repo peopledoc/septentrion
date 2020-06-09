@@ -31,6 +31,9 @@ ALL_CONFIGURATION_FILES = DEDICATED_CONFIGURATION_FILES + COMMON_CONFIGURATION_F
 
 DEFAULTS = {
     "table": "septentrion_migrations",
+    "version_column": "version",
+    "name_column": "name",
+    "applied_column": "applied_at",
     "migrations_root": ".",
     "schema_template": "schema_{}.sql",
     "fixtures_template": "fixtures_{}.sql",

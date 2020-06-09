@@ -55,7 +55,15 @@ def execute(
     args: Tuple = tuple(),
     commit: bool = False,
 ) -> Any:
-    query = " ".join(query.format(table=settings.TABLE).split())
+    query = " ".join(
+        query.format(
+            table=settings.TABLE,
+            version_column=settings.VERSION_COLUMN,
+            name_column=settings.NAME_COLUMN,
+            applied_column=settings.APPLIED_COLUMN,
+        ).split()
+    )
+
     with get_connection(settings=settings) as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             logger.debug("Executing %s -- Args: %s", query, args)
@@ -91,21 +99,21 @@ class Query(object):
 query_create_table = """
 CREATE TABLE IF NOT EXISTS "{table}" (
     id BIGSERIAL PRIMARY KEY,
-    version TEXT,
-    name TEXT,
-    applied_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    {version_column} TEXT,
+    {name_column} TEXT,
+    {applied_column} TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 )
 """
 
-query_max_version = """SELECT DISTINCT "version" FROM "{table}" """
+query_max_version = """SELECT DISTINCT "{version_column}" FROM "{table}" """
 
 query_write_migration = """
-    INSERT INTO "{table}" ("version", "name")
+    INSERT INTO "{table}" ("{version_column}", "{name_column}")
     VALUES (%s, %s)
 """
 
 query_get_applied_migrations = """
-    SELECT name FROM "{table}" WHERE "version" = %s
+    SELECT "{name_column}" FROM "{table}" WHERE "{version_column}" = %s
 """
 
 query_is_schema_initialized = """
