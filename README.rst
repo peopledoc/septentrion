@@ -56,7 +56,7 @@ Very quick start
     └──  1.0
         ├── 1.0-0-version-dml.sql
         ├── 1.0-author-1-ddl.sql
-        └──  1.0-author-2-dml.sql
+        └── 1.0-author-2-dml.sql
 
 - *Step 2*: Run septentrion
 
