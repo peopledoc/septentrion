@@ -30,6 +30,7 @@ COMMON_CONFIGURATION_FILES = [pathlib.Path("./setup.cfg")]
 ALL_CONFIGURATION_FILES = DEDICATED_CONFIGURATION_FILES + COMMON_CONFIGURATION_FILES
 
 DEFAULTS = {
+    "create_table": True,
     "table": "septentrion_migrations",
     "version_column": "version",
     "name_column": "name",

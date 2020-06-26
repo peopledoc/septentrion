@@ -37,11 +37,16 @@ def test_get_current_schema_version(fake_db, applied_versions, current_version):
 
 
 @pytest.mark.parametrize(
-    "db_response, initialized", [[iter([True]), True], [iter([]), False]],
+    "db_responses, initialized",
+    [
+        [[iter([[True]]), iter([True])], True],
+        [[iter([[True]]), iter([])], False],
+        [[iter([[False]]), iter([True])], False],
+    ],
 )
-def test_is_schema_initialized(fake_db, db_response, initialized):
+def test_is_schema_initialized(fake_db, db_responses, initialized):
     settings = configuration.Settings()
-    fake_db.return_value = db_response
+    fake_db.side_effect = db_responses
 
     result = db.is_schema_initialized(settings)
 

@@ -197,6 +197,11 @@ class CommaSeparatedMultipleString(StringParamType):
     default=configuration.DEFAULTS["ignore_symlinks"],
     help="Ignore migration files that are symlinks",
 )
+@click.option(
+    "--create_table",
+    default=configuration.DEFAULTS["create_table"],
+    help="Created the migration table (idempotent, env: SEPTENTRION_CREATE_TABLE)",
+)
 def cli(ctx: click.Context, **kwargs):
     if kwargs.pop("password_flag"):
         password = click.prompt("Database password", hide_input=True)

@@ -15,8 +15,8 @@ def initialize(**kwargs):
 
     # All other commands will need the table to be created
     logger.info("Ensuring migration table exists")
-    # TODO: this probably deserves an option
-    db.create_table(settings=settings)  # idempotent
+    if settings.CREATE_TABLE:
+        db.create_table(settings=settings)  # idempotent
 
     return settings
 
