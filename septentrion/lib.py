@@ -27,11 +27,9 @@ def show_migrations(**settings_kwargs):
     core.describe_migration_plan(**lib_kwargs)
 
 
-def migrate(*, migration_applied_callback=None, **settings_kwargs):
+def migrate(**settings_kwargs):
     lib_kwargs = initialize(settings_kwargs)
-    migration.migrate(
-        migration_applied_callback=migration_applied_callback, **lib_kwargs,
-    )
+    migration.migrate(**lib_kwargs,)
 
 
 def is_schema_initialized(**settings_kwargs):

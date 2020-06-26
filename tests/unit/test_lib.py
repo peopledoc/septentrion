@@ -25,12 +25,9 @@ def test_initialize(fake_db):
 
 def test_migrate(fake_db, mocker):
     mock = mocker.patch("septentrion.migration.migrate")
-    callback = mocker.Mock()
-    lib.migrate(migration_applied_callback=callback)
+    lib.migrate()
 
-    mock.assert_called_with(
-        migration_applied_callback=callback, settings=mocker.ANY, stylist=mocker.ANY
-    )
+    mock.assert_called_with(settings=mocker.ANY, stylist=mocker.ANY)
 
 
 def test_fake(fake_db, mocker):

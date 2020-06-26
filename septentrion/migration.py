@@ -21,9 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def migrate(
-    settings: configuration.Settings,
-    stylist: style.Stylist = style.noop_stylist,
-    migration_applied_callback=None,
+    settings: configuration.Settings, stylist: style.Stylist = style.noop_stylist,
 ) -> None:
 
     logger.info("Starting migrations")
@@ -63,8 +61,6 @@ def migrate(
                     run_script(settings=settings, path=path)
                     logger.info("Saving operation in the database")
                     db.write_migration(settings=settings, version=version, name=mig)
-                    if migration_applied_callback is not None:
-                        migration_applied_callback(version.original_string, mig)
 
 
 def _load_schema_files(settings: configuration.Settings, schema_files: List[str]):
