@@ -116,13 +116,6 @@ query_get_applied_migrations = """
     SELECT "{name_column}" FROM "{table}" WHERE "{version_column}" = %s
 """
 
-query_migration_table_exists = """
-SELECT EXISTS (
-   SELECT FROM information_schema.tables
-   WHERE "table_name" = '{table}'
-   );
-"""
-
 query_is_schema_initialized = """
     SELECT TRUE FROM "{table}" LIMIT 1
 """
@@ -156,16 +149,16 @@ def get_applied_migrations(
 
 
 def is_schema_initialized(settings: configuration.Settings) -> bool:
-    with Query(settings=settings, query=query_migration_table_exists) as cur:
-        result = next(cur)
-        if result == [False]:
-            return False
 
-    with Query(settings=settings, query=query_is_schema_initialized) as cur:
-        try:
-            return next(cur)
-        except StopIteration:
-            return False
+    try:
+        with Query(settings=settings, query=query_is_schema_initialized) as cur:
+            try:
+                return next(cur)
+            except StopIteration:
+                return False
+    except psycopg2.errors.UndefinedTable:
+        # If table doesn't exist
+        return False
 
 
 def create_table(settings: configuration.Settings) -> None:
