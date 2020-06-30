@@ -1,6 +1,8 @@
 import psycopg2
 import pytest
 
+from septentrion import configuration
+
 
 @pytest.fixture
 def db():
@@ -39,3 +41,11 @@ def fake_db(mocker):
 def temporary_directory(tmpdir):
     with tmpdir.as_cwd():
         yield
+
+
+@pytest.fixture()
+def settings_factory():
+    def _(**kwargs):
+        return configuration.Settings(**kwargs)
+
+    return _
