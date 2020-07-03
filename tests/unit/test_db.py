@@ -1,3 +1,4 @@
+import psycopg2
 import pytest
 
 from septentrion import configuration, db
@@ -37,11 +38,16 @@ def test_get_current_schema_version(fake_db, applied_versions, current_version):
 
 
 @pytest.mark.parametrize(
-    "db_response, initialized", [[iter([True]), True], [iter([]), False]],
+    "db_responses, initialized",
+    [
+        (psycopg2.errors.UndefinedTable, False),  # Table doesn't exist
+        ([iter([])], False),  # Table exist but is empty
+        ([iter([True])], True),  # Table contains something
+    ],
 )
-def test_is_schema_initialized(fake_db, db_response, initialized):
+def test_is_schema_initialized(fake_db, db_responses, initialized):
     settings = configuration.Settings()
-    fake_db.return_value = db_response
+    fake_db.side_effect = db_responses
 
     result = db.is_schema_initialized(settings)
 

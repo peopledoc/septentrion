@@ -7,6 +7,7 @@ from contextlib import contextmanager
 from typing import Any, Iterable, Optional, Tuple
 
 import psycopg2
+import psycopg2.sql
 from psycopg2.extensions import connection as Connection
 from psycopg2.extras import DictCursor
 
@@ -15,6 +16,7 @@ from septentrion import configuration, versions
 logger = logging.getLogger(__name__)
 
 
+@contextmanager
 def get_connection(settings: configuration.Settings) -> Connection:
     """
     Opens a PostgreSQL connection using psycopg2.
@@ -42,10 +44,13 @@ def get_connection(settings: configuration.Settings) -> Connection:
     # default settings or its own environment variables (PGHOST, PGUSER, ...)
     connection = psycopg2.connect(dsn="", **kwargs)
 
-    # Autocommit=true means we'll have more control over when the code is commited
-    # (even if this sounds strange)
-    connection.set_session(autocommit=True)
-    return connection
+    try:
+        # Autocommit=true means we'll have more control over when the code is commited
+        # (even if this sounds strange)
+        connection.set_session(autocommit=True)
+        yield connection
+    finally:
+        connection.close()
 
 
 @contextmanager
@@ -55,7 +60,12 @@ def execute(
     args: Tuple = tuple(),
     commit: bool = False,
 ) -> Any:
-    query = " ".join(query.format(table=settings.TABLE).split())
+    query = psycopg2.sql.SQL(query).format(
+        table=psycopg2.sql.Identifier(settings.TABLE),
+        version_column=psycopg2.sql.Identifier(settings.VERSION_COLUMN),
+        name_column=psycopg2.sql.Identifier(settings.NAME_COLUMN),
+        applied_at_column=psycopg2.sql.Identifier(settings.APPLIED_AT_COLUMN),
+    )
     with get_connection(settings=settings) as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
             logger.debug("Executing %s -- Args: %s", query, args)
@@ -89,27 +99,27 @@ class Query(object):
 
 
 query_create_table = """
-CREATE TABLE IF NOT EXISTS "{table}" (
+CREATE TABLE IF NOT EXISTS {table} (
     id BIGSERIAL PRIMARY KEY,
-    version TEXT,
-    name TEXT,
-    applied_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    {version_column} TEXT,
+    {name_column} TEXT,
+    {applied_at_column} TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 )
 """
 
-query_max_version = """SELECT DISTINCT "version" FROM "{table}" """
+query_max_version = """SELECT DISTINCT {version_column} FROM {table} """
 
 query_write_migration = """
-    INSERT INTO "{table}" ("version", "name")
+    INSERT INTO {table} ({version_column}, {name_column})
     VALUES (%s, %s)
 """
 
 query_get_applied_migrations = """
-    SELECT name FROM "{table}" WHERE "version" = %s
+    SELECT {name_column} FROM {table} WHERE {version_column} = %s
 """
 
 query_is_schema_initialized = """
-    SELECT TRUE FROM "{table}" LIMIT 1
+    SELECT TRUE FROM {table} LIMIT 1
 """
 
 
@@ -141,11 +151,16 @@ def get_applied_migrations(
 
 
 def is_schema_initialized(settings: configuration.Settings) -> bool:
-    with Query(settings=settings, query=query_is_schema_initialized) as cur:
-        try:
-            return next(cur)
-        except StopIteration:
-            return False
+
+    try:
+        with Query(settings=settings, query=query_is_schema_initialized) as cur:
+            try:
+                return next(cur)
+            except StopIteration:
+                return False
+    except psycopg2.errors.UndefinedTable:
+        # If table doesn't exist
+        return False
 
 
 def create_table(settings: configuration.Settings) -> None:

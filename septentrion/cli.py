@@ -112,6 +112,24 @@ class CommaSeparatedMultipleString(StringParamType):
     default=configuration.DEFAULTS["table"],
 )
 @click.option(
+    "--version_column",
+    help="Name of the column describing the migration version in the migrations table. "
+    "(env: SEPTENTRION_VERSION_COLUMN)",
+    default=configuration.DEFAULTS["version_column"],
+)
+@click.option(
+    "--name_column",
+    help="Name of the column describing the migration name in the migrations table. "
+    "(env: SEPTENTRION_NAME_COLUMN)",
+    default=configuration.DEFAULTS["name_column"],
+)
+@click.option(
+    "--applied_at_column",
+    help="Name of the column describing the date at which the migration was applied "
+    "in the migrations table. (env: SEPTENTRION_APPLIED_AT_COLUMN)",
+    default=configuration.DEFAULTS["applied_at_column"],
+)
+@click.option(
     "--migrations-root",
     help="Path to the migration files (env: SEPTENTRION_MIGRATION_ROOT)",
     type=click.Path(exists=True, file_okay=False, resolve_path=True),
@@ -179,6 +197,12 @@ class CommaSeparatedMultipleString(StringParamType):
     "--ignore-symlinks/--no-ignore-symlinks",
     default=configuration.DEFAULTS["ignore_symlinks"],
     help="Ignore migration files that are symlinks",
+)
+@click.option(
+    "--create-table/--no-create-table",
+    default=configuration.DEFAULTS["create_table"],
+    help="Controls whether the migrations table should be created if it doesn't exist. "
+    "(env: SEPTENTRION_CREATE_TABLE)",
 )
 def cli(ctx: click.Context, **kwargs):
     if kwargs.pop("password_flag"):
