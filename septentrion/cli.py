@@ -124,10 +124,10 @@ class CommaSeparatedMultipleString(StringParamType):
     default=configuration.DEFAULTS["name_column"],
 )
 @click.option(
-    "--applied_column",
+    "--applied_at_column",
     help="Name of the column describing the date at which the migration was applied "
-    "in the migrations table. (env: SEPTENTRION_APPLIED_COLUMN)",
-    default=configuration.DEFAULTS["applied_column"],
+    "in the migrations table. (env: SEPTENTRION_APPLIED_AT_COLUMN)",
+    default=configuration.DEFAULTS["applied_at_column"],
 )
 @click.option(
     "--migrations-root",

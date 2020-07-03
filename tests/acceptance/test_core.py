@@ -36,7 +36,7 @@ def test_initialize_customize_names(db):
         # customize columns
         "name_column": "name_custo",
         "version_column": "version_custo",
-        "applied_column": "applied_custo",
+        "applied_at_column": "applied_custo",
     }
 
     # create table with no error

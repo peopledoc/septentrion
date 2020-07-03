@@ -64,7 +64,7 @@ def execute(
         table=psycopg2.sql.Identifier(settings.TABLE),
         version_column=psycopg2.sql.Identifier(settings.VERSION_COLUMN),
         name_column=psycopg2.sql.Identifier(settings.NAME_COLUMN),
-        applied_column=psycopg2.sql.Identifier(settings.APPLIED_COLUMN),
+        applied_at_column=psycopg2.sql.Identifier(settings.APPLIED_AT_COLUMN),
     )
     with get_connection(settings=settings) as conn:
         with conn.cursor(cursor_factory=DictCursor) as cur:
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS {table} (
     id BIGSERIAL PRIMARY KEY,
     {version_column} TEXT,
     {name_column} TEXT,
-    {applied_column} TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    {applied_at_column} TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 )
 """
 
