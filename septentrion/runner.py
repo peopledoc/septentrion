@@ -30,12 +30,17 @@ class Script:
             self._run_simple()
 
     def _run_simple(self):
+        creds = []
+        for name in ["HOST", "PORT", "DBNAME", "USERNAME", "PASSWORD"]:
+            value = getattr(self.settings, name)
+            if value:
+                creds += ["--" + name.lower(), value]
+
         try:
-            # FIXME: handle PG credentials & DB
             cmd = subprocess.run(
-                ["psql", "--set", "ON_ERROR_STOP=on", "-f", self.path],
+                ["psql", *creds, "--set", "ON_ERROR_STOP=on", "-f", self.path],
                 capture_output=True,
-                check=True
+                check=True,
             )
         except subprocess.CalledProcessError as e:
             raise SQLRunnerException('Error during migration') from e
