@@ -188,5 +188,4 @@ def run_script(settings: configuration.Settings, path: pathlib.Path) -> None:
     logger.info("Running SQL file %s", path)
     with io.open(path, "r", encoding="utf8") as f:
         script = runner.Script(settings=settings, file_handler=f, path=path)
-        with db.get_connection(settings=settings) as connection:
-            script.run(connection=connection)
+        script.run()

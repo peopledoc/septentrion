@@ -1,11 +1,9 @@
 import logging
 import pathlib
+import subprocess
 from typing import Iterable
 
-import sqlparse
-from psycopg2.extensions import cursor as Cursor
-
-from septentrion import configuration, files
+from septentrion import configuration
 
 logger = logging.getLogger(__name__)
 
@@ -14,124 +12,62 @@ class SQLRunnerException(Exception):
     pass
 
 
-def clean_sql_code(code: str) -> str:
-    output = ""
-    for line in code.split("\n"):
-        stripped_line = line.strip()
-        if stripped_line == "\\timing":
-            continue
-        if stripped_line.startswith("--"):
-            continue
-        output += stripped_line + "\n"
-    return output
-
-
-class Block(object):
-    def __init__(self):
-        self.closed = False
-        self.content = ""
-
-    def append_line(self, line: str) -> None:
-        if self.closed:
-            raise SQLRunnerException("Block closed !")
-        self.content += line
-
-    def close(self) -> None:
-        if self.closed:
-            raise SQLRunnerException("Block closed !")
-        self.closed = True
-
-    def run(self, cursor: Cursor) -> int:
-        statements = sqlparse.parse(self.content)
-
-        content = "".join(str(stmt) for stmt in statements)
-        if content != self.content:
-            raise SQLRunnerException("sqlparse failed to properly split input")
-
-        rows = 0
-        for statement in statements:
-            if clean_sql_code(str(statement)).strip() in ("", ";"):
-                # Sometimes sqlparse keeps the empty lines here,
-                # this could negatively affect libpq
-                continue
-            logger.debug("Running one statement... <<%s>>", str(statement))
-            cursor.execute(str(statement).replace("\\timing\n", ""))
-            logger.debug("Affected %s rows", cursor.rowcount)
-            rows += cursor.rowcount
-        return rows
-
-
-class SimpleBlock(Block):
-    def run(self, cursor):
-        statements = clean_sql_code(self.content)
-        cursor.execute(statements)
-
-
-class MetaBlock(Block):
-    def __init__(self, command: str):
-        super(MetaBlock, self).__init__()
-        self.command = command
-        if command != "do-until-0":
-            raise SQLRunnerException("Unexpected command {}".format(command))
-
-    def run(self, cursor: Cursor) -> int:
-        total_rows = 0
-        # Simply call super().run in a loop...
-        delta = 0
-        batch_delta = -1
-        while batch_delta != 0:
-            batch_delta = 0
-            logger.debug("Running one block in a loop")
-            delta = super(MetaBlock, self).run(cursor)
-            if delta > 0:
-                total_rows += delta
-                batch_delta = delta
-            logger.debug("Batch delta done : %s", batch_delta)
-        return total_rows
-
-
-class Script(object):
+class Script:
     def __init__(
         self,
         settings: configuration.Settings,
         file_handler: Iterable[str],
         path: pathlib.Path,
     ):
-        file_lines = list(file_handler)
-        is_manual = files.is_manual_migration(
-            migration_path=path, migration_contents=file_lines
-        )
         self.settings = settings
-        if is_manual:
-            self.block_list = [Block()]
-        elif self.contains_non_transactional_keyword(file_lines):
-            self.block_list = [Block()]
+        self.file_lines = list(file_handler)
+        self.path = path
+
+    def run(self):
+        if any("--meta-psql:" in line for line in self.file_lines):
+            self._run_with_meta_loop()
         else:
-            self.block_list = [SimpleBlock()]
-        for line in file_lines:
-            if line.startswith("--meta-psql:") and is_manual:
-                self.block_list[-1].close()
-                command = line.split(":")[1].strip()
-                if command == "done":
-                    # create a new basic block
-                    self.block_list.append(Block())
-                else:
-                    # create a new meta block
-                    self.block_list.append(MetaBlock(command))
-            else:
-                self.block_list[-1].append_line(line)
-        self.block_list[-1].close()
+            self._run_simple()
 
-    def run(self, connection):
-        with connection.cursor() as cursor:
-            for block in self.block_list:
-                block.run(cursor)
+    def _run_simple(self):
+        creds = []
+        for name in ["HOST", "PORT", "DBNAME", "USERNAME", "PASSWORD"]:
+            value = getattr(self.settings, name)
+            if value:
+                creds += ["--" + name.lower(), value]
 
-    def contains_non_transactional_keyword(self, file_lines: Iterable[str]) -> bool:
-        keywords = self.settings.NON_TRANSACTIONAL_KEYWORD
-        for line in file_lines:
-            for kw in keywords:
-                if kw.lower() in line.lower():
-                    return True
+        try:
+            cmd = subprocess.run(
+                ["psql", *creds, "--set", "ON_ERROR_STOP=on", "-f", self.path],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+            )
+        except FileNotFoundError:
+            raise RuntimeError(
+                "Septentrion requires the 'psql' executable to be present in "
+                "the PATH."
+            )
+        except subprocess.CalledProcessError as e:
+            msg = "Error during migration: {}".format(e.stderr.decode("utf-8"))
+            raise SQLRunnerException(msg) from e
 
-        return False
+        return cmd.stdout.decode("utf-8")
+
+    def _run_with_meta_loop(self):
+        KEYWORDS = ["INSERT", "UPDATE", "DELETE"]
+        rows_remaining = True
+
+        while rows_remaining:
+            out = self._run_simple()
+
+            # we can stop once all the write operations return 0 rows
+            for line in out.split("\n"):
+                rows_remaining = any(
+                    keyword in line and keyword + " 0" not in line
+                    for keyword in KEYWORDS
+                )
+
+                # we still have work to do, we can go back to the main loop
+                if rows_remaining:
+                    break
