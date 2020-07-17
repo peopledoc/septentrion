@@ -39,7 +39,8 @@ class Script:
         try:
             cmd = subprocess.run(
                 ["psql", *creds, "--set", "ON_ERROR_STOP=on", "-f", self.path],
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 check=True,
             )
         except FileNotFoundError:
