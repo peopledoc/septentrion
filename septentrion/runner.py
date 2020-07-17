@@ -43,7 +43,8 @@ class Script:
                 check=True,
             )
         except subprocess.CalledProcessError as e:
-            raise SQLRunnerException('Error during migration') from e
+            msg = "Error during migration: {}".format(e.stderr.decode("utf-8"))
+            raise SQLRunnerException(msg) from e
 
         return cmd.stdout.decode("utf-8")
 
