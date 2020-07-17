@@ -22,7 +22,7 @@ DEDICATED_CONFIGURATION_FILES = [
     folder.expanduser().resolve() / DEDICATED_CONFIGURATION_FILENAME
     for folder in CONFIGURATION_PATHS
 ]
-print(DEDICATED_CONFIGURATION_FILES)
+
 # These are the files that can contain septentrion configuration, but
 # it's also ok if they exist and they don't configure septentrion.
 COMMON_CONFIGURATION_FILES = [pathlib.Path("./setup.cfg")]
