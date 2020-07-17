@@ -42,6 +42,11 @@ class Script:
                 capture_output=True,
                 check=True,
             )
+        except FileNotFoundError:
+            raise RuntimeError(
+                "Septentrion requires the 'psql' executable to be present in "
+                "the PATH."
+            )
         except subprocess.CalledProcessError as e:
             msg = "Error during migration: {}".format(e.stderr.decode("utf-8"))
             raise SQLRunnerException(msg) from e

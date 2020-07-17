@@ -1,4 +1,5 @@
 import io
+import os
 
 import pytest
 
@@ -21,6 +22,14 @@ def run_script(db, settings_factory, tmp_path):
     return _run_script
 
 
+@pytest.fixture()
+def env():
+    environ = {**os.environ}
+    yield os.environ
+    os.environ.clear()
+    os.environ.update(environ)
+
+
 def test_run_simple(db, settings_factory, run_script):
     settings = settings_factory(**db)
 
@@ -36,6 +45,17 @@ def test_run_simple_error(run_script):
         run_script("CREATE TABLE ???")
 
     assert 'ERROR:  syntax error at or near "???"' in str(err.value)
+
+
+def test_run_psql_not_found(run_script, env):
+    env["PATH"] = ""
+
+    with pytest.raises(RuntimeError) as err:
+        run_script("SELECT 1;")
+
+    assert str(err.value) == (
+        "Septentrion requires the 'psql' executable to be present in the PATH."
+    )
 
 
 def test_run_with_meta_loop(db, settings_factory, run_script):
