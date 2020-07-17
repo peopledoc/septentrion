@@ -23,7 +23,7 @@ class Script:
         self.file_lines = list(file_handler)
         self.path = path
 
-    def run(self, connection):
+    def run(self):
         if any("--meta-psql:" in line for line in self.file_lines):
             self._run_with_meta_loop()
         else:
