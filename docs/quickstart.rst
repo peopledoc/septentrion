@@ -47,7 +47,7 @@ Within a virtualenv_, install Septentrion with:
 
 .. code-block:: console
 
-    (venv) $ pip install septentrion
+    (venv) $ pip install septentrion[psycopg2_binary]
 
 Next we will configure the connection to the PostgreSQL database. We can do this either with command line flags,
 environment variables or a configuration file.
