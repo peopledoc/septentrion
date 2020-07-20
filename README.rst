@@ -49,6 +49,9 @@ executable to be present on the system.
 Very quick start
 ----------------
 
+- *Step 0*: Install with ``pip install septentrion[psycopg2_binary]`` (or
+  ``pip install septentrion[psycopg2]`` if you know what you're doing)
+
 - *Step 1*: Create a folder for the version, and add some migration files.
 
 .. code-block:: console
