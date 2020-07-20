@@ -39,5 +39,5 @@ Everything that's not unit tested should be integation tested, so we may aim for
 `pytest` and `coverage`. Install with:
 
 ```console
-$ pip install -e ".[test]"
+$ pip install -e ".[test,psycopg2_binary]"
 ```
