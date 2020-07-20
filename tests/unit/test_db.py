@@ -1,4 +1,5 @@
 import psycopg2
+import psycopg2.errors
 import pytest
 
 from septentrion import configuration, db

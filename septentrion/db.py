@@ -8,6 +8,7 @@ from typing import Any, Iterable, Optional, Tuple
 
 import psycopg2
 import psycopg2.sql
+import psycopg2.errors
 from psycopg2.extensions import connection as Connection
 from psycopg2.extras import DictCursor
 
