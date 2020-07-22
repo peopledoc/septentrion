@@ -1,4 +1,5 @@
-from septentrion import __main__, configuration, db as db_module
+from septentrion import __main__, configuration
+from septentrion import db as db_module
 
 
 def test_version(cli_runner):
