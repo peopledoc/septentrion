@@ -3,7 +3,7 @@ from io import StringIO
 
 import pytest
 
-from septentrion import configuration, exceptions
+from septentrion import configuration, exceptions, versions
 
 
 def test_get_config_settings():
@@ -118,3 +118,15 @@ def test_load_configuration_files_default_files(
             for r in warnings
         ]
     )
+
+
+def test_settings_clean_target_version():
+    target = configuration.Settings(target_version="1.2.3").TARGET_VERSION
+
+    assert target == versions.Version(version_tuple=(1, 2, 3), original_string="1.2.3")
+
+
+def test_settings_clean_schema_version():
+    schema = configuration.Settings(schema_version="1.2.3").SCHEMA_VERSION
+
+    assert schema == versions.Version(version_tuple=(1, 2, 3), original_string="1.2.3")

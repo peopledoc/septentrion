@@ -2,6 +2,7 @@
 Interact with the migrations table.
 """
 
+import datetime
 import logging
 from contextlib import contextmanager
 from typing import Any, Iterable, Optional, Tuple
@@ -111,8 +112,8 @@ CREATE TABLE IF NOT EXISTS {table} (
 query_max_version = """SELECT DISTINCT {version_column} FROM {table} """
 
 query_write_migration = """
-    INSERT INTO {table} ({version_column}, {name_column})
-    VALUES (%s, %s)
+    INSERT INTO {table} ({version_column}, {name_column}, {applied_at_column})
+    VALUES (%s, %s, %s)
 """
 
 query_get_applied_migrations = """
@@ -174,6 +175,6 @@ def write_migration(
     Query(
         settings=settings,
         query=query_write_migration,
-        args=(version.original_string, name),
+        args=(version.original_string, name, datetime.datetime.utcnow()),
         commit=True,
     )()

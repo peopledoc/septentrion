@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 def initialize(**kwargs):
     settings = configuration.Settings(**kwargs)
 
-    # All other commands will need the table to be created
-    logger.info("Ensuring migration table exists")
     if settings.CREATE_TABLE:
+        # All other commands will need the table to be created
+        logger.info("Ensuring migration table exists")
         db.create_table(settings=settings)  # idempotent
 
     return settings
