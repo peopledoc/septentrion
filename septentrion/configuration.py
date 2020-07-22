@@ -7,7 +7,7 @@ import logging
 import pathlib
 from typing import Any, Dict, Optional, TextIO, Tuple, Union
 
-from septentrion import exceptions
+from septentrion import exceptions, versions
 
 logger = logging.getLogger(__name__)
 
@@ -145,6 +145,18 @@ class Settings:
         if isinstance(migrations_root, str):
             migrations_root = pathlib.Path(migrations_root)
         return migrations_root
+
+    def clean_schema_version(self, version: Union[str, versions.Version]):
+        if isinstance(version, str):
+            version = versions.Version.from_string(version)
+
+        return version
+
+    def clean_target_version(self, version: Union[str, versions.Version]):
+        if isinstance(version, str):
+            version = versions.Version.from_string(version)
+
+        return version
 
     def __repr__(self):
         return repr(self._settings)

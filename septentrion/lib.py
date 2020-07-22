@@ -1,7 +1,7 @@
 import logging
 from typing import Iterable
 
-from septentrion import core, db, exceptions, files, migration, style, versions
+from septentrion import core, db, files, migration, style, versions
 
 logger = logging.getLogger(__name__)
 
@@ -9,14 +9,6 @@ logger = logging.getLogger(__name__)
 def initialize(settings_kwargs):
     quiet = settings_kwargs.pop("quiet", False)
     stylist = style.noop_stylist if quiet else style.stylist
-
-    if "target_version" in settings_kwargs:
-        try:
-            value = settings_kwargs["target_version"]
-            version = versions.Version.from_string(value)
-            settings_kwargs["target_version"] = version
-        except exceptions.InvalidVersion:
-            raise ValueError(f"{value} is not a valid version")
 
     settings = core.initialize(**settings_kwargs)
     return {"settings": settings, "stylist": stylist}
