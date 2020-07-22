@@ -14,7 +14,7 @@ TL;DR
 .. code-block:: console
 
     $ # Export libpq env vars for PG connection
-    $ export PGDATABASE=septentrion PGHOST=localhost PGUSER=postgres
+    $ export PGDATABASE=septentrion PGHOST=localhost PGUSER=postgres PGPASSWORD=password
 
     $ # Launch PostgreSQL within Docker
     $ compose up -d
@@ -46,7 +46,7 @@ to the docker setup. Feel free to adjust them as necessary.
 
 .. code-block:: console
 
-    $ export PGDATABASE=septentrion PGHOST=localhost PGUSER=postgres
+    $ export PGDATABASE=septentrion PGHOST=localhost PGUSER=postgres PGPASSWORD=password
 
 Create your development database
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
