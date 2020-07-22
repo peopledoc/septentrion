@@ -1,5 +1,6 @@
 import septentrion
-from septentrion import configuration, db as db_module
+from septentrion import configuration
+from septentrion import db as db_module
 
 
 def test_migrate(db):

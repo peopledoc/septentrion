@@ -1,6 +1,7 @@
+import os
+
 import psycopg2
 import pytest
-import os
 
 from septentrion import configuration
 

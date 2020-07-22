@@ -7,8 +7,8 @@ from contextlib import contextmanager
 from typing import Any, Iterable, Optional, Tuple
 
 import psycopg2
-import psycopg2.sql
 import psycopg2.errors
+import psycopg2.sql
 from psycopg2.extensions import connection as Connection
 from psycopg2.extras import DictCursor
 
