@@ -1,4 +1,5 @@
 import logging
+import os
 import pathlib
 import subprocess
 from typing import Iterable
@@ -29,19 +30,26 @@ class Script:
         else:
             self._run_simple()
 
+    def _env(self):
+        environment = {
+            "PGHOST": self.settings.HOST,
+            "PGPORT": self.settings.PORT,
+            "PGDATABASE": self.settings.DBNAME,
+            "PGUSER": self.settings.USERNAME,
+            "PGPASSWORD": self.settings.PASSWORD,
+        }
+        return {key: value for key, value in environment.items() if value}
+
     def _run_simple(self):
-        creds = []
-        for name in ["HOST", "PORT", "DBNAME", "USERNAME", "PASSWORD"]:
-            value = getattr(self.settings, name)
-            if value:
-                creds += ["--" + name.lower(), value]
 
         try:
             cmd = subprocess.run(
-                ["psql", *creds, "--set", "ON_ERROR_STOP=on", "-f", self.path],
+                ["psql", "--set", "ON_ERROR_STOP=on", "-f", str(self.path)],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 check=True,
+                # environment has precedence over os.environ
+                env={**os.environ, **self._env()},
             )
         except FileNotFoundError:
             raise RuntimeError(

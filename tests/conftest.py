@@ -1,7 +1,18 @@
 import psycopg2
 import pytest
+import os
 
 from septentrion import configuration
+
+
+def db_params_from_env():
+    return {
+        "user": os.environ.get("PGUSER"),
+        "dbname": os.environ.get("PGDATABASE"),
+        "host": os.environ.get("PGHOST"),
+        "port": os.environ.get("PGPORT"),
+        "password": os.environ.get("PGPASSWORD"),
+    }
 
 
 @pytest.fixture
@@ -18,7 +29,7 @@ def db():
     cursor.execute(f"DROP DATABASE IF EXISTS {test_db_name}")
     cursor.execute(f"CREATE DATABASE {test_db_name}")
 
-    params = connection.get_dsn_parameters()
+    params = db_params_from_env()
     params["dbname"] = test_db_name
     yield params
 
