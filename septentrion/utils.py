@@ -2,6 +2,7 @@
 All functions in here should be easily unit testable
 """
 
+import itertools
 from typing import Iterable, TypeVar
 
 from septentrion import exceptions, versions
@@ -37,3 +38,15 @@ def until(iterable: Iterable[T], value: T) -> Iterable[T]:
             break
     else:
         raise ValueError("{} not found".format(value))
+
+
+def since(iterable: Iterable[T], value: T) -> Iterable[T]:
+    """
+    Returns the values from iterable starting after the element is found
+    >>> list(until(range(300), 297))
+    [298, 299]
+    """
+    it = itertools.dropwhile((lambda x: x != value), iterable)
+    # Drop the first element
+    next(it)
+    yield from it
