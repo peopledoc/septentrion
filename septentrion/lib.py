@@ -31,7 +31,10 @@ def is_schema_initialized(**settings_kwargs):
 
 def build_migration_plan(**settings_kwargs):
     lib_kwargs = initialize(settings_kwargs)
-    return core.build_migration_plan(settings=lib_kwargs["settings"])
+    schema_version = core.get_best_schema_version(settings=lib_kwargs["settings"])
+    return core.build_migration_plan(
+        settings=lib_kwargs["settings"], schema_version=schema_version
+    )
 
 
 def fake(version: str, **settings_kwargs):
