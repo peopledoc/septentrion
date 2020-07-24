@@ -57,11 +57,16 @@ def test_is_schema_initialized(fake_db, mocker):
 
 
 def test_build_migration_plan(fake_db, mocker):
-    mock = mocker.patch("septentrion.core.build_migration_plan", return_value="is it ?")
+    build_migration_plan = mocker.patch(
+        "septentrion.core.build_migration_plan", return_value="is it ?"
+    )
+    get_best_schema_version = mocker.patch("septentrion.core.get_best_schema_version")
 
     assert lib.build_migration_plan() == "is it ?"
 
-    mock.assert_called_with(settings=mocker.ANY)
+    build_migration_plan.assert_called_with(
+        settings=mocker.ANY, schema_version=get_best_schema_version.return_value
+    )
 
 
 def test_load_fixtures(fake_db, mocker):
