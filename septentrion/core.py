@@ -128,7 +128,9 @@ def get_fixtures_version(
     return version
 
 
-def build_migration_plan(settings: configuration.Settings) -> Iterable[Dict[str, Any]]:
+def build_migration_plan(
+    settings: configuration.Settings, schema_version: versions.Version
+) -> Iterable[Dict[str, Any]]:
     """
     Return the list of migrations by version,
     from the version used to init the DB to the current target version.
@@ -144,6 +146,9 @@ def build_migration_plan(settings: configuration.Settings) -> Iterable[Dict[str,
             "settings.TARGET_VERSION is improperly configured: "
             "version {} not found.".format(settings.TARGET_VERSION)
         )
+
+    if schema_version:
+        versions_to_apply = list(utils.since(versions_to_apply, schema_version))
 
     # get plan for each version to apply
     for version in versions_to_apply:
@@ -173,6 +178,14 @@ def build_migration_plan(settings: configuration.Settings) -> Iterable[Dict[str,
 def describe_migration_plan(
     settings: configuration.Settings, stylist: style.Stylist = style.noop_stylist
 ) -> None:
+
+    schema_version = get_best_schema_version(settings=settings)
+    with stylist.activate("title") as echo:
+        echo("Schema file version is {}".format(schema_version))
+
+    with stylist.activate("subtitle") as echo:
+        echo("  Migrations will start after {}".format(schema_version))
+
     current_version = db.get_current_schema_version(settings=settings)
     with stylist.activate("title") as echo:
         echo("Current version is {}".format(current_version))
@@ -181,7 +194,7 @@ def describe_migration_plan(
     with stylist.activate("title") as echo:
         echo("Target version is {}".format(target_version))
 
-    for plan in build_migration_plan(settings=settings):
+    for plan in build_migration_plan(settings=settings, schema_version=schema_version):
         version = plan["version"]
         migrations = plan["plan"]
 
