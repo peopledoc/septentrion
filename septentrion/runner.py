@@ -38,7 +38,7 @@ class Script:
             "PGUSER": self.settings.USERNAME,
             "PGPASSWORD": self.settings.PASSWORD,
         }
-        return {key: value for key, value in environment.items() if value}
+        return {key: str(value) for key, value in environment.items() if value}
 
     def _run_simple(self):
 
