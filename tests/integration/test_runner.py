@@ -60,7 +60,7 @@ def test_run_psql_not_found(run_script, env):
 
 def test_run_integer_in_settings(db, settings_factory, env, tmp_path):
     settings = settings_factory(**db)
-    # settings are noew stringified to prevent subprocess.run
+    # settings are stringified to prevent subprocess.run
     # crashing while building the appropriate command line.
     settings.PORT = 5432
     path = tmp_path / "script.sql"
