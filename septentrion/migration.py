@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def migrate(
-    settings: configuration.Settings, stylist: style.Stylist = style.noop_stylist,
+    settings: configuration.Settings, stylist: style.Stylist = style.noop_stylist
 ) -> None:
 
     logger.info("Starting migrations")

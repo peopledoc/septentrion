@@ -43,7 +43,7 @@ def test_current_database_state(cli_runner, db):
         catch_exceptions=False,
     )
     settings = configuration.Settings(
-        host=db["host"], port=db["port"], username=db["user"], dbname=db["dbname"],
+        host=db["host"], port=db["port"], username=db["user"], dbname=db["dbname"]
     )
     assert result.exit_code == 0
     assert db_module.is_schema_initialized(settings=settings)
