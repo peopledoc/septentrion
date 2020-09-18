@@ -9,8 +9,8 @@ Septentrion: A CLI tool to apply PostgreSQL migrations to a database
     :target: http://septentrion.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-.. image:: https://travis-ci.org/peopledoc/septentrion.svg?branch=master
-    :target: https://travis-ci.org/peopledoc/septentrion
+.. image:: https://img.shields.io/github/workflow/status/peopledoc/septentrion/CI?logo=github
+    :target: https://github.com/peopledoc/septentrion/actions?workflow=CI
     :alt: Continuous Integration Status
 
 .. image:: https://codecov.io/gh/peopledoc/septentrion/branch/master/graph/badge.svg
