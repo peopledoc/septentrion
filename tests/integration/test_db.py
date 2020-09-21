@@ -36,7 +36,7 @@ def test_write_migration(db, settings_factory):
 
     now = datetime.datetime.now(tz=datetime.timezone.utc)
 
-    with db_module.Query(settings=settings, query="SELECT * FROM {table}",) as cur:
+    with db_module.Query(settings=settings, query="SELECT * FROM {table}") as cur:
         id, version, name, date = list(cur)[0]
 
     assert id == 1

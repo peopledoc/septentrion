@@ -65,7 +65,7 @@ In this tutorial, we will use a configuration file, ``septentrion.ini``.
 
     With the Docker setup described above, you should be good to go.
     If you need additional configuration parameters to connect to your database, have a look at
-    :ref:`advanced configuration options <howto/configure>`.
+    :ref:`advanced configuration options <configure>`.
 
 
 Write migrations
@@ -142,8 +142,8 @@ Great, we can now run it for real:
     The ``--target-version`` flag is a required option (it might change in the future).
 
 
-If something is not working as it should be, you probably want to check the :ref:`troubleshooting guide <howto/troubleshoot>`
-or the :ref:`advanced options <howto/advanced-options>`.
+If something is not working as it should be, you probably want to check the :ref:`troubleshooting guide <troubleshoot>`
+or the :ref:`advanced options <advanced-options>`.
 
 At this point, the ``author`` table has been created in the database. We can check that and simulate our application
 by creating a few rows in the table.
@@ -236,7 +236,7 @@ Congratulations, you can now run migrations with *Septentrion*!
 Going further
 -------------
 
-To continue with practical steps, head to the :ref:`How-to... <howto>` section.
+To continue with practical steps, head to the :ref:`How-to... <how-to>` section.
 
 If you want to better understand some design decisions, head to the :ref:`Discussions
 <discussions>` sections.

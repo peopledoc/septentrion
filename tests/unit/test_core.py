@@ -245,9 +245,7 @@ def test_build_migration_plan_db_uptodate(mocker, known_versions):
 
 
 def test_build_migration_plan_with_schema(mocker, known_versions):
-    mocker.patch(
-        "septentrion.core.db.get_applied_migrations", return_value=[],
-    )
+    mocker.patch("septentrion.core.db.get_applied_migrations", return_value=[])
     settings = configuration.Settings(target_version="1.2")
     schema_version = versions.Version.from_string("1.1")
 

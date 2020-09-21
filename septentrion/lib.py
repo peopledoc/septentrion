@@ -21,7 +21,7 @@ def show_migrations(**settings_kwargs):
 
 def migrate(**settings_kwargs):
     lib_kwargs = initialize(settings_kwargs)
-    migration.migrate(**lib_kwargs,)
+    migration.migrate(**lib_kwargs)
 
 
 def is_schema_initialized(**settings_kwargs):
