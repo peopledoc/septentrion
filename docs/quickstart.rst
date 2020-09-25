@@ -3,8 +3,8 @@ Quickstart
 
 Welcome to the *Septentrion* quickstart documentation.
 
-In this tutorial, you will learn how to write migrations in the expected format, how to visualize them and how to run
-them against a PostgreSQL database.
+In this tutorial, you will learn how to write migrations in the expected format, how to
+visualize them and how to run them against a PostgreSQL database.
 
 Prepare your database
 ---------------------
@@ -49,9 +49,9 @@ Within a virtualenv_, install Septentrion with:
 
     (venv) $ pip install septentrion[psycopg2_binary]
 
-Next we will configure the connection to the PostgreSQL database. We can do this either with command line flags,
-environment variables or a configuration file.
-In this tutorial, we will use a configuration file, ``septentrion.ini``.
+Next we will configure the connection to the PostgreSQL database. We can do this either
+with command line flags, environment variables or a configuration file. In this
+tutorial, we will use a configuration file, ``septentrion.ini``.
 
 .. code-block:: ini
 
@@ -71,8 +71,9 @@ In this tutorial, we will use a configuration file, ``septentrion.ini``.
 Write migrations
 ----------------
 
-Migrations are SQL files that are executed in order. Migrations are grouped together in successive versions.
-All migrations in the same version are placed in a folder named after the version number.
+Migrations are SQL files that are executed in order. Migrations are grouped together in
+successive versions. All migrations in the same version are placed in a folder named
+after the version number.
 
 Let's create our migration folder, and a first version folder.
 
@@ -103,13 +104,15 @@ Now we can add a migration file in ``migrations/1.0/`` named ``00-author.ddl.sql
     ``ddl`` stands for *Data Definition Language* and corresponds to all the operations that change the structure of the
     database (``CREATE``, ``DROP``, ...).
 
-Congratulations, you have now written your first *Septentrion* migration. Let's see how to run it!
+Congratulations, you have now written your first *Septentrion* migration. Let's see how
+to run it!
 
 
 Run migrations
 --------------
 
-First, we want to visualize what is going to happen, without making any change to our data yet.
+First, we want to visualize what is going to happen, without making any change to our
+data yet.
 
 .. code-block:: console
 
@@ -142,11 +145,12 @@ Great, we can now run it for real:
     The ``--target-version`` flag is a required option (it might change in the future).
 
 
-If something is not working as it should be, you probably want to check the :ref:`troubleshooting guide <troubleshoot>`
+If something is not working as it should be, you probably want to check the
+:ref:`troubleshooting guide <troubleshoot>`
 or the :ref:`advanced options <advanced-options>`.
 
-At this point, the ``author`` table has been created in the database. We can check that and simulate our application
-by creating a few rows in the table.
+At this point, the ``author`` table has been created in the database. We can check that
+and simulate our application by creating a few rows in the table.
 
 
 .. code-block:: console
@@ -185,7 +189,8 @@ by creating a few rows in the table.
 A more complex migration
 ------------------------
 
-For version ``2.0`` of our application, we want to change ``birth_date`` from ``varchar`` to the ``date`` type.
+For version ``2.0`` of our application, we want to change ``birth_date`` from
+``varchar`` to the ``date`` type.
 
 We create a new folder for the version.
 
@@ -193,7 +198,8 @@ We create a new folder for the version.
 
     $ mkdir migrations/2.0
 
-We can add the migration file in ``migrations/2.0/`` named ``00-change_birth_date_type.ddl.sql``:
+We can add the migration file in ``migrations/2.0/`` named
+``00-change_birth_date_type.ddl.sql``:
 
 .. code-block:: sql
 
@@ -216,7 +222,8 @@ We launch the migration.
     Version 2.0
       [X] Applied 00-change_birth_date_type.ddl.sql
 
-Now we can check that our migration successfully changed the column type in the ``author`` table.
+Now we can check that our migration successfully changed the column type in the
+``author`` table.
 
 .. code-block:: console
 
