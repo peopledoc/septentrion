@@ -77,7 +77,7 @@ class CommaSeparatedMultipleString(StringParamType):
     callback=load_config,
     help="Config file to use (env: SEPTENTRION_CONFIG_FILE)  "
     f"[default: {' or '.join(str(p) for p in configuration.ALL_CONFIGURATION_FILES)}]",
-    type=click.File("rb"),
+    type=click.File("r"),
 )
 @click.version_option(__version__, "-V", "--version", prog_name="septentrion")
 @click.option(

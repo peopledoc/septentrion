@@ -1,3 +1,5 @@
+import pathlib
+
 from septentrion import __main__, configuration
 from septentrion import db as db_module
 
@@ -59,3 +61,15 @@ def test_current_database_state(cli_runner, db):
     assert "Version 1.1" in result.output
     assert "Applying 1.1-index-ddl.sql ..." in result.output
     assert "Applied 1.1-index-ddl.sql" in result.output
+
+
+def test_configuration_file_from_cli(cli_runner, temporary_directory, mocker):
+    mocker.patch("septentrion.core.describe_migration_plan")
+    mocker.patch("septentrion.db.create_table")
+    path = pathlib.Path(__file__).parents[2] / "tests/test_data/config_file.ini"
+    result = cli_runner.invoke(
+        __main__.main,
+        [f"--config-file={path}", "show-migrations"],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.output,)
