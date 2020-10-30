@@ -90,6 +90,13 @@ def test_load_configuration_files_value(caplog, conf, expected, has_warning):
     )
 
 
+def test_load_configuration_files_value_from_file(caplog, mocker):
+    with open(
+        pathlib.Path(__file__).parents[2] / "tests/test_data/config_file.ini", "r"
+    ) as f:
+        configuration.load_configuration_files(value=f)
+
+
 @pytest.mark.parametrize(
     "conf, filename, expected, has_warning",
     [
