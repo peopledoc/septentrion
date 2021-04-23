@@ -43,9 +43,11 @@ CONTEXT_SETTINGS = {
     "max_content_width": 120,
 }
 
+LATEST_VERSION = "latest"
+
 
 def validate_version(ctx: click.Context, param: Any, value: str):
-    if value is None:
+    if value == LATEST_VERSION:
         return None
     try:
         version = versions.Version.from_string(value)
@@ -138,13 +140,14 @@ class CommaSeparatedMultipleString(StringParamType):
 @click.option(
     "--target-version",
     help="Desired final version of the Database (env: SEPTENTRION_TARGET_VERSION)",
+    default=LATEST_VERSION,
     callback=validate_version,
-    required=True,
 )
 @click.option(
     "--schema-version",
     help="Version of the initial schema (if not specified, the most recent schema "
     "will be used) (env: SEPTENTRION_SCHEMA_VERSION)",
+    default=LATEST_VERSION,
     callback=validate_version,
 )
 @click.option(

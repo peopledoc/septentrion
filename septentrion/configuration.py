@@ -40,6 +40,8 @@ DEFAULTS = {
     "fixtures_template": "fixtures_{}.sql",
     "non_transactional_keyword": ["CONCURRENTLY", "ALTER TYPE", "VACUUM"],
     "ignore_symlinks": False,
+    "schema_version": None,
+    "target_version": None,
     # Values that don't have an explicit default need to be present too
     "verbosity": 0,
     "host": None,
@@ -47,7 +49,6 @@ DEFAULTS = {
     "username": None,
     "password": False,
     "dbname": None,
-    "schema_version": None,
     "additional_schema_file": [],
     "before_schema_file": [],
     "after_schema_file": [],
@@ -146,13 +147,17 @@ class Settings:
             migrations_root = pathlib.Path(migrations_root)
         return migrations_root
 
-    def clean_schema_version(self, version: Union[str, versions.Version]):
+    def clean_schema_version(
+        self, version: Union[None, str, versions.Version]
+    ) -> Optional[versions.Version]:
         if isinstance(version, str):
             version = versions.Version.from_string(version)
 
         return version
 
-    def clean_target_version(self, version: Union[str, versions.Version]):
+    def clean_target_version(
+        self, version: Union[None, str, versions.Version]
+    ) -> Optional[versions.Version]:
         if isinstance(version, str):
             version = versions.Version.from_string(version)
 

@@ -160,10 +160,10 @@ def test_build_migration_plan_unknown_version(known_versions):
     settings = configuration.Settings(
         target_version=versions.Version.from_string("1.5")
     )
-    schema_version = versions.Version.from_string("0")
+    from_version = versions.Version.from_string("0")
 
     with pytest.raises(ValueError):
-        list(core.build_migration_plan(settings, schema_version=schema_version))
+        list(core.build_migration_plan(settings, from_version=from_version))
 
 
 def test_build_migration_plan_ok(mocker, known_versions):
@@ -183,8 +183,8 @@ def test_build_migration_plan_ok(mocker, known_versions):
     settings = configuration.Settings(
         target_version=versions.Version.from_string("1.2")
     )
-    schema_version = versions.Version.from_string("0")
-    plan = core.build_migration_plan(settings=settings, schema_version=schema_version)
+    from_version = versions.Version.from_string("0")
+    plan = core.build_migration_plan(settings=settings, from_version=from_version)
 
     expected = [
         {
@@ -234,8 +234,8 @@ def test_build_migration_plan_db_uptodate(mocker, known_versions):
         target_version=versions.Version.from_string("1.2"),
     )
 
-    schema_version = versions.Version.from_string("0")
-    plan = core.build_migration_plan(settings=settings, schema_version=schema_version)
+    from_version = versions.Version.from_string("0")
+    plan = core.build_migration_plan(settings=settings, from_version=from_version)
 
     expected = [
         {"plan": [], "version": versions.Version.from_string("1.1")},
@@ -247,13 +247,25 @@ def test_build_migration_plan_db_uptodate(mocker, known_versions):
 def test_build_migration_plan_with_schema(mocker, known_versions):
     mocker.patch("septentrion.core.db.get_applied_migrations", return_value=[])
     settings = configuration.Settings(target_version="1.2")
-    schema_version = versions.Version.from_string("1.1")
+    from_version = versions.Version.from_string("1.1")
 
-    plan = list(
-        core.build_migration_plan(settings=settings, schema_version=schema_version)
-    )
+    plan = list(core.build_migration_plan(settings=settings, from_version=from_version))
 
     expected = [
         {"plan": [], "version": versions.Version.from_string("1.2")},
+    ]
+    assert list(plan) == expected
+
+
+def test_build_migration_plan_with_no_target_version(mocker, known_versions):
+    mocker.patch("septentrion.core.db.get_applied_migrations", return_value=[])
+    settings = configuration.Settings(target_version=None)
+    from_version = versions.Version.from_string("1.1")
+
+    plan = list(core.build_migration_plan(settings=settings, from_version=from_version))
+
+    expected = [
+        {"plan": [], "version": versions.Version.from_string("1.2")},
+        {"plan": [], "version": versions.Version.from_string("1.3")},
     ]
     assert list(plan) == expected
