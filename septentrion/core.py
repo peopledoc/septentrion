@@ -39,7 +39,7 @@ def get_applied_versions(
 # not force_version
 def get_closest_version(
     settings: configuration.Settings,
-    target_version: versions.Version,
+    target_version: Optional[versions.Version],
     sql_tpl: str,
     existing_files: Iterable[str],
     force_version: Optional[versions.Version] = None,
@@ -52,13 +52,16 @@ def get_closest_version(
     known_versions = files.get_known_versions(settings=settings)
     # find target version
 
-    try:
-        previous_versions = list(utils.until(known_versions, target_version))
-    except ValueError:
-        raise ValueError(
-            "settings.TARGET_VERSION is improperly configured: "
-            "version {} not found.".format(target_version)
-        )
+    if not target_version:
+        previous_versions = known_versions
+    else:
+        try:
+            previous_versions = list(utils.until(known_versions, target_version))
+        except ValueError:
+            raise ValueError(
+                "settings.TARGET_VERSION is improperly configured: "
+                "version {} not found.".format(target_version)
+            )
 
     # should we set a version from settings ?
     if force_version:
@@ -107,7 +110,7 @@ def get_best_schema_version(settings: configuration.Settings) -> versions.Versio
 
 
 def get_fixtures_version(
-    settings: configuration.Settings, target_version: versions.Version
+    settings: configuration.Settings, target_version: Optional[versions.Version]
 ) -> versions.Version:
     """
     Get the closest fixtures to use to init a new DB
@@ -129,7 +132,7 @@ def get_fixtures_version(
 
 
 def build_migration_plan(
-    settings: configuration.Settings, schema_version: versions.Version
+    settings: configuration.Settings, from_version: versions.Version
 ) -> Iterable[Dict[str, Any]]:
     """
     Return the list of migrations by version,
@@ -137,18 +140,21 @@ def build_migration_plan(
     """
     # get known versions
     known_versions = files.get_known_versions(settings=settings)
+    target_version = settings.TARGET_VERSION
 
     # get all versions to apply
-    try:
-        versions_to_apply = list(utils.until(known_versions, settings.TARGET_VERSION))
-    except ValueError:
-        raise ValueError(
-            "settings.TARGET_VERSION is improperly configured: "
-            "version {} not found.".format(settings.TARGET_VERSION)
-        )
+    if not target_version:
+        versions_to_apply = known_versions
+    else:
+        try:
+            versions_to_apply = list(utils.until(known_versions, target_version))
+        except ValueError:
+            raise ValueError(
+                "settings.TARGET_VERSION is improperly configured: "
+                "version {} not found.".format(target_version)
+            )
 
-    if schema_version:
-        versions_to_apply = list(utils.since(versions_to_apply, schema_version))
+    versions_to_apply = list(utils.since(versions_to_apply, from_version))
 
     # get plan for each version to apply
     for version in versions_to_apply:
@@ -179,22 +185,26 @@ def describe_migration_plan(
     settings: configuration.Settings, stylist: style.Stylist = style.noop_stylist
 ) -> None:
 
-    schema_version = get_best_schema_version(settings=settings)
-    with stylist.activate("title") as echo:
-        echo("Schema file version is {}".format(schema_version))
-
-    with stylist.activate("subtitle") as echo:
-        echo("  Migrations will start after {}".format(schema_version))
-
-    current_version = db.get_current_schema_version(settings=settings)
-    with stylist.activate("title") as echo:
-        echo("Current version is {}".format(current_version))
+    if not db.is_schema_initialized(settings=settings):
+        from_version = get_best_schema_version(settings=settings)
+        with stylist.activate("title") as echo:
+            echo("Schema file version is {}".format(from_version))
+    else:
+        _from_version = db.get_current_schema_version(settings=settings)
+        assert _from_version  # mypy shenanigans
+        from_version = _from_version
+        with stylist.activate("title") as echo:
+            echo("Current version is {}".format(from_version))
 
     target_version = settings.TARGET_VERSION
-    with stylist.activate("title") as echo:
-        echo("Target version is {}".format(target_version))
 
-    for plan in build_migration_plan(settings=settings, schema_version=schema_version):
+    with stylist.activate("title") as echo:
+        echo("Migrations will start from {}".format(from_version))
+
+    with stylist.activate("title") as echo:
+        echo(f"Target version is {target_version or 'latest'}")
+
+    for plan in build_migration_plan(settings=settings, from_version=from_version):
         version = plan["version"]
         migrations = plan["plan"]
 

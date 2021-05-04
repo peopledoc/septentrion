@@ -23,7 +23,7 @@ def iter_files(
         yield f
 
 
-def get_known_versions(settings: configuration.Settings) -> Iterable[versions.Version]:
+def get_known_versions(settings: configuration.Settings) -> List[versions.Version]:
     """
     Return the list of the known versions defined in migration repository,
     ordered.

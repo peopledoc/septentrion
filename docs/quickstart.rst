@@ -116,7 +116,7 @@ data yet.
 
 .. code-block:: console
 
-    $ septentrion --target-version 1.0 show-migrations
+    $ septentrion show-migrations
 
     Current version is None
     Target version is 1.0
@@ -129,20 +129,15 @@ Great, we can now run it for real:
 
 .. code-block:: console
 
-    $ septentrion --target-version 1.0 migrate
+    $ septentrion migrate
 
     Applying migrations
     Version 1.0
 
 
-
 .. note::
 
     You should run *septentrion* in your root directory, where your ``migrations`` folder is.
-
-.. note::
-
-    The ``--target-version`` flag is a required option (it might change in the future).
 
 
 If something is not working as it should be, you probably want to check the
@@ -214,7 +209,7 @@ We launch the migration.
 
 .. code-block:: console
 
-    $ septentrion --target-version 2.0 migrate
+    $ septentrion migrate
 
     Applying migrations
     Version 1.0

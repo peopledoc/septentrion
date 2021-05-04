@@ -26,20 +26,22 @@ def migrate(
 
     logger.info("Starting migrations")
 
-    schema_version = core.get_best_schema_version(settings=settings)
-
     if not db.is_schema_initialized(settings=settings):
         logger.info("Migration table is empty, loading a schema")
         # schema not inited
+        schema_version = core.get_best_schema_version(settings=settings)
         init_schema(settings=settings, init_version=schema_version, stylist=stylist)
+        from_version = schema_version
+    else:
+        _from_version = db.get_current_schema_version(settings=settings)
+        assert _from_version  # mypy shenanigans
+        from_version = _from_version
 
     # play migrations
     with stylist.activate("title") as echo:
         echo("Applying migrations")
 
-    for plan in core.build_migration_plan(
-        settings=settings, schema_version=schema_version
-    ):
+    for plan in core.build_migration_plan(settings=settings, from_version=from_version):
         version = plan["version"]
         logger.info("Processing version %s", version)
         with stylist.activate("subtitle") as echo:
