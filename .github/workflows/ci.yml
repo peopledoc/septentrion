@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - 'master'
+    tags:
+      - '*'
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        include:
+          - python_version: 3.7
+            script: tests
+          - python_version: 3.8
+            script: tests
+          - python_version: 3.9
+            script: tests
+
+    name: "py${{ matrix.python_version }} / ${{ matrix.script }}"
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        # Set health checks to wait until postgres has started
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v2
+        with:
+          python_version: ${{ matrix.python_version }}
+
+      - name: Pip, Pre-commit & Poetry caches
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/
+          key: ${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('poetry.lock') }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install Dev dependencies
+        run: poetry install
+
+      - name: Run ${{ matrix.script }}
+        run: scripts/${{ matrix.script }}
+        env:
+          PYTEST_ADDOPTS: "--cov-report=xml"
+          PGHOST: localhost
+          PGUSER: postgres
+          PGPASSWORD: postgres
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        if: ${{ matrix.script == 'tests' }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+
+  report-status:
+    name: success
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Report success
+        run: echo 'Success !'
