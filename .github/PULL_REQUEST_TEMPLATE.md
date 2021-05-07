@@ -1,6 +1,11 @@
-Cf. #<ticket number>
+Closes #<ticket number>
 
-### Successful PR Checklist:
+### Checklist:
+<!-- In case of doubt, we're here to help. CONTRIBUTING.rst might help too -->
 - [ ] Tests
-- [ ] Documentation (optionally: [run spell checking](https://github.com/peopledoc/septentrion/blob/master/CONTRIBUTING.rst#build-the-documentation))
-- [ ] Had a good time contributing? (feel free to give some feedback)
+  - [ ] (not applicable?)
+- [ ] Documentation
+  - [ ] (not applicable?)
+
+<!-- We hope your contributing experience was great so far. If you would like to
+provide some feedback, please feel free to do so! -->
