@@ -1,6 +1,6 @@
 import pytest
 
-from septentrion.utils import is_version, until
+from septentrion.utils import is_version, since, until
 
 
 @pytest.mark.parametrize("value,expected", [("1.2", True), ("bananas", False)])
@@ -17,3 +17,9 @@ def test_until():
 def test_until_error():
     with pytest.raises(ValueError):
         list(until(range(5), 10))
+
+
+def test_since():
+    values = list(since(range(300), 297))
+
+    assert values == [297, 298, 299]
