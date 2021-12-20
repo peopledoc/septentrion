@@ -16,4 +16,4 @@ pipx install pre-commit
 pipx install poetry
 
 pre-commit install
-poetry install
+poetry install --extras psycopg2-binary
