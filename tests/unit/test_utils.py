@@ -1,6 +1,6 @@
 import pytest
 
-from septentrion.utils import is_version, until, since
+from septentrion.utils import is_version, since, until
 
 
 @pytest.mark.parametrize("value,expected", [("1.2", True), ("bananas", False)])
