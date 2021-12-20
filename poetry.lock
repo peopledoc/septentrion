@@ -522,12 +522,12 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 
 [extras]
 psycopg2 = ["psycopg2"]
-psycopg2-binary = ["psycopg2-binary"]
+psycopg2_binary = ["psycopg2_binary"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "1718931f29ff54e9b945ae723b639c1422087ac477da635c630543d5147e33f2"
+content-hash = "8e1204318cbe81986edd17eb6b59063d56c6980485b5491ac1accc3242ac2dc0"
 
 [metadata.files]
 alabaster = [
