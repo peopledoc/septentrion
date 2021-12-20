@@ -57,7 +57,7 @@ jobs:
         run: pip install poetry
 
       - name: Install Dev dependencies
-        run: poetry install --extras psycopg2-binary
+        run: poetry install --extras psycopg2_binary
 
       - name: Run ${{ matrix.script }}
         run: scripts/${{ matrix.script }}

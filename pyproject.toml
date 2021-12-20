@@ -26,11 +26,11 @@ sqlparse = "^0.4.1"
 colorama = "^0.4.4"
 importlib-metadata = "^4.0.1"
 psycopg2 = {version = "^2.8.6", optional = true}
-psycopg2-binary = {version = "^2.8.6", optional = true}
+psycopg2_binary = {version = "^2.8.6", optional = true}
 
 [tool.poetry.extras]
 psycopg2 = ["psycopg2"]
-psycopg2-binary = ["psycopg2_binary"]
+psycopg2_binary = ["psycopg2_binary"]
 
 
 [tool.poetry.dev-dependencies]

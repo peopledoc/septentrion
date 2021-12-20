@@ -32,7 +32,7 @@ jobs:
         run: pip install poetry
 
       - name: Install Dev dependencies
-        run: poetry install --extras psycopg2-binary
+        run: poetry install --extras psycopg2_binary
 
       - name: Wait for tests to succeed
         uses: fountainhead/action-wait-for-check@v1.0.0
