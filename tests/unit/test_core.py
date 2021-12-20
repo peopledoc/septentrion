@@ -166,81 +166,72 @@ def test_build_migration_plan_unknown_version(known_versions):
         list(core.build_migration_plan(settings, from_version=from_version))
 
 
-def test_build_migration_plan_ok(mocker, known_versions):
-    mocker.patch("septentrion.core.db.get_applied_migrations", return_value=[])
+def test_build_migration_plan_db(mocker, known_versions):
+    # What a mock hell ><
+
+    # So first, we mock db.get_applied_migrations to tell the following story:
+    # - on 1.1, only migration "a" was previously applied.
+    # - on 1.2, no migration was previously applied.
     mocker.patch(
-        "septentrion.core.files.get_migrations_files_mapping",
-        return_value={
-            "file.ddl.sql": pathlib.Path(
-                "tests/test_data/sql/17.1/manual/file.ddl.sql"
-            ),
-            "file.dml.sql": pathlib.Path(
-                "tests/test_data/sql/17.1/manual/file.dml.sql"
-            ),
-        },
+        "septentrion.db.get_applied_migrations",
+        side_effect=lambda settings, version: {
+            versions.Version.from_string("1.1"): ["a"],
+            versions.Version.from_string("1.2"): [],
+        }[version],
     )
-    mocker.patch("septentrion.core.files.is_manual_migration", return_value=True)
-    settings = configuration.Settings(
-        target_version=versions.Version.from_string("1.2")
-    )
-    from_version = versions.Version.from_string("0")
-    plan = core.build_migration_plan(settings=settings, from_version=from_version)
-
-    expected = [
-        {
-            "plan": [
-                (
-                    "file.ddl.sql",
-                    False,
-                    pathlib.Path("tests/test_data/sql/17.1/manual/file.ddl.sql"),
-                    True,
-                ),
-                (
-                    "file.dml.sql",
-                    False,
-                    pathlib.Path("tests/test_data/sql/17.1/manual/file.dml.sql"),
-                    True,
-                ),
-            ],
-            "version": versions.Version.from_string("1.1"),
-        },
-        {
-            "plan": [
-                (
-                    "file.ddl.sql",
-                    False,
-                    pathlib.Path("tests/test_data/sql/17.1/manual/file.ddl.sql"),
-                    True,
-                ),
-                (
-                    "file.dml.sql",
-                    False,
-                    pathlib.Path("tests/test_data/sql/17.1/manual/file.dml.sql"),
-                    True,
-                ),
-            ],
-            "version": versions.Version.from_string("1.2"),
-        },
-    ]
-    assert list(plan) == expected
-
-
-def test_build_migration_plan_db_uptodate(mocker, known_versions):
+    # Then, regarding the migration files that exist on the disk:
+    # - There are 2 files for 1.1 (so one already applied and one new)
+    # - 1 file for 1.2
+    # - 1 file for 1.3
     mocker.patch(
-        "septentrion.core.db.get_applied_migrations",
-        return_value=[Version.from_string("1.1"), Version.from_string("1.2")],
+        "septentrion.files.get_migrations_files_mapping",
+        side_effect=lambda settings, version: {
+            versions.Version.from_string("1.1"): {
+                "a": pathlib.Path("a"),
+                "b": pathlib.Path("b"),
+            },
+            versions.Version.from_string("1.2"): {
+                "c": pathlib.Path("c"),
+            },
+            versions.Version.from_string("1.3"): {"d": pathlib.Path("d")},
+        }[version],
     )
+    # The contents of each migration is ignored
+    mocker.patch("septentrion.files.file_lines_generator", return_value="")
+    # Migration "c" is a manual migration
+    mocker.patch(
+        "septentrion.files.is_manual_migration",
+        side_effect=(
+            lambda migration_path, migration_contents: str(migration_path) == "c"
+        ),
+    )
+    # We'll apply migrations up until 1.2 included
     settings = configuration.Settings(
         target_version=versions.Version.from_string("1.2"),
     )
-
-    from_version = versions.Version.from_string("0")
+    # And we'll start at version 1.1 included
+    from_version = versions.Version.from_string("1.1")
     plan = core.build_migration_plan(settings=settings, from_version=from_version)
 
     expected = [
-        {"plan": [], "version": versions.Version.from_string("1.1")},
-        {"plan": [], "version": versions.Version.from_string("1.2")},
+        {
+            "version": versions.Version.from_string("1.1"),
+            "plan": [
+                # On 1.1, migration a is already applied. It's not manual
+                ("a", True, pathlib.Path("a"), False),
+                # migration b, though needs to be applied. It's not manual
+                ("b", False, pathlib.Path("b"), False),
+            ],
+        },
+        {
+            "version": versions.Version.from_string("1.2"),
+            "plan": [
+                # migration c also needs to be applied. It's manual (the last True)
+                ("c", False, pathlib.Path("c"), True),
+            ],
+        },
     ]
+
     assert list(plan) == expected
 
 
@@ -252,6 +243,7 @@ def test_build_migration_plan_with_schema(mocker, known_versions):
     plan = list(core.build_migration_plan(settings=settings, from_version=from_version))
 
     expected = [
+        {"plan": [], "version": versions.Version.from_string("1.1")},
         {"plan": [], "version": versions.Version.from_string("1.2")},
     ]
     assert list(plan) == expected
@@ -265,6 +257,7 @@ def test_build_migration_plan_with_no_target_version(mocker, known_versions):
     plan = list(core.build_migration_plan(settings=settings, from_version=from_version))
 
     expected = [
+        {"plan": [], "version": versions.Version.from_string("1.1")},
         {"plan": [], "version": versions.Version.from_string("1.2")},
         {"plan": [], "version": versions.Version.from_string("1.3")},
     ]
