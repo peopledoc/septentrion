@@ -17,3 +17,9 @@ def test_until():
 def test_until_error():
     with pytest.raises(ValueError):
         list(until(range(5), 10))
+
+
+def test_since():
+    values = list(until(range(300), 297))
+
+    assert values == [297, 298, 299]

@@ -44,9 +44,6 @@ def since(iterable: Iterable[T], value: T) -> Iterable[T]:
     """
     Returns the values from iterable starting after the element is found
     >>> list(until(range(300), 297))
-    [298, 299]
+    [297, 298, 299]
     """
-    it = itertools.dropwhile((lambda x: x != value), iterable)
-    # Drop the first element
-    next(it)
-    yield from it
+    yield from itertools.dropwhile((lambda x: x != value), iterable)
