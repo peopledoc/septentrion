@@ -1,7 +1,7 @@
 # Main maintainers
-*                       @ewjoachim @samuelhamard @matacoder @nadege
+*                       @peopledoc/python-community @matacoder @nadege
 
 # Documentation
-/docs/                  @ewjoachim @samuelhamard @matacoder @nadege @CorBott
-*.rst                   @ewjoachim @samuelhamard @matacoder @nadege @CorBott
-*.md                    @ewjoachim @samuelhamard @matacoder @nadege @CorBott
+/docs/                  @peopledoc/python-community @matacoder @nadege @CorBott
+*.rst                   @peopledoc/python-community @matacoder @nadege @CorBott
+*.md                    @peopledoc/python-community @matacoder @nadege @CorBott
