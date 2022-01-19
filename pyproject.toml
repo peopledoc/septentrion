@@ -21,12 +21,12 @@ septentrion = 'septentrion.__main__:main'
 [tool.poetry.dependencies]
 python = "^3.6"
 dataclasses = { version = "*", python = "~3.6" }
-click = "^7.1.2"
-sqlparse = "^0.4.1"
-colorama = "^0.4.4"
-importlib-metadata = "^4.0.1"
-psycopg2 = {version = "^2.8.6", optional = true}
-psycopg2_binary = {version = "^2.8.6", optional = true}
+click = "*"
+sqlparse = "*"
+colorama = "*"
+importlib-metadata = "*"
+psycopg2 = {version = "*", optional = true}
+psycopg2_binary = {version = "*", optional = true}
 
 [tool.poetry.extras]
 psycopg2 = ["psycopg2"]
@@ -34,14 +34,14 @@ psycopg2_binary = ["psycopg2_binary"]
 
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.4"
-pytest-click = "^1.0.2"
-pytest-mock = "^3.6.0"
-pytest-cov = "^2.11.1"
-Sphinx = "^3.5.4"
-sphinx-autodoc-typehints = "^1.12.0"
-sphinxcontrib-programoutput = "^0.17"
-dunamai = "^1.7.0"
+pytest = "*"
+pytest-click = "*"
+pytest-mock = "*"
+pytest-cov = "*"
+Sphinx = "*"
+sphinx-autodoc-typehints = "*"
+sphinxcontrib-programoutput = "*"
+dunamai = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
