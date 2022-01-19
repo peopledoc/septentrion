@@ -40,7 +40,7 @@ tool would be django-north_.
 But maybe you're not using Django. You would like a standalone migration tool. You're
 looking for Septentrion. Congratulations, you've found it.
 
-Septentrion supports PostgreSQL 9.6+ & Python 3.6+, and requires the ``psql``
+Septentrion supports PostgreSQL 9.6+ & Python 3.7+, and requires the ``psql``
 executable to be present on the system.
 
 .. _South: https://bitbucket.org/andrewgodwin/south/src
