@@ -2,7 +2,7 @@
 name = "septentrion"
 version = "0.0.0"
 description = "Python CLI tool for managing and executing hand-written PostgreSQL migrations"
-authors = ["Joachim Jablon <joachim.jablon@people-doc.com>"]
+authors = ["Python UKG Community <peopledoc-python@ukg.com>"]
 license = "MIT License"
 classifiers = [
     "License :: OSI Approved :: MIT License",
