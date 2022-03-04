@@ -33,7 +33,7 @@ def build_migration_plan(**settings_kwargs):
     lib_kwargs = initialize(settings_kwargs)
     schema_version = core.get_best_schema_version(settings=lib_kwargs["settings"])
     return core.build_migration_plan(
-        settings=lib_kwargs["settings"], schema_version=schema_version
+        settings=lib_kwargs["settings"], from_version=schema_version
     )
 
 

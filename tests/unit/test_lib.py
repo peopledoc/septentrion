@@ -65,7 +65,7 @@ def test_build_migration_plan(fake_db, mocker):
     assert lib.build_migration_plan() == "is it ?"
 
     build_migration_plan.assert_called_with(
-        settings=mocker.ANY, schema_version=get_best_schema_version.return_value
+        settings=mocker.ANY, from_version=get_best_schema_version.return_value
     )
 
 
