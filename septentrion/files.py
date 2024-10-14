@@ -110,5 +110,4 @@ def list_migrations_and_paths(
 
 def file_lines_generator(path: pathlib.Path):
     with open(path) as f:
-        for line in f:
-            yield line
+        yield from f

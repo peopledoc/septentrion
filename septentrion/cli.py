@@ -3,6 +3,7 @@ All things related to the CLI and only that. This module can call functions
 from other modules to get the information it needs, then format it and display
 it.
 """
+
 import functools
 import logging
 import os
@@ -60,7 +61,7 @@ class CommaSeparatedMultipleString(StringParamType):
     envvar_list_splitter = ","
 
     def split_envvar_value(self, rv: str):
-        values = super(CommaSeparatedMultipleString, self).split_envvar_value(rv)
+        values = super().split_envvar_value(rv)
         return tuple(value.strip() for value in values)
 
 
