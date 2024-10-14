@@ -2,6 +2,7 @@
 This is where the migration plan is computed, by merging information
 from the existing files (septentrion.files) and from the db (septentrion.db)
 """
+
 import logging
 from typing import Any, Dict, Iterable, Optional
 
