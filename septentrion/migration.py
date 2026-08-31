@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import io
 import logging
 import pathlib
@@ -192,6 +191,6 @@ def create_fake_entries(
 
 def run_script(settings: configuration.Settings, path: pathlib.Path) -> None:
     logger.info("Running SQL file %s", path)
-    with io.open(path, "r", encoding="utf8") as f:
+    with open(path, encoding="utf8") as f:
         script = runner.Script(settings=settings, file_handler=f, path=path)
         script.run()
