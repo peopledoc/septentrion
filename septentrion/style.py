@@ -7,7 +7,7 @@ import colorama
 colorama.init()
 
 
-class Stylist(object):
+class Stylist:
     styles: Dict[str, str] = {
         "reset": colorama.Style.RESET_ALL,
         "title": colorama.Fore.CYAN + colorama.Style.BRIGHT,

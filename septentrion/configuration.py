@@ -2,6 +2,7 @@
 This is the code around settings loading. For a definition of
 the settings, see cli.py (for now)
 """
+
 import configparser
 import logging
 import pathlib
@@ -68,7 +69,7 @@ def read_default_configuration_files() -> Tuple[str, pathlib.Path]:
 
 
 def read_configuration_file(path: pathlib.Path) -> str:
-    with open(path, "r") as handler:
+    with open(path) as handler:
         logger.info(f"Reading configuration from {path}")
         return handler.read()
 

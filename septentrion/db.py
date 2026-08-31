@@ -77,7 +77,7 @@ def execute(
             conn.commit()
 
 
-class Query(object):
+class Query:
     def __init__(
         self,
         settings: configuration.Settings,
