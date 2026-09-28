@@ -15,7 +15,7 @@ def run_script(db, settings_factory, tmp_path):
         path = tmp_path / "script.sql"
         path.write_text(script)
 
-        with io.open(path, "r", encoding="utf8") as f:
+        with open(path, encoding="utf8") as f:
             script = Script(settings, f, path)
             script.run()
 
@@ -65,7 +65,7 @@ def test_run_integer_in_settings(db, settings_factory, env, tmp_path):
     settings.PORT = 5432
     path = tmp_path / "script.sql"
     path.write_text("SELECT 1;")
-    with io.open(path, "r", encoding="utf8") as f:
+    with open(path, encoding="utf8") as f:
         script = Script(settings, f, path)
         script.run()
 
